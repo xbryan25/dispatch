@@ -1,0 +1,75 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  backend:
+    name: Backend (FastAPI and poetry)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.12"
+
+      - name: Install Poetry
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 -
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: Install dependencies
+        run: poetry install --no-interaction
+
+      - name: Lint with Ruff
+        run: poetry run ruff check .
+
+      - name: Lint with Flake8
+        run: poetry run flake8 .
+
+      - name: Run tests (only if tests exist)
+        run: |
+          if [ -d "tests" ]; then
+            poetry run pytest
+          else
+            echo "No tests directory yet — skipping pytest"
+          fi
+
+  frontend:
+    name: Frontend (Next.js and PNPM)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "22"
+          cache: "pnpm"
+
+      - name: Install PNPM
+        run: npm install -g pnpm
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Lint (ESLint + Prettier)
+        run: pnpm lint
+
+      - name: Build frontend
+        run: pnpm build
