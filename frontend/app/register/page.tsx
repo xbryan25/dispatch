@@ -1,5 +1,7 @@
 'use client';
 
+import { useState } from 'react';
+
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 
@@ -10,16 +12,9 @@ import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
 
 export default function Home() {
-  const { signUp, loading, error } = useAuth();
+  const [isSamePassword, setIsSamePassword] = useState<boolean>(true);
 
-  const printInputs = (
-    username: string,
-    email: string,
-    password: string,
-    confirmPassword: string
-  ) => {
-    console.log({ username, email, password, confirmPassword });
-  };
+  const { signUp, loading, error } = useAuth();
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
@@ -35,12 +30,15 @@ export default function Home() {
 
               const username = (form.username as HTMLInputElement).value;
               const email = (form.email as HTMLInputElement).value;
+
               const password = (form.password as HTMLInputElement).value;
               const confirmPassword = (form.confirmPassword as HTMLInputElement).value;
 
-              printInputs(username, email, password, confirmPassword);
-
-              signUp(email, password, username);
+              if (password !== confirmPassword) {
+                setIsSamePassword(false);
+              } else {
+                signUp(email, password, username);
+              }
             }}
             className="flex flex-col gap-5"
           >
@@ -61,15 +59,19 @@ export default function Home() {
               </Field>
 
               <Field>
-                <FieldLabel htmlFor="confirmPassword">Password</FieldLabel>
+                <FieldLabel htmlFor="confirmPassword">Confirm Password</FieldLabel>
                 <Input id="confirmPassword" type="password" placeholder="Confirm your password" />
+                {!isSamePassword && (
+                  <p className="text-xs text-red-400">Both passwords are not the identical</p>
+                )}
               </Field>
             </FieldGroup>
 
-            <Field orientation="horizontal">
-              <Button type="submit" className="w-full cursor-pointer text-lg">
+            <Field className="flex flex-col" orientation="horizontal">
+              <Button type="submit" disabled={loading} className="w-full cursor-pointer text-lg">
                 Register
               </Button>
+              {error && <p className="text-xs text-red-400">{error}</p>}
             </Field>
           </form>
         </div>
