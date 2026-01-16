@@ -4,6 +4,7 @@ import { useState } from 'react';
 
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Spinner } from './ui/spinner';
 
 import { Field, FieldGroup, FieldLabel } from '@/components/ui/field';
 
@@ -68,6 +69,7 @@ export default function RegisterForm() {
 
           <Field className="flex flex-col" orientation="horizontal">
             <Button type="submit" disabled={loading} className="w-full cursor-pointer text-lg">
+              {loading && <Spinner />}
               Register
             </Button>
             {error && <p className="text-xs text-red-400">{error}</p>}
