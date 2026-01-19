@@ -11,11 +11,15 @@ import { Field, FieldGroup, FieldLabel } from '@/components/ui/field';
 import Link from 'next/link';
 
 import { useAuth } from '@/hooks/useAuth';
+import { useUsernameCheck } from '@/hooks/useUsernameCheck';
 
 export default function RegisterForm() {
   const [isSamePassword, setIsSamePassword] = useState<boolean>(true);
+  const [username, setUsername] = useState<string>('');
 
   const { signUp, loading, error } = useAuth();
+
+  const { isTaken, isLoading } = useUsernameCheck(username);
 
   return (
     <div className="w-md flex flex-col items-center gap-5 p-10">
@@ -23,7 +27,7 @@ export default function RegisterForm() {
 
       <div className="w-full max-w-md">
         <form
-          onSubmit={(e) => {
+          onSubmit={async (e) => {
             e.preventDefault();
 
             const form = e.currentTarget;
@@ -34,18 +38,30 @@ export default function RegisterForm() {
             const password = (form.password as HTMLInputElement).value;
             const confirmPassword = (form.confirmPassword as HTMLInputElement).value;
 
-            if (password !== confirmPassword) {
-              setIsSamePassword(false);
-            } else {
-              signUp(email, password, username);
-            }
+            // if (password !== confirmPassword) {
+            //   setIsSamePassword(false);
+            // } else {
+            //   signUp(email, password, username);
+            // }
           }}
           className="flex flex-col gap-5"
         >
           <FieldGroup className="flex flex-col gap-3">
             <Field>
               <FieldLabel htmlFor="username">Username</FieldLabel>
-              <Input id="username" type="text" placeholder="Enter your username" />
+
+              <div className="flex flex-col gap-1">
+                <Input
+                  id="username"
+                  type="text"
+                  placeholder="Enter your username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                />
+                {!isLoading && isTaken && (
+                  <span className="text-red-500 text-sm">Username is taken.</span>
+                )}
+              </div>
             </Field>
 
             <Field>
