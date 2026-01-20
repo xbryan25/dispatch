@@ -8,9 +8,11 @@ import { Button } from '@/components/ui/button';
 
 import Link from 'next/link';
 
-import { supabase } from '@/lib/supabase/client';
+import { createClient } from '@/lib/supabase/client';
 
 export default function LoginPage() {
+  const supabase = createClient();
+
   const router = useRouter();
 
   const searchParams = useSearchParams();

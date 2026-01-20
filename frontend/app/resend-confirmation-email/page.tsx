@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { supabase } from '@/lib/supabase/client';
+import { createClient } from '@/lib/supabase/client';
 
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -11,6 +11,8 @@ import { toast } from 'sonner';
 import Link from 'next/link';
 
 export default function ResendConfirmationEmailPage() {
+  const supabase = createClient();
+
   const [email, setEmail] = useState('');
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
