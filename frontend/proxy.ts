@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-export function middleware(req: NextRequest) {
+export function proxy(req: NextRequest) {
   console.log('Middleware triggered for path:', req.nextUrl.pathname);
 
   if (req.nextUrl.pathname === '/email-confirmed') {
