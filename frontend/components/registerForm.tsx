@@ -8,18 +8,29 @@ import { Spinner } from './ui/spinner';
 
 import { Field, FieldGroup, FieldLabel } from '@/components/ui/field';
 
+import { Icon } from '@iconify/react';
+
 import Link from 'next/link';
 
 import { useAuth } from '@/hooks/useAuth';
 import { useUsernameCheck } from '@/hooks/useUsernameCheck';
+import { validatePassword, validateEmail } from '@/lib/validation';
 
 export default function RegisterForm() {
-  const [isSamePassword, setIsSamePassword] = useState<boolean>(true);
   const [username, setUsername] = useState<string>('');
+  const [email, setEmail] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
+  const [confirmPassword, setConfirmPassword] = useState<string>('');
 
   const { signUp, loading, error } = useAuth();
 
-  const { isTaken, isLoading } = useUsernameCheck(username);
+  const { isUsernameTaken, isLoading } = useUsernameCheck(username);
+
+  const passwordErrors = validatePassword(password);
+  const isEmailValid = validateEmail(email);
+  const passwordsMatch = password === confirmPassword && password !== '';
+  const isFormEmpty = !username || !email || !password || !confirmPassword;
+  const isUsernameProperLength = username.length >= 3;
 
   return (
     <div className="w-md flex flex-col items-center gap-5 p-10">
@@ -50,7 +61,7 @@ export default function RegisterForm() {
             <Field>
               <FieldLabel htmlFor="username">Username</FieldLabel>
 
-              <div className="flex flex-col gap-1">
+              <div className="flex flex-col gap-2">
                 <Input
                   id="username"
                   type="text"
@@ -58,33 +69,112 @@ export default function RegisterForm() {
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                 />
-                {!isLoading && isTaken && (
-                  <span className="text-red-500 text-sm">Username is taken.</span>
+
+                {!isLoading && isUsernameTaken && (
+                  <div className="flex gap-1 items-center">
+                    <Icon
+                      icon="material-symbols:cancel-outline-rounded"
+                      className="w-4 h-4 text-red-500"
+                    />
+                    <span className="text-red-500 text-sm">Username is taken.</span>
+                  </div>
+                )}
+
+                {!isUsernameProperLength && username !== '' && (
+                  <div className="flex gap-1 items-center">
+                    <Icon
+                      icon="material-symbols:cancel-outline-rounded"
+                      className="w-4 h-4 text-red-500"
+                    />
+                    <span className="text-red-500 text-sm">
+                      Username should have 3 or more characters.
+                    </span>
+                  </div>
                 )}
               </div>
             </Field>
 
             <Field>
               <FieldLabel htmlFor="username">Email</FieldLabel>
-              <Input id="email" type="email" placeholder="Enter your email" />
+              <Input
+                id="email"
+                type="email"
+                placeholder="Enter your email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+
+              {!validateEmail(email) && email !== '' && (
+                <div className="flex gap-1 items-center">
+                  <Icon
+                    icon="material-symbols:cancel-outline-rounded"
+                    className="w-4 h-4 text-red-500"
+                  />
+                  <span className="text-red-500 text-sm">Email not in proper format.</span>
+                </div>
+              )}
             </Field>
 
             <Field>
               <FieldLabel htmlFor="password">Password</FieldLabel>
-              <Input id="password" type="password" placeholder="Enter your password" />
+
+              <div className="flex flex-col gap-2">
+                <Input
+                  id="password"
+                  type="password"
+                  placeholder="Enter your password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+
+                <ul>
+                  {passwordErrors.map((error) => (
+                    <li key={error} className="text-red-500 text-sm flex items-center gap-1">
+                      <Icon
+                        icon="material-symbols:cancel-outline-rounded"
+                        className="w-4 h-4 text-red-500"
+                      />
+                      {error}
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </Field>
 
             <Field>
               <FieldLabel htmlFor="confirmPassword">Confirm Password</FieldLabel>
-              <Input id="confirmPassword" type="password" placeholder="Confirm your password" />
-              {!isSamePassword && (
-                <p className="text-xs text-red-400">Both passwords are not the identical</p>
+              <Input
+                id="confirmPassword"
+                type="password"
+                placeholder="Confirm your password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+              />
+              {!(password === confirmPassword) && confirmPassword !== '' && (
+                <div className="flex gap-1 items-center">
+                  <Icon
+                    icon="material-symbols:cancel-outline-rounded"
+                    className="w-4 h-4 text-red-500"
+                  />
+                  <span className="text-red-500 text-sm">Both passwords are not identical.</span>
+                </div>
               )}
             </Field>
           </FieldGroup>
 
           <Field className="flex flex-col" orientation="horizontal">
-            <Button type="submit" disabled={loading} className="w-full cursor-pointer text-lg">
+            <Button
+              type="submit"
+              disabled={
+                loading ||
+                isUsernameTaken ||
+                passwordErrors.length > 0 ||
+                !passwordsMatch ||
+                !isEmailValid ||
+                !isFormEmpty
+              }
+              className="w-full cursor-pointer text-lg"
+            >
               {loading && <Spinner />}
               Register
             </Button>
