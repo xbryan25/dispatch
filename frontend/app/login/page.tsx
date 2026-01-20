@@ -1,11 +1,34 @@
+'use client';
+import { useEffect } from 'react';
+
+import { useRouter, useSearchParams } from 'next/navigation';
+
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 
-import Image from 'next/image';
 import Link from 'next/link';
 
-export default function Home() {
-  const a = [1, 2, 3];
+import { supabase } from '@/lib/supabase/client';
+
+export default function LoginPage() {
+  const router = useRouter();
+
+  const searchParams = useSearchParams();
+
+  const errorCode = searchParams.get('error_code');
+
+  useEffect(() => {
+    if (window.location.hash) {
+      // remove the fragment without reloading
+      history.replaceState(null, '', window.location.pathname + window.location.search);
+    }
+  }, []);
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      console.log(data);
+    });
+  }, [router, errorCode]);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">

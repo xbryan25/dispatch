@@ -8,7 +8,7 @@ export async function register(email: string, password: string, displayName: str
       data: {
         displayName,
       },
-      emailRedirectTo: 'http://localhost:3000/email-confirmed',
+      emailRedirectTo: `${window.location.origin}/email-confirmed`,
     },
   });
 

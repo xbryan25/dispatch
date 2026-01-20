@@ -10,10 +10,13 @@ export default function EmailConfirmedPage() {
 
   useEffect(() => {
     const hash = window.location.hash; // includes everything after #
-    console.log(hash); // "#error=otp_expired&..."
 
-    if (hash.includes('otp_expired')) {
-      router.push('/resend-confirmation-email');
+    if (hash.includes('error_code=otp_expired') || hash.includes('error_code=access_denied')) {
+      // Redirect to your resend page
+      window.history.replaceState(null, '', window.location.pathname);
+
+      router.replace('/resend-confirmation-email');
+      return;
     }
   }, [router]);
 

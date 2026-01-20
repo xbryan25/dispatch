@@ -1,30 +1,40 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { supabase } from '@/lib/supabase/client';
 
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+
+import { toast } from 'sonner';
 
 import Link from 'next/link';
 
 export default function ResendConfirmationEmailPage() {
   const [email, setEmail] = useState('');
 
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
   const resendEmail = async () => {
-    const { data, error } = await supabase.auth.resend({
+    setIsLoading(true);
+
+    const { error } = await supabase.auth.resend({
       type: 'signup',
       email: email,
       options: {
-        emailRedirectTo: 'http://localhost:3000/email-confirmed',
+        emailRedirectTo: `${window.location.origin}/email-confirmed`,
       },
     });
 
     if (error) {
-      console.error('Failed to resend confirmation:', error.message);
+      toast.error('Failed to resend confirmation email.');
     } else {
-      alert('Confirmation email resent!');
+      toast.success('If an account exists for this email, a new link has been sent.');
     }
+
+    setIsLoading(false);
+
+    setEmail('');
   };
 
   return (
@@ -46,8 +56,9 @@ export default function ResendConfirmationEmailPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full"
+              disabled={isLoading}
             />
-            <Button onClick={resendEmail} className="cursor-pointer w-full">
+            <Button onClick={resendEmail} className="cursor-pointer w-full" disabled={isLoading}>
               Resend confirmation email
             </Button>
           </div>
