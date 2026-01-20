@@ -12,8 +12,12 @@ export function useAuth() {
     setError(null);
     try {
       await register(email, password, displayName);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('An unexpected error occurred');
+      }
     } finally {
       setLoading(false);
     }

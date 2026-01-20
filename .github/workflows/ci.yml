@@ -34,9 +34,6 @@ jobs:
       - name: Lint with Ruff
         run: poetry run ruff check .
 
-      - name: Lint with Flake8
-        run: poetry run flake8 .
-
       - name: Run tests (only if tests exist)
         run: |
           if [ -d "tests" ]; then
