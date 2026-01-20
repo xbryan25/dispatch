@@ -1,22 +1,26 @@
 'use client';
 
-import { useState } from 'react';
+import { FormEvent, useState } from 'react';
 
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Spinner } from './ui/spinner';
+import { toast } from 'sonner';
 
 import { Field, FieldGroup, FieldLabel } from '@/components/ui/field';
 
 import { Icon } from '@iconify/react';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 import { useAuth } from '@/hooks/useAuth';
 import { useUsernameCheck } from '@/hooks/useUsernameCheck';
 import { validatePassword, validateEmail } from '@/lib/validation';
 
 export default function RegisterForm() {
+  const router = useRouter();
+
   const [username, setUsername] = useState<string>('');
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
@@ -24,7 +28,7 @@ export default function RegisterForm() {
 
   const { signUp, loading, error } = useAuth();
 
-  const { isUsernameTaken, isLoading } = useUsernameCheck(username);
+  const { isUsernameTaken, isLoading: isCheckingUsername } = useUsernameCheck(username);
 
   const passwordErrors = validatePassword(password);
   const isEmailValid = validateEmail(email);
@@ -32,31 +36,23 @@ export default function RegisterForm() {
   const isFormEmpty = !username || !email || !password || !confirmPassword;
   const isUsernameProperLength = username.length >= 3;
 
+  const userSignup = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    await signUp(email, password, username);
+
+    toast.success(
+      'A confirmation link has been sent to your email. Please verify your account to log in.'
+    );
+
+    router.push('/login');
+  };
+
   return (
     <div className="w-md flex flex-col items-center gap-5 p-10">
       <h1 className="font-semibold text-4xl py-5">Register to Dispatch</h1>
 
       <div className="w-full max-w-md">
-        <form
-          onSubmit={async (e) => {
-            e.preventDefault();
-
-            const form = e.currentTarget;
-
-            const username = (form.username as HTMLInputElement).value;
-            const email = (form.email as HTMLInputElement).value;
-
-            const password = (form.password as HTMLInputElement).value;
-            const confirmPassword = (form.confirmPassword as HTMLInputElement).value;
-
-            // if (password !== confirmPassword) {
-            //   setIsSamePassword(false);
-            // } else {
-            //   signUp(email, password, username);
-            // }
-          }}
-          className="flex flex-col gap-5"
-        >
+        <form onSubmit={(e) => userSignup(e)} className="flex flex-col gap-5">
           <FieldGroup className="flex flex-col gap-3">
             <Field>
               <FieldLabel htmlFor="username">Username</FieldLabel>
@@ -70,7 +66,7 @@ export default function RegisterForm() {
                   onChange={(e) => setUsername(e.target.value)}
                 />
 
-                {!isLoading && isUsernameTaken && (
+                {!isCheckingUsername && isUsernameTaken && (
                   <div className="flex gap-1 items-center">
                     <Icon
                       icon="material-symbols:cancel-outline-rounded"
@@ -167,11 +163,13 @@ export default function RegisterForm() {
               type="submit"
               disabled={
                 loading ||
+                isCheckingUsername ||
                 isUsernameTaken ||
                 passwordErrors.length > 0 ||
                 !passwordsMatch ||
                 !isEmailValid ||
-                !isFormEmpty
+                isFormEmpty ||
+                !isUsernameProperLength
               }
               className="w-full cursor-pointer text-lg"
             >

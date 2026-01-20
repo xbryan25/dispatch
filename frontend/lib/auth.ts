@@ -14,7 +14,5 @@ export async function register(email: string, password: string, displayName: str
 
   if (error) throw error;
 
-  console.log(data);
-
   return data;
 }
