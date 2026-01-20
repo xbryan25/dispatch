@@ -29,7 +29,7 @@ jobs:
           echo "$HOME/.local/bin" >> $GITHUB_PATH
 
       - name: Install dependencies
-        run: poetry install --no-interaction
+        run: poetry install --no-interaction --no-root
 
       - name: Lint with Ruff
         run: poetry run ruff check .
@@ -64,9 +64,11 @@ jobs:
         with:
           node-version: "22"
           cache: "pnpm"
+          cache-dependency-path: frontend/pnpm-lock.yaml
 
       - name: Install dependencies
         run: pnpm install
+        working-directory: frontend
 
       - name: Lint (ESLint + Prettier)
         run: pnpm lint
