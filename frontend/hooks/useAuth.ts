@@ -34,13 +34,15 @@ export function useLogin() {
     setLoading(true);
     setError(null);
     try {
-      await login(email, password);
+      const data = await login(email, password);
+
+      return { data, error: null };
     } catch (err: unknown) {
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError('An unexpected error occurred');
-      }
+      const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred';
+
+      setError(errorMessage);
+
+      return { data: null, error: errorMessage };
     } finally {
       setLoading(false);
     }

@@ -30,10 +30,12 @@ export default function LoginForm() {
   const userLogin = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    await loginUser(email, password);
+    const { error: loginError } = await loginUser(email, password);
 
-    if (error) {
-      toast.error(`Login failed. ${error}.`);
+    console.log(loginError);
+
+    if (loginError) {
+      toast.error(`Login failed. ${loginError}.`);
     } else {
       toast.success('Login successful. Welcome to Dispatch!');
       router.push('/messages');
