@@ -14,7 +14,7 @@ import { Icon } from '@iconify/react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
-import { useAuth } from '@/hooks/useAuth';
+import { useRegisterUser } from '@/hooks/useAuth';
 import { useUsernameCheck } from '@/hooks/useUsernameCheck';
 import { validatePassword, validateEmail } from '@/lib/validation';
 
@@ -26,7 +26,7 @@ export default function RegisterForm() {
   const [password, setPassword] = useState<string>('');
   const [confirmPassword, setConfirmPassword] = useState<string>('');
 
-  const { signUp, loading, error } = useAuth();
+  const { registerUser, loading, error } = useRegisterUser();
 
   const { isUsernameTaken, isLoading: isCheckingUsername } = useUsernameCheck(username);
 
@@ -38,7 +38,7 @@ export default function RegisterForm() {
 
   const userSignup = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    await signUp(email, password, username);
+    await registerUser(email, password, username);
 
     toast.success(
       'A confirmation link has been sent to your email. Please verify your account to log in.'

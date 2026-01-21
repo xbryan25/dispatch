@@ -1,13 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import { register } from '@/lib/auth';
+import { register, login } from '@/lib/auth';
 
-export function useAuth() {
+export function useRegisterUser() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const signUp = async (email: string, password: string, displayName: string) => {
+  const registerUser = async (email: string, password: string, displayName: string) => {
     setLoading(true);
     setError(null);
     try {
@@ -23,5 +23,28 @@ export function useAuth() {
     }
   };
 
-  return { signUp, loading, error };
+  return { registerUser, loading, error };
+}
+
+export function useLogin() {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const loginUser = async (email: string, password: string) => {
+    setLoading(true);
+    setError(null);
+    try {
+      await login(email, password);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('An unexpected error occurred');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return { loginUser, loading, error };
 }
