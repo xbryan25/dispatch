@@ -37,6 +37,7 @@ export async function proxy(request: NextRequest) {
   const user = data?.claims;
 
   const path = request.nextUrl.pathname;
+  const LANDING_PAGE_PATH = '/';
   const LOGIN_PATH = '/login';
   const REGISTER_PATH = '/register';
   const REDIRECT_AFTER_LOGIN = '/messages';
@@ -44,6 +45,7 @@ export async function proxy(request: NextRequest) {
   const RESEND_PATH = '/resend-confirmation-email';
 
   const isPublicPage =
+    path.startsWith(LANDING_PAGE_PATH) ||
     path.startsWith(LOGIN_PATH) ||
     path.startsWith(REGISTER_PATH) ||
     path.startsWith(EMAIL_CONFIRMED_PATH) ||
