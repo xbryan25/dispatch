@@ -43,7 +43,7 @@ export default function LoginForm() {
   };
 
   return (
-    <div className="w-md flex flex-col items-center gap-5 p-10">
+    <div className="flex-1 w-full flex flex-col items-center justify-center gap-5">
       <h1 className="font-semibold text-4xl py-5">Login to Dispatch</h1>
 
       <div className="w-full max-w-md">

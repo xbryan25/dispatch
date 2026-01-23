@@ -8,15 +8,16 @@ import { Icon } from '@iconify/react';
 import { ConversationIcon } from '@/components/icons/conversationIcon';
 import { MessagesIcon } from '@/components/icons/messagesIcon';
 import { OrganizeIcon } from '@/components/icons/organizeIcon';
-import { ThemeToggleButton } from '@/components/themeToggleButton';
+import ThemeToggleButton from '@/components/themeToggleButton';
+import GuestHeader from '@/components/guestHeader';
 
 export default function HomePage() {
   const router = useRouter();
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full flex-col items-center justify-between py-10 px-8 bg-white dark:bg-black sm:items-start">
-        <div className="flex w-full">
+      <main className="flex min-h-screen w-full flex-col items-center justify-between p-10 bg-white dark:bg-black sm:items-start">
+        {/* <div className="flex w-full">
           <h2 className="flex-1 font-bold text-3xl ">Dispatch</h2>
 
           <div className="flex gap-2">
@@ -25,7 +26,9 @@ export default function HomePage() {
             </Button>
             <ThemeToggleButton />
           </div>
-        </div>
+        </div> */}
+
+        <GuestHeader />
         <div className="flex-1 flex flex-col gap-5 items-center justify-end w-full mb-5">
           <h1 className="font-bold text-6xl">Conversations at the speed of thought.</h1>
           <h3 className="font-medium text-md">
