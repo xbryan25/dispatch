@@ -45,7 +45,7 @@ export async function proxy(request: NextRequest) {
   const RESEND_PATH = '/resend-confirmation-email';
 
   const isPublicPage =
-    path.startsWith(LANDING_PAGE_PATH) ||
+    path === LANDING_PAGE_PATH ||
     path.startsWith(LOGIN_PATH) ||
     path.startsWith(REGISTER_PATH) ||
     path.startsWith(EMAIL_CONFIRMED_PATH) ||
@@ -80,5 +80,7 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
+  matcher: [
+    '/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+  ],
 };
