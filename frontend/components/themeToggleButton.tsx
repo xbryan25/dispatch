@@ -5,7 +5,7 @@ import { useTheme } from 'next-themes';
 import { Icon } from '@iconify/react'; // Assuming you're using Iconify
 import { Button } from '@/components/ui/button'; // Your button component
 
-export function ThemeToggleButton() {
+export default function ThemeToggleButton() {
   const [mounted, setMounted] = useState(false);
   const { resolvedTheme, setTheme } = useTheme();
 
