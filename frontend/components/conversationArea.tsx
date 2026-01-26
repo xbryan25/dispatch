@@ -38,7 +38,7 @@ export default function ConversationArea({ onToggle }: ChatListProps) {
           </div>
 
           <div className="flex flex-col">
-            <h3 className="font-semibold">Bryan Agan</h3>
+            <h3 className="font-semibold">gwapo</h3>
             <div className="flex gap-1 items-center">
               <div className="bg-green-400 size-2 rounded-full"></div>
               <p className="">Active now</p>
