@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { register, login } from '@/lib/auth';
+import { register, login, logout } from '@/lib/auth';
 
 export function useRegisterUser() {
   const [loading, setLoading] = useState(false);
@@ -49,4 +49,29 @@ export function useLogin() {
   };
 
   return { loginUser, loading, error };
+}
+
+export function useLogout() {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const logoutUser = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      await logout();
+
+      return { error: null };
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred';
+
+      setError(errorMessage);
+
+      return { error: errorMessage };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return { logoutUser, loading, error };
 }

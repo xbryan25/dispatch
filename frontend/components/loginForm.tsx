@@ -23,12 +23,16 @@ export default function LoginForm() {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
 
+  const [isClickedLoginButton, setIsClickedLoginButton] = useState<boolean>(false);
+
   const { loginUser, loading, error } = useLogin();
   const isEmailValid = validateEmail(email);
   const isFormEmpty = !email || !password;
 
   const userLogin = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    setIsClickedLoginButton(true);
 
     const { error: loginError } = await loginUser(email, password);
 
@@ -87,7 +91,7 @@ export default function LoginForm() {
             <Field orientation="horizontal">
               <Button
                 type="submit"
-                disabled={loading || !isEmailValid || isFormEmpty}
+                disabled={isClickedLoginButton || !isEmailValid || isFormEmpty}
                 className="w-full cursor-pointer text-lg"
               >
                 {loading && <Spinner />}
