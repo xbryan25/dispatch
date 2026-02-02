@@ -23,14 +23,16 @@ async def get_current_user_id(
             decoded_cookie = json.loads(cookie_str)
 
         access_token = decoded_cookie.get("access_token")
-        
+
         if not access_token:
-            raise HTTPException(status_code=401, detail="No access token found in cookie")
+            raise HTTPException(
+                status_code=401, detail="No access token found in cookie"
+            )
 
         payload = jwt.decode(
             access_token,
             str(settings.JWT_SECRET),
-            algorithms=["HS256"], 
+            algorithms=["HS256"],
             options={
                 "verify_aud": False,
                 "verify_signature": True,
@@ -44,7 +46,7 @@ async def get_current_user_id(
             raise HTTPException(status_code=401, detail="Invalid token: missing sub")
 
         return UUID(user_id_str)
-        
+
     except Exception as e:
         print(f"Auth Error: {e}")
         raise HTTPException(status_code=401, detail="Could not validate credentials")

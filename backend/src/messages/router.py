@@ -1,32 +1,58 @@
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Depends
-from src.core import manager
+from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Depends, HTTPException
+from src.core import manager, get_db
 
-from .dependencies import get_db
+from src.auth.dependencies import get_current_user_id
+
+from .services import MessagesService
+from .schemas import MessageCreate, MessageRead
+
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from .schemas import MessageCreate
+from uuid import UUID
 
 router = APIRouter(prefix="/messages", tags=["Messages"])
 
-@router.websocket("/ws/{user_id}")
-async def websocket_endpoint(websocket: WebSocket, user_id: str):
-    await manager.connect(user_id, websocket)
+
+@router.websocket("/ws")
+async def websocket_endpoint(
+    websocket: WebSocket, user_id: UUID = Depends(get_current_user_id)
+):
+    user_id_str = str(user_id)
+
+    await manager.connect(user_id_str, websocket)
     try:
         while True:
-            # Keeps Websocket open
             await websocket.receive_text()
     except (WebSocketDisconnect, Exception):
-        manager.disconnect(user_id)
+        manager.disconnect(user_id_str)
 
 
-@router.post("/send")
-async def send_message(payload: MessageCreate, db: AsyncSession = Depends(get_db)):
+@router.post("/send", response_model=MessageRead)
+async def send_message(
+    payload: MessageCreate,
+    db: AsyncSession = Depends(get_db),
+    user_id: str = Depends(get_current_user_id),
+):
+    """
+    Creates a new message. The user_id is automatically
+    extracted from the Supabase cookie.
+    """
 
-    # TODO: Make this a service that saves messages to messages table in db, in service, pass payload and db
+    try:
+        new_message = await MessagesService.create_message(
+            db=db, message_data=payload, sender_id=user_id
+        )
 
-    new_message = await supabase_service.save(payload)
-    # 2. Trigger the WebSocket push to the recipient
+        receiver_id = await MessagesService.get_other_participant(
+            db, payload.conversation_id, user_id
+        )
 
-    await manager.send_to_user(payload.receiver_id, new_message)
+        if receiver_id:
+            msg_dict = MessageRead.model_validate(new_message).model_dump()
 
-    return {"status": "sent"}
+            receiver_id_str = str(receiver_id)
+            await manager.send_to_user(receiver_id_str, msg_dict)
+
+        return new_message
+    except Exception:
+        raise HTTPException(status_code=500, detail="Internal Server Error")
