@@ -17,6 +17,11 @@ async def get_current_user_id(
     try:
         if cookie_str.startswith("base64-"):
             encoded_content = cookie_str.replace("base64-", "")
+
+            missing_padding = len(encoded_content) % 4
+            if missing_padding:
+                encoded_content += "=" * (4 - missing_padding)
+
             decoded_json_str = base64.b64decode(encoded_content).decode("utf-8")
             decoded_cookie = json.loads(decoded_json_str)
         else:
@@ -38,8 +43,6 @@ async def get_current_user_id(
                 "verify_signature": True,
             },
         )
-
-        print(payload)
 
         user_id_str = payload.get("sub")
         if not user_id_str:

@@ -9,6 +9,7 @@ from .schemas import MessageCreate, MessageRead
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from uuid import UUID
+import traceback
 
 router = APIRouter(prefix="/messages", tags=["Messages"])
 
@@ -24,6 +25,7 @@ async def websocket_endpoint(
         while True:
             await websocket.receive_text()
     except (WebSocketDisconnect, Exception):
+        traceback.print_exc()
         manager.disconnect(user_id_str)
 
 
@@ -48,11 +50,12 @@ async def send_message(
         )
 
         if receiver_id:
-            msg_dict = MessageRead.model_validate(new_message).model_dump()
+            msg_dict = MessageRead.model_validate(new_message).model_dump(mode="json")
 
             receiver_id_str = str(receiver_id)
             await manager.send_to_user(receiver_id_str, msg_dict)
 
         return new_message
     except Exception:
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail="Internal Server Error")

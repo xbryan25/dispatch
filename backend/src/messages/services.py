@@ -7,31 +7,40 @@ from .models import Message, ConversationParticipant
 
 from uuid import UUID
 
+import traceback
+
 
 class MessagesService:
     @staticmethod
     async def create_message(
         db: AsyncSession, message_data: MessageCreate, sender_id: str
     ):
-        db_message = Message(
-            **message_data.model_dump(),
-            sender_id=sender_id,
-        )
 
-        db.add(db_message)
-        await db.commit()
-        await db.refresh(db_message)
+        try:
+            db_message = Message(
+                **message_data.model_dump(),
+                sender_id=sender_id,
+            )
 
-        return db_message
+            db.add(db_message)
+            await db.commit()
+            await db.refresh(db_message)
+
+            return db_message
+        except Exception:
+            traceback.print_exc()
 
     @staticmethod
     async def get_other_participant(
         db: AsyncSession, conversation_id: UUID, current_user_id: str
     ):
 
-        query = select(ConversationParticipant.user_id).where(
-            ConversationParticipant.conversation_id == conversation_id,
-            ConversationParticipant.user_id != current_user_id,
-        )
-        result = await db.execute(query)
-        return result.scalar_one_or_none()
+        try:
+            query = select(ConversationParticipant.user_id).where(
+                ConversationParticipant.conversation_id == conversation_id,
+                ConversationParticipant.user_id != current_user_id,
+            )
+            result = await db.execute(query)
+            return result.scalar_one_or_none()
+        except Exception:
+            traceback.print_exc()

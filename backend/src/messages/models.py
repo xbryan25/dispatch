@@ -1,4 +1,4 @@
-from sqlalchemy import String, DateTime, ForeignKey
+from sqlalchemy import String, DateTime, ForeignKey, text
 from sqlalchemy.dialects.postgresql import UUID, ENUM
 from sqlalchemy.sql import func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -24,6 +24,7 @@ class Message(Base):
             create_type=False,  # IMPORTANT for Supabase
         ),
         nullable=False,
+        server_default=text("'delivered'"),
     )
 
     created_at: Mapped[datetime] = mapped_column(
@@ -70,7 +71,7 @@ class Conversation(Base):
 
 
 class ConversationParticipant(Base):
-    __tablename__ = "conversation_participant"
+    __tablename__ = "conversation_participants"
 
     user_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("user_profiles.user_id"), primary_key=True
