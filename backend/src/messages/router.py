@@ -50,7 +50,7 @@ async def send_message(
         )
 
         if receiver_id:
-            msg_dict = MessageRead.model_validate(new_message).model_dump(mode="json")
+            msg_dict = MessageRead.model_validate(new_message).model_dump(mode="json", by_alias=True)
 
             receiver_id_str = str(receiver_id)
             await manager.send_to_user(receiver_id_str, msg_dict)

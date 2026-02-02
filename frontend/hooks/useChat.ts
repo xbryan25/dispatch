@@ -1,31 +1,36 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
+import { useChatStore } from '@/store/useChatStore';
 
 const fastapiServerUrl = process.env.NEXT_PUBLIC_FASTAPI_SERVER_URL;
 const fastapiWebsocketUrl = process.env.NEXT_PUBLIC_FASTAPI_WEBSOCKET_URL;
 
 export const useChat = (conversationId: string) => {
-  const [messages, setMessages] = useState<string[]>([]);
+  const { messages, socket, activeId, setSocket, addMessage, clearChat } = useChatStore();
   const [isSending, setIsSending] = useState(false);
-  const socketRef = useRef<WebSocket | null>(null);
 
   useEffect(() => {
-    const ws = new WebSocket(`${fastapiWebsocketUrl}/messages/ws`);
-    socketRef.current = ws;
+    if (!conversationId) return;
+
+    // Don't do anything if already connected in this conversation
+    if (socket && activeId === conversationId) return;
+
+    // Close the connection of the old conversation if connected to a different conversation
+    if (socket && activeId !== conversationId) {
+      socket.close();
+    }
+
+    // Start new connection
+    const ws = new WebSocket(`${fastapiWebsocketUrl}/messages/ws/${conversationId}`);
 
     ws.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      console.log(data);
-
-      if (data.conversation_id === conversationId) {
-        setMessages((prev) => [...prev, data]);
-      }
+      addMessage(data);
     };
 
-    return () => {
-      ws.close();
-      socketRef.current = null;
-    };
-  }, [conversationId]);
+    setSocket(ws, conversationId);
+
+    return () => {};
+  }, [conversationId, socket, activeId, setSocket, addMessage]);
 
   const sendMessage = async (content: string) => {
     setIsSending(true);
