@@ -20,11 +20,15 @@ import MessageThread from './messageThread';
 
 import { useChat } from '@/hooks/useChat';
 
+import { useState } from 'react';
+
 interface ChatListProps {
   onToggle: () => void; // This is a function prop
 }
 
 export default function ConversationArea({ onToggle }: ChatListProps) {
+  const [newMessage, setNewMessage] = useState<string>('');
+
   const { messages, sendMessage, isSending } = useChat('a9c6a2eb-872f-48da-a922-e4749092c75e');
 
   return (
@@ -59,10 +63,18 @@ export default function ConversationArea({ onToggle }: ChatListProps) {
 
       <div className="flex gap-2 px-2 my-2">
         <InputGroup className="flex-1 shrink-0">
-          <InputGroupInput placeholder="Type your message..." />
+          <InputGroupInput
+            placeholder="Type your message..."
+            value={newMessage}
+            onChange={(e) => setNewMessage(e.target.value)}
+          />
         </InputGroup>
 
-        <Button className="cursor-pointer" onClick={() => sendMessage('Yahallo')}>
+        <Button
+          className="cursor-pointer"
+          onClick={() => (sendMessage(newMessage), setNewMessage(''))}
+          disabled={newMessage.trim() === ''}
+        >
           Send
         </Button>
       </div>
