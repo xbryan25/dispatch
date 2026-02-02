@@ -18,7 +18,7 @@ export default function MessageThread() {
         <UserMessage
           key={message.messageId}
           messageType="others"
-          breakMessage
+          breakMessage={messages.indexOf(message) == messages.length - 1 ? true : false}
           content={message.content}
         />
       ))}
