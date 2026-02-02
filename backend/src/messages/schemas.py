@@ -3,9 +3,11 @@ from datetime import datetime
 
 from uuid import UUID
 
+
 class MessageCreate(BaseModel):
-    receiver_id: UUID
+    conversation_id: UUID
     content: str
+
 
 class MessageRead(BaseModel):
     message_id: UUID
