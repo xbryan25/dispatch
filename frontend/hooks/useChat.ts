@@ -20,7 +20,7 @@ export const useChat = (conversationId: string) => {
     }
 
     // Start new connection
-    const ws = new WebSocket(`${fastapiWebsocketUrl}/messages/ws/${conversationId}`);
+    const ws = new WebSocket(`${fastapiWebsocketUrl}/messages/ws`);
 
     ws.onmessage = (event) => {
       const data = JSON.parse(event.data);
