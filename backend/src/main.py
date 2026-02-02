@@ -7,7 +7,7 @@ from .messages import router as messages_router
 
 
 def create_app():
-    app = FastAPI()
+    app = FastAPI(debug=True)
 
     app.add_middleware(
         CORSMiddleware,

@@ -18,11 +18,15 @@ import { Input } from './ui/input';
 import UserMessage from './userMessage';
 import MessageThread from './messageThread';
 
+import { useChat } from '@/hooks/useChat';
+
 interface ChatListProps {
   onToggle: () => void; // This is a function prop
 }
 
 export default function ConversationArea({ onToggle }: ChatListProps) {
+  const { messages, sendMessage, isSending } = useChat('a9c6a2eb-872f-48da-a922-e4749092c75e');
+
   return (
     <div className="flex-3 flex flex-col items-teo justify-start gap-2 bg-white dark:bg-stone-900 rounded-xl">
       <div className="flex justify-between p-2 gap-3">
@@ -58,7 +62,9 @@ export default function ConversationArea({ onToggle }: ChatListProps) {
           <InputGroupInput placeholder="Type your message..." />
         </InputGroup>
 
-        <Button className="cursor-pointer">Send</Button>
+        <Button className="cursor-pointer" onClick={() => sendMessage('Yahallo')}>
+          Send
+        </Button>
       </div>
     </div>
   );
