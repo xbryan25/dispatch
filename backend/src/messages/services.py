@@ -3,7 +3,7 @@ from sqlalchemy import select
 
 from .schemas import MessageCreate
 
-from .models import Message, ConversationParticipant
+from .models import Message, ConversationParticipant, Conversation
 
 from uuid import UUID
 
@@ -39,6 +39,18 @@ class MessagesService:
             query = select(ConversationParticipant.user_id).where(
                 ConversationParticipant.conversation_id == conversation_id,
                 ConversationParticipant.user_id != current_user_id,
+            )
+            result = await db.execute(query)
+            return result.scalar_one_or_none()
+        except Exception:
+            traceback.print_exc()
+
+    @staticmethod
+    async def get_conversation_by_id(db: AsyncSession, conversation_id: str):
+
+        try:
+            query = select(Conversation).where(
+                Conversation.conversation_id == conversation_id
             )
             result = await db.execute(query)
             return result.scalar_one_or_none()
