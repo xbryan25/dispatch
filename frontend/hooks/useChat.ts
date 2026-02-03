@@ -11,16 +11,12 @@ export const useChat = (conversationId: string) => {
   useEffect(() => {
     if (!conversationId) return;
 
-    // Don't do anything if already connected in this conversation
-    if (socket && activeId === conversationId) return;
-
-    // Close the connection of the old conversation if connected to a different conversation
-    if (socket && activeId !== conversationId) {
-      socket.close();
-    }
-
     // Start new connection
-    const ws = new WebSocket(`${fastapiWebsocketUrl}/messages/ws`);
+    const ws = new WebSocket(`${fastapiWebsocketUrl}/messages/ws/${conversationId}`);
+
+    ws.onopen = () => {
+      console.log('Connected to:', conversationId);
+    };
 
     ws.onmessage = (event) => {
       const data = JSON.parse(event.data);
@@ -29,8 +25,13 @@ export const useChat = (conversationId: string) => {
 
     setSocket(ws, conversationId);
 
-    return () => {};
-  }, [conversationId, socket, activeId, setSocket, addMessage]);
+    return () => {
+      if (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING) {
+        console.log('Cleaning up connection for:', conversationId);
+        ws.close();
+      }
+    };
+  }, [conversationId, setSocket, addMessage]);
 
   const sendMessage = async (content: string) => {
     setIsSending(true);

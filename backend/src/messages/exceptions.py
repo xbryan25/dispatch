@@ -1,0 +1,2 @@
+class InvalidConversationID(BaseException):
+    pass
