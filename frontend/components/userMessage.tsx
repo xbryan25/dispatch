@@ -30,7 +30,7 @@ export default function UserMessage({
       )}
       <div
         className={cn(
-          'flex rounded-full  items-center py-2 px-3',
+          'flex rounded-2xl items-center py-2 px-3 whitespace-pre-wrap wrap-break-word',
           messageType === 'sender'
             ? 'bg-orange-300 dark:bg-orange-500'
             : 'bg-amber-300 dark:bg-amber-500'
