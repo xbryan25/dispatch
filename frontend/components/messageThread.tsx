@@ -5,8 +5,12 @@ import UserMessage from './userMessage';
 
 import { useEffect } from 'react';
 
+import { useAuthStore } from '@/store/useAuthStore';
+
 export default function MessageThread() {
   const { messages } = useChat('a9c6a2eb-872f-48da-a922-e4749092c75e');
+
+  const { currentUserId } = useAuthStore();
 
   useEffect(() => {
     console.log('Messages updated in state:', messages);
@@ -14,45 +18,23 @@ export default function MessageThread() {
 
   return (
     <div className="flex-1 flex flex-col py-2 px-2 gap-3 overflow-y-auto">
-      {messages.map((message) => (
-        <UserMessage
-          key={message.messageId}
-          messageType="others"
-          breakMessage={messages.indexOf(message) == messages.length - 1 ? true : false}
-          content={message.content}
-        />
-      ))}
+      {messages.map((message, index) => {
+        const isLastInList = index === messages.length - 1;
 
-      {/* <UserMessage
-        messageType="others"
-        breakMessage
-        content="The quick brown fox jumps over the lazy dog."
-      />
+        const nextMessage = messages[index + 1];
+        const isLastInCluster = isLastInList || nextMessage.senderId !== message.senderId;
 
-      <UserMessage messageType="sender" content="The quick brown fox jumps over the lazy dog." />
+        const isMe = message.senderId === currentUserId;
 
-      <UserMessage messageType="others" content="The quick brown fox jumps over the lazy dog." />
-      <UserMessage messageType="others" content="The quick brown fox jumps over the lazy dog." />
-      <UserMessage messageType="others" content="The quick brown fox jumps over the lazy dog." />
-      <UserMessage messageType="others" content="The quick brown fox jumps over the lazy dog." />
-      <UserMessage messageType="others" content="The quick brown fox jumps over the lazy dog." />
-      <UserMessage messageType="others" content="The quick brown fox jumps over the lazy dog." />
-      <UserMessage messageType="others" content="The quick brown fox jumps over the lazy dog." />
-      <UserMessage
-        messageType="others"
-        breakMessage
-        content="The quick brown fox jumps over the lazy dog."
-      />
-
-      <UserMessage messageType="sender" content="The quick brown fox jumps over the lazy dog." />
-      <UserMessage messageType="sender" content="The quick brown fox jumps over the lazy dog." />
-      <UserMessage messageType="sender" content="The quick brown fox jumps over the lazy dog." />
-      <UserMessage messageType="sender" content="The quick brown fox jumps over the lazy dog." />
-      <UserMessage messageType="sender" content="The quick brown fox jumps over the lazy dog." />
-      <UserMessage messageType="sender" content="The quick brown fox jumps over the lazy dog." />
-      <UserMessage messageType="sender" content="The quick brown fox jumps over the lazy dog." />
-
-      <UserMessage messageType="others" breakMessage content="Why are you repeating what I said?" /> */}
+        return (
+          <UserMessage
+            key={message.messageId}
+            messageType={isMe ? 'sender' : 'others'}
+            breakMessage={isLastInCluster ? true : false}
+            content={message.content}
+          />
+        );
+      })}
     </div>
   );
 }
