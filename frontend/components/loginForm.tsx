@@ -14,7 +14,7 @@ import { Icon } from '@iconify/react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
-import { useLogin } from '@/hooks/useAuth';
+import { useLogin, useInitCurrentUserId } from '@/hooks/useAuth';
 import { validateEmail } from '@/lib/validation';
 
 export default function LoginForm() {
@@ -25,7 +25,9 @@ export default function LoginForm() {
 
   const [isClickedLoginButton, setIsClickedLoginButton] = useState<boolean>(false);
 
-  const { loginUser, loading, error } = useLogin();
+  const { loginUser, loading } = useLogin();
+  const { initCurrentUserId } = useInitCurrentUserId();
+
   const isEmailValid = validateEmail(email);
   const isFormEmpty = !email || !password;
 
@@ -36,13 +38,17 @@ export default function LoginForm() {
 
     const { error: loginError } = await loginUser(email, password);
 
-    console.log(loginError);
-
     if (loginError) {
       toast.error(`Login failed. ${loginError}.`);
     } else {
-      toast.success('Login successful. Welcome to Dispatch!');
-      router.push('/messages');
+      const { error: initCurrentUserIdError } = await initCurrentUserId();
+
+      if (initCurrentUserIdError) {
+        toast.error(`Failed to retrieve currentUserId. ${initCurrentUserIdError}.`);
+      } else {
+        toast.success('Login successful. Welcome to Dispatch!');
+        router.push('/messages');
+      }
     }
   };
 

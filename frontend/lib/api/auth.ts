@@ -8,3 +8,14 @@ export async function checkIfUsernameIsTaken(username: string) {
   if (!res.ok) throw new Error('Something went wrong when checking for username availability.');
   return res.json();
 }
+
+export async function getCurrentUserId() {
+  const res = await fetch(`${fastapiServerUrl}/api/auth/me`, {
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+  });
+
+  if (!res.ok) throw new Error('Something went wrong when checking for getting userId.');
+  return res.json();
+}
