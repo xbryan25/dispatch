@@ -1,17 +1,5 @@
 'use client';
 
-import Link from 'next/link';
-
-import { Button } from './ui/button';
-
-import { useRouter, usePathname } from 'next/navigation';
-
-import ThemeToggleButton from './themeToggleButton';
-
-import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group';
-
-import { Search } from 'lucide-react';
-
 import Image from 'next/image';
 import { Icon } from '@iconify/react';
 

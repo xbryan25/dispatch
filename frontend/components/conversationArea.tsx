@@ -1,21 +1,13 @@
 'use client';
 
-import Link from 'next/link';
-
 import { Button } from './ui/button';
 
-import { useRouter, usePathname } from 'next/navigation';
-
-import ThemeToggleButton from './themeToggleButton';
-
-import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group';
+import { InputGroup, InputGroupTextarea } from '@/components/ui/input-group';
 
 import { Search } from 'lucide-react';
 
 import Image from 'next/image';
 import { Icon } from '@iconify/react';
-import { Input } from './ui/input';
-import UserMessage from './userMessage';
 import MessageThread from './messageThread';
 
 import { useChat } from '@/hooks/useChat';
@@ -29,7 +21,20 @@ interface ChatListProps {
 export default function ConversationArea({ onToggle }: ChatListProps) {
   const [newMessage, setNewMessage] = useState<string>('');
 
-  const { messages, sendMessage, isSending } = useChat('a9c6a2eb-872f-48da-a922-e4749092c75e');
+  const { sendMessage } = useChat('a9c6a2eb-872f-48da-a922-e4749092c75e');
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+
+      console.log(JSON.stringify(newMessage));
+
+      if (newMessage.trim() !== '') {
+        sendMessage(newMessage.trim());
+        setNewMessage('');
+      }
+    }
+  };
 
   return (
     <div className="flex-3 flex flex-col items-teo justify-start gap-2 bg-white dark:bg-stone-900 rounded-xl">
@@ -61,18 +66,20 @@ export default function ConversationArea({ onToggle }: ChatListProps) {
 
       <MessageThread />
 
-      <div className="flex gap-2 px-2 my-2">
+      <div className="flex gap-2 px-2 my-2 items-end">
         <InputGroup className="flex-1 shrink-0">
-          <InputGroupInput
+          <InputGroupTextarea
             placeholder="Type your message..."
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
+            onKeyDown={handleKeyDown}
+            className="min-h-8.5 max-h-40 overflow-y-auto py-2 px-3"
           />
         </InputGroup>
 
         <Button
-          className="cursor-pointer"
-          onClick={() => (sendMessage(newMessage), setNewMessage(''))}
+          className="cursor-pointer h-9.5"
+          onClick={() => (sendMessage(newMessage.trim()), setNewMessage(''))}
           disabled={newMessage.trim() === ''}
         >
           Send
