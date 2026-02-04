@@ -5,7 +5,7 @@ const fastapiServerUrl = process.env.NEXT_PUBLIC_FASTAPI_SERVER_URL;
 const fastapiWebsocketUrl = process.env.NEXT_PUBLIC_FASTAPI_WEBSOCKET_URL;
 
 export const useChat = (conversationId: string) => {
-  const { messages, socket, activeId, setSocket, addMessage, clearChat } = useChatStore();
+  const { messages, setSocket, addMessage } = useChatStore();
   const [isSending, setIsSending] = useState(false);
 
   useEffect(() => {
