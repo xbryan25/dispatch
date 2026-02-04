@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { register, login, logout } from '@/lib/auth';
 import { useAuthStore } from '@/store/useAuthStore';
 
@@ -85,7 +85,7 @@ export function useInitCurrentUserId() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const initCurrentUserId = async () => {
+  const initCurrentUserId = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -103,7 +103,7 @@ export function useInitCurrentUserId() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [setCurrentUserId]);
 
   return { initCurrentUserId, loading, error };
 }
