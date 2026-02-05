@@ -1,14 +1,16 @@
 from fastapi import WebSocket
 
+from uuid import UUID
+
 
 class ConnectionManager:
     def __init__(self):
-        self.rooms: dict[str, list[WebSocket]] = {}
+        self.rooms: dict[UUID, list[WebSocket]] = {}
 
         # User devices
-        self.user_connections: dict[str, list[WebSocket]] = {}
+        self.user_connections: dict[UUID, list[WebSocket]] = {}
 
-    async def connect(self, websocket: WebSocket, conversation_id: str, user_id: str):
+    async def connect(self, websocket: WebSocket, conversation_id: UUID, user_id: UUID):
         await websocket.accept()
 
         if conversation_id not in self.rooms:
@@ -19,14 +21,7 @@ class ConnectionManager:
             self.user_connections[user_id] = []
         self.user_connections[user_id].append(websocket)
 
-        print(
-            f"\n\nRooms: {self.rooms}\nCount {len(self.rooms['a9c6a2eb-872f-48da-a922-e4749092c75e'])}\n"
-        )
-        print(
-            f"User connections: {self.user_connections}\nCount {len(self.user_connections['68d612a9-9b77-48f1-a648-69d160ccf521'])}\n\n"
-        )
-
-    def disconnect(self, websocket: WebSocket, conversation_id: str, user_id: str):
+    def disconnect(self, websocket: WebSocket, conversation_id: UUID, user_id: UUID):
         if conversation_id in self.rooms:
             self.rooms[conversation_id].remove(websocket)
             if not self.rooms[conversation_id]:
@@ -37,7 +32,7 @@ class ConnectionManager:
             if not self.user_connections[user_id]:
                 del self.user_connections[user_id]
 
-    async def broadcast_to_room(self, conversation_id: str, message: dict):
+    async def broadcast_to_room(self, conversation_id: UUID, message: dict):
 
         if conversation_id not in self.rooms:
             return
@@ -54,7 +49,7 @@ class ConnectionManager:
         for dead in dead_sockets:
             self.rooms[conversation_id].remove(dead)
 
-    async def send_to_user(self, user_id: str, message: dict):
+    async def send_to_user(self, user_id: UUID, message: dict):
 
         # Sends a message to every active connection owned by a specific user.
         connections = self.user_connections.get(user_id)

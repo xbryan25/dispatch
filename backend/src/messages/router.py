@@ -4,7 +4,7 @@ from src.core import manager, get_db, AsyncSessionLocal
 from src.auth.dependencies import get_current_user_id
 
 from .services import MessagesService
-from .schemas import MessageCreate, MessageRead
+from .schemas import MessageCreate, MessageRead, ConversationList
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -13,28 +13,24 @@ import traceback
 
 from .exceptions import InvalidConversationID
 
-router = APIRouter(prefix="/messages", tags=["Messages"])
+router = APIRouter(prefix="/api/messages", tags=["Messages"])
 
 
-@router.websocket("/ws/{conversation_id_str}")
+@router.websocket("/ws/{conversation_id}")
 async def websocket_endpoint(
     websocket: WebSocket,
-    conversation_id_str: str,
+    conversation_id: UUID,
     user_id: UUID = Depends(get_current_user_id),
 ):
-    user_id_str = str(user_id)
 
     # Open short lived db connection to verify conversation_id_str
     async with AsyncSessionLocal() as db:
-        # 2. Perform your check
-        conversation = await MessagesService.get_conversation_by_id(
-            db, conversation_id_str
-        )
+        conversation = await MessagesService.get_conversation_by_id(db, conversation_id)
 
         if not conversation:
             raise InvalidConversationID("Conversation ID does not exist.")
 
-    await manager.connect(websocket, conversation_id_str, user_id_str)
+    await manager.connect(websocket, conversation_id, user_id)
     try:
         while True:
             await websocket.receive_text()
@@ -43,14 +39,14 @@ async def websocket_endpoint(
         await websocket.close(code=3001)
     except (WebSocketDisconnect, Exception):
         traceback.print_exc()
-        manager.disconnect(websocket, conversation_id_str, user_id_str)
+        manager.disconnect(websocket, conversation_id, user_id)
 
 
 @router.post("/send", response_model=MessageRead)
 async def send_message(
     payload: MessageCreate,
     db: AsyncSession = Depends(get_db),
-    user_id: str = Depends(get_current_user_id),
+    user_id: UUID = Depends(get_current_user_id),
 ):
     """
     Creates a new message. The user_id is automatically
@@ -59,11 +55,8 @@ async def send_message(
 
     try:
         conversation_id = payload.conversation_id
-        conversation_id_str = str(conversation_id)
 
-        conversation = await MessagesService.get_conversation_by_id(
-            db, str(conversation_id)
-        )
+        conversation = await MessagesService.get_conversation_by_id(db, conversation_id)
 
         if not conversation:
             raise InvalidConversationID("Conversation ID does not exist.")
@@ -76,9 +69,31 @@ async def send_message(
             mode="json", by_alias=True
         )
 
-        await manager.broadcast_to_room(conversation_id_str, msg_dict)
+        await manager.broadcast_to_room(conversation_id, msg_dict)
 
         return new_message
+    except InvalidConversationID:
+        traceback.print_exc()
+        raise HTTPException(status_code=400, detail="Conversation ID does not exist.")
+
+    except Exception:
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+
+@router.get("/conversations", response_model=ConversationList)
+async def get_conversation_list(
+    db: AsyncSession = Depends(get_db),
+    user_id: UUID = Depends(get_current_user_id),
+):
+    """
+    add later
+    """
+
+    try:
+        formatted_conversations = await MessagesService.get_conversations(db, user_id)
+
+        return {"conversations": formatted_conversations}
     except InvalidConversationID:
         traceback.print_exc()
         raise HTTPException(status_code=400, detail="Conversation ID does not exist.")
