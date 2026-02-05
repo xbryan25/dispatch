@@ -65,6 +65,19 @@ class Conversation(Base):
     messages = relationship(
         "Message", back_populates="conversation", cascade="all, delete-orphan"
     )
+
+    latest_message = relationship(
+        "Message",
+        primaryjoin="and_(Conversation.conversation_id == Message.conversation_id)",
+        order_by="desc(Message.created_at)",
+        uselist=False,
+        viewonly=True,
+    )
+
+    @property
+    def latest_message_time(self):
+        return self.latest_message.created_at if self.latest_message else None
+
     participants = relationship(
         "ConversationParticipant", back_populates="conversation"
     )

@@ -12,7 +12,7 @@ export const useChat = (conversationId: string) => {
     if (!conversationId) return;
 
     // Start new connection
-    const ws = new WebSocket(`${fastapiWebsocketUrl}/messages/ws/${conversationId}`);
+    const ws = new WebSocket(`${fastapiWebsocketUrl}/api/messages/ws/${conversationId}`);
 
     ws.onopen = () => {
       console.log('Connected to:', conversationId);
@@ -36,7 +36,7 @@ export const useChat = (conversationId: string) => {
   const sendMessage = async (content: string) => {
     setIsSending(true);
     try {
-      await fetch(`${fastapiServerUrl}/messages/send`, {
+      await fetch(`${fastapiServerUrl}/api/messages/send`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ content, conversation_id: conversationId }),

@@ -6,3 +6,11 @@ export interface Message {
   createdAt: string;
   status: string;
 }
+
+export interface ConversationSnippet {
+  conversationId: string;
+  otherUserName: string;
+  otherUserAvatar: string;
+  latestMessage: string;
+  latestMessageTime: string;
+}

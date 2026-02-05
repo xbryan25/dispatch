@@ -1,18 +1,19 @@
-from pydantic import BaseModel, ConfigDict
-from pydantic.alias_generators import to_camel
 from datetime import datetime
 
 from uuid import UUID
 
+from typing import Optional
+
 from src.messages.constants import MessageStatusEnum
+from src.core import BaseSchema
 
 
-class MessageCreate(BaseModel):
+class MessageCreate(BaseSchema):
     conversation_id: UUID
     content: str
 
 
-class MessageRead(BaseModel):
+class MessageRead(BaseSchema):
     message_id: UUID
     sender_id: UUID
     conversation_id: UUID
@@ -20,6 +21,14 @@ class MessageRead(BaseModel):
     created_at: datetime
     status: MessageStatusEnum
 
-    model_config = ConfigDict(
-        from_attributes=True, alias_generator=to_camel, populate_by_name=True
-    )
+
+class ConversationSnippet(BaseSchema):
+    conversation_id: UUID
+    other_user_name: Optional[str] = None
+    other_user_avatar: Optional[str] = None
+    latest_message: str
+    latest_message_time: datetime
+
+
+class ConversationList(BaseSchema):
+    conversations: list[ConversationSnippet]

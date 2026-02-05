@@ -3,12 +3,33 @@
 import { Icon } from '@iconify/react';
 import Image from 'next/image';
 
-export default function ConversationTab() {
+import { ConversationSnippet } from '@/types/chat';
+import { format } from 'path';
+
+interface ConversationTabProps {
+  conversationSnippet: ConversationSnippet;
+}
+
+export default function ConversationTab({ conversationSnippet }: ConversationTabProps) {
+  const formatTime = (dateString: string) => {
+    if (!dateString) return '';
+
+    return new Date(dateString).toLocaleTimeString('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+    });
+  };
+
   return (
     <div className="flex items-center justify-center gap-2 bg-white dark:bg-stone-900 hover:bg-stone-200 dark:hover:bg-stone-700 rounded-md p-2 w-full cursor-pointer min-w-0 ">
       <div className="relative w-12 h-12 shrink-0 overflow-hidden rounded-full ">
         <Image
-          src="/testdp.jpg"
+          src={
+            conversationSnippet.otherUserAvatar
+              ? conversationSnippet.otherUserAvatar
+              : '/blank_picture.png'
+          }
           alt="User avatar"
           fill
           sizes="96px" // Helps Next.js optimize the download size
@@ -18,13 +39,11 @@ export default function ConversationTab() {
 
       <div className="flex-1 flex flex-col min-w-0">
         <div className="flex justify-between">
-          <h3 className="font-semibold">Bryan Agan</h3>
-          <p className="shrink-0">1:25 PM</p>
+          <h3 className="font-semibold">{conversationSnippet.otherUserName}</h3>
+          <p className="shrink-0">{formatTime(conversationSnippet.latestMessageTime)}</p>
         </div>
         <div className="flex justify-between items-center gap-4">
-          <p className="truncate ">
-            You: Yo? What did you say to me? {"Don't"}...aaaaaaaaaaaaaaaaaa aaaaaaaaaaaaaaaa
-          </p>
+          <p className="truncate ">{conversationSnippet.latestMessage}</p>
           <Icon icon="ri:check-double-fill" className="size-5 shrink-0" />
         </div>
       </div>

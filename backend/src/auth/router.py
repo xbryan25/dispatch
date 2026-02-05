@@ -16,9 +16,8 @@ async def check_username(
 
     return await AuthService.check_username(db, username)
 
+
 @router.get("/me")
-async def get_me(
-    user_id: str = Depends(get_current_user_id)
-):
+async def get_me(user_id: str = Depends(get_current_user_id)):
 
     return {"currentUserId": user_id}
