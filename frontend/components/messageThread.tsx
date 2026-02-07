@@ -1,14 +1,13 @@
 'use client';
-
-import { useChat } from '@/hooks/useChat';
 import UserMessage from './userMessage';
 
 import { useEffect } from 'react';
 
 import { useAuthStore } from '@/store/useAuthStore';
+import { useChatStore } from '@/store/useChatStore';
 
 export default function MessageThread() {
-  const { messages } = useChat('a9c6a2eb-872f-48da-a922-e4749092c75e');
+  const { messages } = useChatStore();
 
   const { currentUserId } = useAuthStore();
 

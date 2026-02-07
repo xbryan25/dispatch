@@ -4,13 +4,19 @@ import { Icon } from '@iconify/react';
 import Image from 'next/image';
 
 import { ConversationSnippet } from '@/types/chat';
-import { format } from 'path';
+
+import { useChatStore } from '@/store/useChatStore';
 
 interface ConversationTabProps {
   conversationSnippet: ConversationSnippet;
 }
 
 export default function ConversationTab({ conversationSnippet }: ConversationTabProps) {
+  const setSelectedConversationId = useChatStore((state) => state.setActiveConversationId);
+  const currentSelectedConversationId = useChatStore((state) => state.activeConversationId);
+
+  const isActive = currentSelectedConversationId === conversationSnippet.conversationId;
+
   const formatTime = (dateString: string) => {
     if (!dateString) return '';
 
@@ -22,8 +28,11 @@ export default function ConversationTab({ conversationSnippet }: ConversationTab
   };
 
   return (
-    <div className="flex items-center justify-center gap-2 bg-white dark:bg-stone-900 hover:bg-stone-200 dark:hover:bg-stone-700 rounded-md p-2 w-full cursor-pointer min-w-0 ">
-      <div className="relative w-12 h-12 shrink-0 overflow-hidden rounded-full ">
+    <div
+      className={`flex items-center justify-center gap-2 rounded-md p-2 w-full cursor-pointer min-w-0 ${isActive ? 'bg-stone-200 dark:bg-stone-700' : 'bg-white dark:bg-stone-900'}`}
+      onClick={() => setSelectedConversationId(conversationSnippet.conversationId)}
+    >
+      <div className="relative w-12 h-12 shrink-0 overflow-hidden rounded-full">
         <Image
           src={
             conversationSnippet.otherUserAvatar
