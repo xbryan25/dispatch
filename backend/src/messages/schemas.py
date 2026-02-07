@@ -26,8 +26,8 @@ class ConversationSnippet(BaseSchema):
     conversation_id: UUID
     other_user_name: Optional[str] = None
     other_user_avatar: Optional[str] = None
-    latest_message: str
-    latest_message_time: datetime
+    latest_message: Optional[str] = None
+    latest_message_time: Optional[datetime] = None
 
 
 class ConversationList(BaseSchema):
