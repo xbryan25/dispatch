@@ -4,19 +4,20 @@ import { Message } from '@/types/chat';
 interface ChatState {
   messages: Message[];
   socket: WebSocket | null;
-  activeId: string | null;
+  activeConversationId: string | null;
 
   // Actions
   addMessage: (msg: Message) => void;
   setMessages: (msgs: Message[]) => void;
-  setSocket: (socket: WebSocket | null, id: string | null) => void;
+  setActiveConversationId: (conversationId: string | null) => void;
+  setSocket: (socket: WebSocket | null, conversationId: string | null) => void;
   clearChat: () => void;
 }
 
-export const useChatStore = create<ChatState>((set, get) => ({
+export const useChatStore = create<ChatState>((set) => ({
   messages: [],
   socket: null,
-  activeId: null,
+  activeConversationId: null,
 
   addMessage: (newMessage) =>
     set((state) => {
@@ -30,7 +31,9 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
   setMessages: (msgs) => set({ messages: msgs }),
 
-  setSocket: (socket, id) => set({ socket, activeId: id }),
+  setActiveConversationId: (conversationId) => set({ activeConversationId: conversationId }),
 
-  clearChat: () => set({ messages: [], socket: null, activeId: null }),
+  setSocket: (socket, conversationId) => set({ socket, activeConversationId: conversationId }),
+
+  clearChat: () => set({ messages: [], socket: null, activeConversationId: null }),
 }));

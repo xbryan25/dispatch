@@ -4,8 +4,8 @@ import { useChatStore } from '@/store/useChatStore';
 const fastapiServerUrl = process.env.NEXT_PUBLIC_FASTAPI_SERVER_URL;
 const fastapiWebsocketUrl = process.env.NEXT_PUBLIC_FASTAPI_WEBSOCKET_URL;
 
-export const useChat = (conversationId: string) => {
-  const { messages, setSocket, addMessage } = useChatStore();
+export const useChat = (conversationId: string | null) => {
+  const { messages, setSocket, addMessage, clearChat } = useChatStore();
   const [isSending, setIsSending] = useState(false);
 
   useEffect(() => {
@@ -23,15 +23,19 @@ export const useChat = (conversationId: string) => {
       addMessage(data);
     };
 
+    clearChat();
+
     setSocket(ws, conversationId);
 
     return () => {
+      console.log('run onunmount');
+
       if (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING) {
         console.log('Cleaning up connection for:', conversationId);
         ws.close();
       }
     };
-  }, [conversationId, setSocket, addMessage]);
+  }, [conversationId, setSocket, addMessage, clearChat]);
 
   const sendMessage = async (content: string) => {
     setIsSending(true);

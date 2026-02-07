@@ -4,13 +4,13 @@ import { Button } from './ui/button';
 
 import { InputGroup, InputGroupTextarea } from '@/components/ui/input-group';
 
-import { Search } from 'lucide-react';
-
 import Image from 'next/image';
 import { Icon } from '@iconify/react';
 import MessageThread from './messageThread';
 
 import { useChat } from '@/hooks/useChat';
+
+import { useChatStore } from '@/store/useChatStore';
 
 import { useState } from 'react';
 
@@ -21,13 +21,13 @@ interface ChatListProps {
 export default function ConversationArea({ onToggle }: ChatListProps) {
   const [newMessage, setNewMessage] = useState<string>('');
 
-  const { sendMessage } = useChat('a9c6a2eb-872f-48da-a922-e4749092c75e');
+  const { activeConversationId } = useChatStore();
+
+  const { sendMessage } = useChat(activeConversationId);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-
-      console.log(JSON.stringify(newMessage));
 
       if (newMessage.trim() !== '') {
         sendMessage(newMessage.trim());
