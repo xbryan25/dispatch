@@ -43,8 +43,15 @@ export default function ConversationTab({ conversationSnippet }: ConversationTab
           <p className="shrink-0">{formatTime(conversationSnippet.latestMessageTime)}</p>
         </div>
         <div className="flex justify-between items-center gap-4">
-          <p className="truncate ">{conversationSnippet.latestMessage}</p>
-          <Icon icon="ri:check-double-fill" className="size-5 shrink-0" />
+          <p className="truncate ">
+            {conversationSnippet.latestMessage != null
+              ? conversationSnippet.latestMessage
+              : `Start chatting with ${conversationSnippet.otherUserName.trim().split(/\s+/)[0]}!`}
+          </p>
+
+          {conversationSnippet.latestMessage && (
+            <Icon icon="ri:check-double-fill" className="size-5 shrink-0" />
+          )}
         </div>
       </div>
     </div>
