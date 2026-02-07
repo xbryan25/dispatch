@@ -1,11 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useChatStore } from '@/store/useChatStore';
+import { useSidebarStore } from '@/store/useSidebarStore';
 
 const fastapiServerUrl = process.env.NEXT_PUBLIC_FASTAPI_SERVER_URL;
 const fastapiWebsocketUrl = process.env.NEXT_PUBLIC_FASTAPI_WEBSOCKET_URL;
 
 export const useChat = (conversationId: string | null) => {
   const { messages, setSocket, addMessage, clearChat } = useChatStore();
+  const { upsertSnippet } = useSidebarStore();
+
   const [isSending, setIsSending] = useState(false);
 
   useEffect(() => {
@@ -21,6 +24,7 @@ export const useChat = (conversationId: string | null) => {
     ws.onmessage = (event) => {
       const data = JSON.parse(event.data);
       addMessage(data);
+      upsertSnippet(data);
     };
 
     clearChat();
@@ -35,7 +39,7 @@ export const useChat = (conversationId: string | null) => {
         ws.close();
       }
     };
-  }, [conversationId, setSocket, addMessage, clearChat]);
+  }, [conversationId, setSocket, addMessage, clearChat, upsertSnippet]);
 
   const sendMessage = async (content: string) => {
     setIsSending(true);

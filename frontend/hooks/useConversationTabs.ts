@@ -3,10 +3,10 @@
 import { useState, useEffect } from 'react';
 import { getUserConversationsList } from '@/lib/api/messages';
 
-import { ConversationSnippet } from '@/types/chat';
+import { useSidebarStore } from '@/store/useSidebarStore';
 
 export function useConversationTabs() {
-  const [conversations, setConversations] = useState<ConversationSnippet[]>([]);
+  const { conversationSnippets, setSnippets } = useSidebarStore();
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -16,9 +16,7 @@ export function useConversationTabs() {
     try {
       const data = await getUserConversationsList();
 
-      console.log(data);
-
-      setConversations(data.conversations);
+      setSnippets(data.conversations);
 
       return { error: null };
     } catch (err: unknown) {
@@ -36,5 +34,5 @@ export function useConversationTabs() {
     getConversations();
   }, []);
 
-  return { conversations, loading, error };
+  return { conversationSnippets, loading, error };
 }
