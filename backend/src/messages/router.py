@@ -1,5 +1,5 @@
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Depends, HTTPException
-from src.core import manager, get_db, AsyncSessionLocal
+from src.core import manager, get_db
 
 from src.auth.dependencies import get_current_user_id
 
@@ -16,21 +16,13 @@ from .exceptions import InvalidConversationID
 router = APIRouter(prefix="/api/messages", tags=["Messages"])
 
 
-@router.websocket("/ws/{conversation_id}")
+@router.websocket("/ws")
 async def websocket_endpoint(
     websocket: WebSocket,
-    conversation_id: UUID,
     user_id: UUID = Depends(get_current_user_id),
 ):
 
-    # Open short lived db connection to verify conversation_id_str
-    async with AsyncSessionLocal() as db:
-        conversation = await MessagesService.get_conversation_by_id(db, conversation_id)
-
-        if not conversation:
-            raise InvalidConversationID("Conversation ID does not exist.")
-
-    await manager.connect(websocket, conversation_id, user_id)
+    await manager.connect(websocket, user_id)
     try:
         while True:
             await websocket.receive_text()
@@ -39,7 +31,7 @@ async def websocket_endpoint(
         await websocket.close(code=3001)
     except (WebSocketDisconnect, Exception):
         traceback.print_exc()
-        manager.disconnect(websocket, conversation_id, user_id)
+        manager.disconnect(websocket, user_id)
 
 
 @router.post("/send", response_model=MessageRead)
@@ -65,11 +57,11 @@ async def send_message(
             db=db, message_data=payload, sender_id=user_id
         )
 
-        msg_dict = MessageRead.model_validate(new_message).model_dump(
-            mode="json", by_alias=True
-        )
+        # msg_dict = MessageRead.model_validate(new_message).model_dump(
+        #     mode="json", by_alias=True
+        # )
 
-        await manager.broadcast_to_room(conversation_id, msg_dict)
+        # await manager.broadcast_to_room(conversation_id, msg_dict)
 
         return new_message
     except InvalidConversationID:

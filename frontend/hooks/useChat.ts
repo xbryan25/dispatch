@@ -1,24 +1,27 @@
 import { useState, useEffect } from 'react';
 import { useChatStore } from '@/store/useChatStore';
 import { useSidebarStore } from '@/store/useSidebarStore';
+import { useAuthStore } from '@/store/useAuthStore';
 
 const fastapiServerUrl = process.env.NEXT_PUBLIC_FASTAPI_SERVER_URL;
 const fastapiWebsocketUrl = process.env.NEXT_PUBLIC_FASTAPI_WEBSOCKET_URL;
 
-export const useChat = (conversationId: string | null) => {
-  const { messages, setSocket, addMessage, clearChat } = useChatStore();
+export const useChat = () => {
+  const { messages, activeConversationId, setSocket, addMessage, clearChat } = useChatStore();
+  const { currentUserId } = useAuthStore();
+
   const { upsertSnippet } = useSidebarStore();
 
   const [isSending, setIsSending] = useState(false);
 
   useEffect(() => {
-    if (!conversationId) return;
+    if (!currentUserId) return;
 
     // Start new connection
-    const ws = new WebSocket(`${fastapiWebsocketUrl}/api/messages/ws/${conversationId}`);
+    const ws = new WebSocket(`${fastapiWebsocketUrl}/api/messages/ws`);
 
     ws.onopen = () => {
-      console.log('Connected to:', conversationId);
+      console.log('Connected to:', currentUserId);
     };
 
     ws.onmessage = (event) => {
@@ -29,17 +32,17 @@ export const useChat = (conversationId: string | null) => {
 
     clearChat();
 
-    setSocket(ws, conversationId);
+    setSocket(ws, currentUserId);
 
     return () => {
       console.log('run onunmount');
 
       if (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING) {
-        console.log('Cleaning up connection for:', conversationId);
+        console.log('Cleaning up connection for:', currentUserId);
         ws.close();
       }
     };
-  }, [conversationId, setSocket, addMessage, clearChat, upsertSnippet]);
+  }, [currentUserId, setSocket, addMessage, clearChat, upsertSnippet]);
 
   const sendMessage = async (content: string) => {
     setIsSending(true);
@@ -47,7 +50,7 @@ export const useChat = (conversationId: string | null) => {
       await fetch(`${fastapiServerUrl}/api/messages/send`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content, conversation_id: conversationId }),
+        body: JSON.stringify({ content, conversation_id: activeConversationId }),
         credentials: 'include',
       });
     } catch (error) {
