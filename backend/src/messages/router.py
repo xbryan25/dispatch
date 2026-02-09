@@ -57,13 +57,21 @@ async def send_message(
             db=db, message_data=payload, sender_id=user_id
         )
 
-        # msg_dict = MessageRead.model_validate(new_message).model_dump(
-        #     mode="json", by_alias=True
-        # )
+        conversation_participants = (
+            await MessagesService.get_participants_in_conversation(db, conversation_id)
+            or []
+        )
 
-        # await manager.broadcast_to_room(conversation_id, msg_dict)
+        msg_dict = MessageRead.model_validate(new_message).model_dump(
+            mode="json", by_alias=True
+        )
 
-        return new_message
+        event_data = {"type": "NEW_MESSAGE", "data": msg_dict}
+
+        for conversation_participant in conversation_participants:
+            await manager.send_to_user(conversation_participant, event_data)
+
+        return msg_dict
     except InvalidConversationID:
         traceback.print_exc()
         raise HTTPException(status_code=400, detail="Conversation ID does not exist.")

@@ -36,17 +36,14 @@ class MessagesService:
             traceback.print_exc()
 
     @staticmethod
-    async def get_other_participant(
-        db: AsyncSession, conversation_id: UUID, current_user_id: UUID
-    ):
+    async def get_participants_in_conversation(db: AsyncSession, conversation_id: UUID):
 
         try:
             query = select(ConversationParticipant.user_id).where(
                 ConversationParticipant.conversation_id == conversation_id,
-                ConversationParticipant.user_id != current_user_id,
             )
             result = await db.execute(query)
-            return result.scalar_one_or_none()
+            return result.scalars().all()
         except Exception:
             traceback.print_exc()
 

@@ -23,6 +23,7 @@ class ConnectionManager:
     async def send_to_user(self, user_id: UUID, message: dict):
         # Sends a message to every active connection owned by a specific user.
         connections = self.user_connections.get(user_id)
+        print(self.user_connections)
         if connections:
             for websocket in connections:
                 try:

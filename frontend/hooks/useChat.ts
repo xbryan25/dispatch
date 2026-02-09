@@ -25,9 +25,12 @@ export const useChat = () => {
     };
 
     ws.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      addMessage(data);
-      upsertSnippet(data);
+      const eventData = JSON.parse(event.data);
+
+      if (eventData.type === 'NEW_MESSAGE') {
+        addMessage(eventData.data);
+        upsertSnippet(eventData.data);
+      }
     };
 
     clearChat();
