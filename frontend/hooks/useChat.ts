@@ -27,8 +27,12 @@ export const useChat = () => {
     ws.onmessage = (event) => {
       const eventData = JSON.parse(event.data);
 
+      const latestActiveConversationId = useChatStore.getState().activeConversationId;
+
       if (eventData.type === 'NEW_MESSAGE') {
-        addMessage(eventData.data);
+        if (eventData.data.conversationId === latestActiveConversationId) {
+          addMessage(eventData.data);
+        }
         upsertSnippet(eventData.data);
       }
     };

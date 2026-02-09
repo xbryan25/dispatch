@@ -21,17 +21,18 @@ export const useChatStore = create<ChatState>((set) => ({
 
   addMessage: (newMessage) =>
     set((state) => {
-      // Check if we already have this message ID in our list
+      // Checks if messageId already exists in list
       const exists = state.messages.some((m) => m.messageId === newMessage.messageId);
 
-      if (exists) return state; // Don't add it again!
+      if (exists) return state;
 
       return { messages: [...state.messages, newMessage] };
     }),
 
   setMessages: (msgs) => set({ messages: msgs }),
 
-  setActiveConversationId: (conversationId) => set({ activeConversationId: conversationId }),
+  setActiveConversationId: (conversationId) =>
+    set({ activeConversationId: conversationId, messages: [] }),
 
   setSocket: (socket, conversationId) => set({ socket, activeConversationId: conversationId }),
 
