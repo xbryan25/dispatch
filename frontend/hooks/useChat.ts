@@ -42,7 +42,7 @@ export const useChat = () => {
 
     clearChat();
 
-    setSocket(ws, currentUserId);
+    setSocket(ws);
 
     return () => {
       console.log('run onunmount');
@@ -77,7 +77,9 @@ export const useChat = () => {
 
       let pastMessages: Message[] = [];
 
-      await fetch(`${fastapiServerUrl}/api/messages/${latestActiveConversationId}`, {
+      const query = `${latestActiveConversationId}${messages[0] && messages[0].createdAt ? `?beforeDatetime=${messages[0].createdAt}` : ''}`;
+
+      await fetch(`${fastapiServerUrl}/api/messages/${query}`, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
