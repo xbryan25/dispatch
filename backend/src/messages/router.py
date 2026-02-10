@@ -1,25 +1,43 @@
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Depends, HTTPException
-from src.core import manager, get_db
+from fastapi import (
+    APIRouter,
+    WebSocket,
+    WebSocketDisconnect,
+    Depends,
+    HTTPException,
+    Query,
+)
+from src.core import manager, get_db, AsyncSessionLocal
 
 from src.auth.dependencies import get_current_user_id
 
 from .services import MessagesService
-from .schemas import MessageCreate, MessageRead, ConversationList
+from .schemas import (
+    MessageCreate,
+    MessageRead,
+    ConversationList,
+    HistoryFilter,
+    PastMessagesList,
+)
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from uuid import UUID
 import traceback
+from typing import Annotated
 
 from .exceptions import InvalidConversationID
 
-router = APIRouter(prefix="/api/messages", tags=["Messages"])
+router = APIRouter(
+    prefix="/api/messages",
+    tags=["Messages"],
+    dependencies=[Depends(get_current_user_id)],
+)
 
 
 @router.websocket("/ws")
 async def websocket_endpoint(
     websocket: WebSocket,
-    user_id: UUID = Depends(get_current_user_id),
+    user_id: Annotated[UUID, Depends(get_current_user_id)],
 ):
 
     await manager.connect(websocket, user_id)
@@ -37,8 +55,8 @@ async def websocket_endpoint(
 @router.post("/send", response_model=MessageRead)
 async def send_message(
     payload: MessageCreate,
+    user_id: Annotated[UUID, Depends(get_current_user_id)],
     db: AsyncSession = Depends(get_db),
-    user_id: UUID = Depends(get_current_user_id),
 ):
     """
     Creates a new message. The user_id is automatically
@@ -83,8 +101,8 @@ async def send_message(
 
 @router.get("/conversations", response_model=ConversationList)
 async def get_conversation_list(
+    user_id: Annotated[UUID, Depends(get_current_user_id)],
     db: AsyncSession = Depends(get_db),
-    user_id: UUID = Depends(get_current_user_id),
 ):
     """
     add later
@@ -97,6 +115,33 @@ async def get_conversation_list(
     except InvalidConversationID:
         traceback.print_exc()
         raise HTTPException(status_code=400, detail="Conversation ID does not exist.")
+
+    except Exception:
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+
+@router.get("/{conversation_id}", response_model=PastMessagesList)
+async def get_conversation_message_history(
+    conversation_id: UUID,
+    filter_params: Annotated[HistoryFilter, Query()],
+    db: AsyncSession = Depends(get_db),
+):
+
+    try:
+        async with AsyncSessionLocal() as db:
+            conversation = await MessagesService.get_conversation_by_id(
+                db, conversation_id
+            )
+
+            if not conversation:
+                raise InvalidConversationID("Conversation ID does not exist.")
+
+        past_messages = await MessagesService.get_conversation_message_history(
+            db, conversation_id, filter_params.limit, filter_params.before_datetime
+        )
+
+        return {"past_messages": past_messages}
 
     except Exception:
         traceback.print_exc()
