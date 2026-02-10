@@ -10,8 +10,6 @@ import MessageThread from './messageThread';
 
 import { useChat } from '@/hooks/useChat';
 
-import { useChatStore } from '@/store/useChatStore';
-
 import { useState } from 'react';
 
 interface ChatListProps {
@@ -21,9 +19,7 @@ interface ChatListProps {
 export default function ConversationArea({ onToggle }: ChatListProps) {
   const [newMessage, setNewMessage] = useState<string>('');
 
-  const { activeConversationId } = useChatStore();
-
-  const { sendMessage } = useChat(activeConversationId);
+  const { sendMessage } = useChat();
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
