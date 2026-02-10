@@ -7,6 +7,8 @@ import { ConversationSnippet } from '@/types/chat';
 
 import { useChatStore } from '@/store/useChatStore';
 
+import { useChat } from '@/hooks/useChat';
+
 interface ConversationTabProps {
   conversationSnippet: ConversationSnippet;
 }
@@ -14,6 +16,8 @@ interface ConversationTabProps {
 export default function ConversationTab({ conversationSnippet }: ConversationTabProps) {
   const setSelectedConversationId = useChatStore((state) => state.setActiveConversationId);
   const currentSelectedConversationId = useChatStore((state) => state.activeConversationId);
+
+  const { getPastMessagesFromConversation } = useChat();
 
   const isActive = currentSelectedConversationId === conversationSnippet.conversationId;
 
@@ -30,7 +34,10 @@ export default function ConversationTab({ conversationSnippet }: ConversationTab
   return (
     <div
       className={`flex items-center justify-center gap-2 rounded-md p-2 w-full cursor-pointer min-w-0 ${isActive ? 'bg-stone-200 dark:bg-stone-700' : 'bg-white dark:bg-stone-900'}`}
-      onClick={() => setSelectedConversationId(conversationSnippet.conversationId)}
+      onClick={() => {
+        setSelectedConversationId(conversationSnippet.conversationId);
+        getPastMessagesFromConversation();
+      }}
     >
       <div className="relative w-12 h-12 shrink-0 overflow-hidden rounded-full">
         <Image
