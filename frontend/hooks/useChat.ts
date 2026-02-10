@@ -2,17 +2,20 @@ import { useState, useEffect } from 'react';
 import { useChatStore } from '@/store/useChatStore';
 import { useSidebarStore } from '@/store/useSidebarStore';
 import { useAuthStore } from '@/store/useAuthStore';
+import { Message } from '@/types/chat';
 
 const fastapiServerUrl = process.env.NEXT_PUBLIC_FASTAPI_SERVER_URL;
 const fastapiWebsocketUrl = process.env.NEXT_PUBLIC_FASTAPI_WEBSOCKET_URL;
 
 export const useChat = () => {
-  const { messages, activeConversationId, setSocket, addMessage, clearChat } = useChatStore();
+  const { messages, activeConversationId, setSocket, addMessage, prependPastMessages, clearChat } =
+    useChatStore();
   const { currentUserId } = useAuthStore();
 
   const { upsertSnippet } = useSidebarStore();
 
   const [isSending, setIsSending] = useState(false);
+  const [isGetting, setIsGetting] = useState(false);
 
   useEffect(() => {
     if (!currentUserId) return;
@@ -67,5 +70,28 @@ export const useChat = () => {
     }
   };
 
-  return { messages, sendMessage, isSending };
+  const getPastMessagesFromConversation = async () => {
+    setIsGetting(true);
+    try {
+      const latestActiveConversationId = useChatStore.getState().activeConversationId;
+
+      let pastMessages: Message[] = [];
+
+      await fetch(`${fastapiServerUrl}/api/messages/${latestActiveConversationId}`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+      }).then(async (data) => (pastMessages = (await data.json()).pastMessages));
+
+      console.log(pastMessages);
+
+      prependPastMessages(pastMessages);
+    } catch (error) {
+      console.error('Failed to retrieve messages:', error);
+    } finally {
+      setIsGetting(false);
+    }
+  };
+
+  return { messages, sendMessage, getPastMessagesFromConversation, isSending, isGetting };
 };
