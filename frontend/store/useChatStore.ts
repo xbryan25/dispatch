@@ -5,13 +5,14 @@ interface ChatState {
   messages: Message[];
   socket: WebSocket | null;
   activeConversationId: string | null;
+  hasMorePastMessages: boolean;
 
   // Actions
   addMessage: (msg: Message) => void;
   prependPastMessages: (pastMessages: Message[]) => void;
   setMessages: (msgs: Message[]) => void;
   setActiveConversationId: (conversationId: string | null) => void;
-  setSocket: (socket: WebSocket | null, conversationId: string | null) => void;
+  setSocket: (socket: WebSocket | null) => void;
   clearChat: () => void;
 }
 
@@ -19,6 +20,7 @@ export const useChatStore = create<ChatState>((set) => ({
   messages: [],
   socket: null,
   activeConversationId: null,
+  hasMorePastMessages: true,
 
   addMessage: (newMessage) =>
     set((state) => {
@@ -32,12 +34,17 @@ export const useChatStore = create<ChatState>((set) => ({
 
   prependPastMessages: (pastMessages: Message[]) =>
     set((state) => {
-      // Checks if messageId already exists in list
-      // const exists = state.messages.some((m) => m.messageId === newMessage.messageId);
+      // Checks if messageIds already exists in messages array
+      const filteredPast = pastMessages.filter(
+        (pastMessage) => !state.messages.some((m) => m.messageId === pastMessage.messageId)
+      );
 
-      // if (exists) return state;
+      if (filteredPast.length === 0) return state;
 
-      return { messages: [...pastMessages, ...state.messages] };
+      return {
+        messages: [...filteredPast, ...state.messages],
+        hasMorePastMessages: pastMessages.length === 20,
+      };
     }),
 
   setMessages: (msgs) => set({ messages: msgs }),
@@ -45,7 +52,7 @@ export const useChatStore = create<ChatState>((set) => ({
   setActiveConversationId: (conversationId) =>
     set({ activeConversationId: conversationId, messages: [] }),
 
-  setSocket: (socket, conversationId) => set({ socket, activeConversationId: conversationId }),
+  setSocket: (socket) => set({ socket }),
 
   clearChat: () => set({ messages: [], socket: null, activeConversationId: null }),
 }));
