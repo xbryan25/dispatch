@@ -7,6 +7,8 @@ from typing import Optional
 from src.messages.constants import MessageStatusEnum
 from src.core import BaseSchema
 
+from pydantic import Field
+
 
 class MessageCreate(BaseSchema):
     conversation_id: UUID
@@ -22,6 +24,10 @@ class MessageRead(BaseSchema):
     status: MessageStatusEnum
 
 
+class PastMessagesList(BaseSchema):
+    past_messages: list[MessageRead]
+
+
 class ConversationSnippet(BaseSchema):
     conversation_id: UUID
     other_user_name: Optional[str] = None
@@ -32,3 +38,8 @@ class ConversationSnippet(BaseSchema):
 
 class ConversationList(BaseSchema):
     conversations: list[ConversationSnippet]
+
+
+class HistoryFilter(BaseSchema):
+    limit: int = Field(default=20, ge=1, le=100)
+    before_datetime: datetime | None = None

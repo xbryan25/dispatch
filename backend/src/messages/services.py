@@ -14,6 +14,8 @@ from typing import Optional
 
 import traceback
 
+from datetime import datetime
+
 
 class MessagesService:
     @staticmethod
@@ -105,3 +107,23 @@ class MessagesService:
             return formatted_conversations
         except Exception:
             traceback.print_exc()
+
+    @staticmethod
+    async def get_conversation_message_history(
+        db: AsyncSession,
+        conversation_id: UUID,
+        limit: int,
+        before_datetime: datetime | None,
+    ):
+        query = select(Message).where(
+            Message.conversation_id == conversation_id,
+        )
+
+        if before_datetime:
+            query = query.where(Message.created_at < before_datetime)
+
+        query = query.order_by(Message.created_at.desc()).limit(limit)
+
+        messages = (await db.execute(query)).scalars().all()
+
+        return messages[::-1]
