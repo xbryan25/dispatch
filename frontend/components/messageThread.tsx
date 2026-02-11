@@ -6,6 +6,7 @@ import { useEffect, useRef } from 'react';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useChatStore } from '@/store/useChatStore';
 import { useChat } from '@/hooks/useChat';
+import LoadingSpinner from './loadingSpinner';
 
 export default function MessageThread() {
   const { messages, hasMorePastMessages, activeConversationId } = useChatStore();
@@ -80,6 +81,8 @@ export default function MessageThread() {
   }, [messages.length, isGetting]);
   return (
     <div ref={containerRef} className="flex-1 flex flex-col py-2 px-2 gap-3 overflow-y-auto">
+      {isGetting && <LoadingSpinner />}
+
       {/* Top sentinel */}
       {hasMorePastMessages && activeConversationId && (
         <div ref={topSentinelRef} className="loading-spinner h-2.5" />
