@@ -24,6 +24,18 @@ export default function MessageThread() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  const formatDate = (dateStr: string): string => {
+    const formattedDate = new Date(dateStr).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: 'numeric',
+    });
+
+    return formattedDate;
+  };
+
   useEffect(() => {
     // This useEffect activates scrolls senders and receivers of messages to the bottom of a screen until a certain threshold
     if (!activeConversationId) return;
@@ -81,6 +93,14 @@ export default function MessageThread() {
   }, [messages.length, isGetting]);
   return (
     <div ref={containerRef} className="flex-1 flex flex-col py-2 px-2 gap-3 overflow-y-auto">
+      {!hasMorePastMessages && (
+        <div className="flex justify-center py-2">
+          <p className="font-medium">
+            Your conversation with Bryan Agan started here ({formatDate(messages[0].createdAt)}).
+          </p>
+        </div>
+      )}
+
       {isGetting && <LoadingSpinner />}
 
       {/* Top sentinel */}
