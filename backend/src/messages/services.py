@@ -1,5 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, desc
 from sqlalchemy.orm import selectinload
 
 from .schemas import MessageCreate
@@ -103,6 +103,8 @@ class MessagesService:
                         "latest_message_time": conv.latest_message_time,
                     }
                 )
+
+            formatted_conversations.sort(key=lambda x: x['latest_message_time'], reverse=True)
 
             return formatted_conversations
         except Exception:
