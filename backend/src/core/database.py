@@ -10,6 +10,8 @@ engine = create_async_engine(
     echo=True,  # prints SQL queries, useful for dev
     pool_size=5,
     max_overflow=10,
+    pool_timeout=30,
+    pool_recycle=1800,
     connect_args={"statement_cache_size": 0},
 )
 
@@ -25,9 +27,11 @@ Base = declarative_base()
 
 
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
+    print("---------------------------DEBUG: Opening a new DB session")
     async with AsyncSessionLocal() as session:
         try: 
             yield session
         finally: 
+            print("DEBUG: Closing the DB session-----------------------")
             await session.close()
 

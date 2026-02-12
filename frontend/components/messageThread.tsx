@@ -9,7 +9,7 @@ import { useChat } from '@/hooks/useChat';
 import LoadingSpinner from './loadingSpinner';
 
 export default function MessageThread() {
-  const { messages, hasMorePastMessages, activeConversationId } = useChatStore();
+  const { messages, hasMorePastMessages, activeConversationId, isInitialLoad } = useChatStore();
   const { getPastMessagesFromConversation, isGetting } = useChat();
 
   const { currentUserId } = useAuthStore();
@@ -37,6 +37,21 @@ export default function MessageThread() {
   };
 
   useEffect(() => {
+    // This useEffect activates scrolls container div to the bottom whenever activeConversationId changes
+    if (containerRef.current) {
+      const container = containerRef.current;
+
+      // Smooth scroll for a nice feel, or 'instant' for immediate jump
+      container.scrollTo({
+        top: container.scrollHeight,
+        behavior: 'smooth',
+      });
+
+      console.log('something happened!');
+    }
+  }, [activeConversationId]);
+
+  useEffect(() => {
     // This useEffect activates scrolls senders and receivers of messages to the bottom of a screen until a certain threshold
     if (!activeConversationId) return;
 
@@ -60,7 +75,9 @@ export default function MessageThread() {
 
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && activeConversationId) {
+        console.log(`isInitialLoad: ${isInitialLoad}`);
+
+        if (entries[0].isIntersecting && activeConversationId && !isInitialLoad) {
           previousHeightRef.current = container.scrollHeight;
           getPastMessagesFromConversation();
         }
@@ -73,7 +90,13 @@ export default function MessageThread() {
     }
 
     return () => observer.disconnect();
-  }, [hasMorePastMessages, isGetting, activeConversationId, getPastMessagesFromConversation]);
+  }, [
+    hasMorePastMessages,
+    isGetting,
+    activeConversationId,
+    getPastMessagesFromConversation,
+    isInitialLoad,
+  ]);
 
   useEffect(() => {
     // This useEffect readjusts the position of the container when old messages are added
@@ -93,7 +116,7 @@ export default function MessageThread() {
   }, [messages.length, isGetting]);
   return (
     <div ref={containerRef} className="flex-1 flex flex-col py-2 px-2 gap-3 overflow-y-auto">
-      {!hasMorePastMessages && (
+      {!hasMorePastMessages && messages.length > 0 && (
         <div className="flex justify-center py-2">
           <p className="font-medium">
             Your conversation with Bryan Agan started here ({formatDate(messages[0].createdAt)}).
