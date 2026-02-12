@@ -12,6 +12,8 @@ export const useChat = () => {
     messages,
     activeConversationId,
     setIsInitialLoad,
+    setIsGetting,
+    setIsSending,
     setSocket,
     addMessage,
     prependPastMessages,
@@ -20,9 +22,6 @@ export const useChat = () => {
   const { currentUserId } = useAuthStore();
 
   const { upsertSnippet } = useSidebarStore();
-
-  const [isSending, setIsSending] = useState(false);
-  const [isGetting, setIsGetting] = useState(false);
 
   useEffect(() => {
     if (!currentUserId) return;
@@ -86,22 +85,17 @@ export const useChat = () => {
 
       let pastMessages: Message[] = [];
 
-      console.log(latestMessages);
+      const query = `${latestActiveConversationId}${latestMessages[0]?.createdAt ? `?beforeDatetime=${latestMessages[0].createdAt}` : ''}`;
 
-      const query = `${latestActiveConversationId}${latestMessages[0] && latestMessages[0].createdAt ? `?beforeDatetime=${messages[0].createdAt}` : ''}`;
-
-      console.log(query);
-
-      await fetch(`${fastapiServerUrl}/api/messages/${query}`, {
+      const data = await fetch(`${fastapiServerUrl}/api/messages/${query}`, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-      }).then(async (data) => (pastMessages = (await data.json()).pastMessages));
+      });
 
-      console.log(latestIsInitialLoad);
+      pastMessages = (await data.json()).pastMessages;
 
       if (latestIsInitialLoad) {
-        console.log('reach here');
         setIsInitialLoad(false);
       }
 
@@ -113,5 +107,5 @@ export const useChat = () => {
     }
   };
 
-  return { messages, sendMessage, getPastMessagesFromConversation, isSending, isGetting };
+  return { messages, sendMessage, getPastMessagesFromConversation };
 };

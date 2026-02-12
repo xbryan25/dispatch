@@ -9,8 +9,9 @@ import { useChat } from '@/hooks/useChat';
 import LoadingSpinner from './loadingSpinner';
 
 export default function MessageThread() {
-  const { messages, hasMorePastMessages, activeConversationId, isInitialLoad } = useChatStore();
-  const { getPastMessagesFromConversation, isGetting } = useChat();
+  const { messages, hasMorePastMessages, activeConversationId, isInitialLoad, isGetting } =
+    useChatStore();
+  const { getPastMessagesFromConversation } = useChat();
 
   const { currentUserId } = useAuthStore();
 
@@ -114,6 +115,10 @@ export default function MessageThread() {
       previousHeightRef.current = 0;
     }
   }, [messages.length, isGetting]);
+
+  useEffect(() => {
+    console.log('UI RENDER - isGetting is:', isGetting);
+  }, [isGetting]);
   return (
     <div ref={containerRef} className="flex-1 flex flex-col py-2 px-2 gap-3 overflow-y-auto">
       {!hasMorePastMessages && messages.length > 0 && (
