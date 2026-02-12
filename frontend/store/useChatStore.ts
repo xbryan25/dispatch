@@ -7,6 +7,8 @@ interface ChatState {
   activeConversationId: string | null;
   hasMorePastMessages: boolean;
   isInitialLoad: boolean;
+  isGetting: boolean;
+  isSending: boolean;
 
   // Actions
   addMessage: (msg: Message) => void;
@@ -14,6 +16,8 @@ interface ChatState {
   setMessages: (msgs: Message[]) => void;
   setActiveConversationId: (conversationId: string | null) => void;
   setIsInitialLoad: (newVal: boolean) => void;
+  setIsGetting: (newVal: boolean) => void;
+  setIsSending: (newVal: boolean) => void;
   setSocket: (socket: WebSocket | null) => void;
   clearChat: () => void;
 }
@@ -24,6 +28,8 @@ export const useChatStore = create<ChatState>((set) => ({
   activeConversationId: null,
   hasMorePastMessages: true,
   isInitialLoad: false,
+  isGetting: false,
+  isSending: false,
 
   addMessage: (newMessage) =>
     set((state) => {
@@ -61,6 +67,10 @@ export const useChatStore = create<ChatState>((set) => ({
     }),
 
   setIsInitialLoad: (newVal: boolean) => set({ isInitialLoad: newVal }),
+
+  setIsGetting: (newVal: boolean) => set({ isGetting: newVal }),
+
+  setIsSending: (newVal: boolean) => set({ isSending: newVal }),
 
   setSocket: (socket) => set({ socket }),
 
