@@ -9,6 +9,8 @@ import { useChatStore } from '@/store/useChatStore';
 
 import { useChat } from '@/hooks/useChat';
 
+import { useEffect, useState } from 'react';
+
 interface ConversationTabProps {
   conversationSnippet: ConversationSnippet;
 }
@@ -21,17 +23,47 @@ export default function ConversationTab({ conversationSnippet }: ConversationTab
 
   const { getPastMessagesFromConversation } = useChat();
 
+  const [formattedTime, setFormattedTime] = useState('');
+  const timestamp = conversationSnippet.latestMessageTime;
+
   const isActive = currentSelectedConversationId === conversationSnippet.conversationId;
 
-  const formatTime = (dateString: string) => {
-    if (!dateString) return '';
+  const formatRelativeTime = (dateString: string) => {
+    const start = new Date(dateString).getTime();
+    const now = Date.now();
+    const diffInSeconds = Math.floor((now - start) / 1000);
 
-    return new Date(dateString).toLocaleTimeString('en-US', {
-      hour: 'numeric',
-      minute: '2-digit',
-      hour12: true,
-    });
+    if (diffInSeconds < 60) return 'just now';
+
+    const units = [
+      { label: 'm', seconds: 60 },
+      { label: 'h', seconds: 3600 },
+      { label: 'd', seconds: 86400 },
+      { label: 'w', seconds: 604800 },
+      { label: 'mo', seconds: 2592000 },
+      { label: 'y', seconds: 31536000 },
+    ];
+
+    for (let i = units.length - 1; i >= 0; i--) {
+      if (diffInSeconds >= units[i].seconds) {
+        return `${Math.floor(diffInSeconds / units[i].seconds)}${units[i].label}`;
+      }
+    }
+    return 'just now';
   };
+
+  useEffect(() => {
+    const update = () => {
+      const timeStr = formatRelativeTime(timestamp);
+      setFormattedTime(timeStr || '');
+    };
+
+    update();
+
+    const interval = setInterval(update, 60000);
+
+    return () => clearInterval(interval);
+  }, [timestamp]);
 
   return (
     <div
@@ -58,7 +90,7 @@ export default function ConversationTab({ conversationSnippet }: ConversationTab
       <div className="flex-1 flex flex-col min-w-0">
         <div className="flex justify-between">
           <h3 className="font-semibold">{conversationSnippet.otherUserName}</h3>
-          <p className="shrink-0">{formatTime(conversationSnippet.latestMessageTime)}</p>
+          <p className="shrink-0">{formatRelativeTime(conversationSnippet.latestMessageTime)}</p>
         </div>
         <div className="flex justify-between items-center gap-4">
           <p className="truncate ">

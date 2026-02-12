@@ -27,11 +27,9 @@ Base = declarative_base()
 
 
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
-    print("---------------------------DEBUG: Opening a new DB session")
     async with AsyncSessionLocal() as session:
         try: 
             yield session
         finally: 
-            print("DEBUG: Closing the DB session-----------------------")
             await session.close()
 
