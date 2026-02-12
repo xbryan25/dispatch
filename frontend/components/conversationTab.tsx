@@ -14,8 +14,10 @@ interface ConversationTabProps {
 }
 
 export default function ConversationTab({ conversationSnippet }: ConversationTabProps) {
-  const setSelectedConversationId = useChatStore((state) => state.setActiveConversationId);
-  const currentSelectedConversationId = useChatStore((state) => state.activeConversationId);
+  const {
+    activeConversationId: currentSelectedConversationId,
+    setActiveConversationId: setSelectedConversationId,
+  } = useChatStore();
 
   const { getPastMessagesFromConversation } = useChat();
 

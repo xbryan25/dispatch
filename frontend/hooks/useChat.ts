@@ -8,8 +8,15 @@ const fastapiServerUrl = process.env.NEXT_PUBLIC_FASTAPI_SERVER_URL;
 const fastapiWebsocketUrl = process.env.NEXT_PUBLIC_FASTAPI_WEBSOCKET_URL;
 
 export const useChat = () => {
-  const { messages, activeConversationId, setSocket, addMessage, prependPastMessages, clearChat } =
-    useChatStore();
+  const {
+    messages,
+    activeConversationId,
+    setIsInitialLoad,
+    setSocket,
+    addMessage,
+    prependPastMessages,
+    clearChat,
+  } = useChatStore();
   const { currentUserId } = useAuthStore();
 
   const { upsertSnippet } = useSidebarStore();
@@ -74,10 +81,16 @@ export const useChat = () => {
     setIsGetting(true);
     try {
       const latestActiveConversationId = useChatStore.getState().activeConversationId;
+      const latestMessages = useChatStore.getState().messages;
+      const latestIsInitialLoad = useChatStore.getState().isInitialLoad;
 
       let pastMessages: Message[] = [];
 
-      const query = `${latestActiveConversationId}${messages[0] && messages[0].createdAt ? `?beforeDatetime=${messages[0].createdAt}` : ''}`;
+      console.log(latestMessages);
+
+      const query = `${latestActiveConversationId}${latestMessages[0] && latestMessages[0].createdAt ? `?beforeDatetime=${messages[0].createdAt}` : ''}`;
+
+      console.log(query);
 
       await fetch(`${fastapiServerUrl}/api/messages/${query}`, {
         method: 'GET',
@@ -85,7 +98,12 @@ export const useChat = () => {
         credentials: 'include',
       }).then(async (data) => (pastMessages = (await data.json()).pastMessages));
 
-      console.log(pastMessages);
+      console.log(latestIsInitialLoad);
+
+      if (latestIsInitialLoad) {
+        console.log('reach here');
+        setIsInitialLoad(false);
+      }
 
       prependPastMessages(pastMessages);
     } catch (error) {
