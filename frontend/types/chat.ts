@@ -14,3 +14,9 @@ export interface ConversationSnippet {
   latestMessage: string;
   latestMessageTime: string;
 }
+
+export interface OtherParticipantDetails {
+  userId: string;
+  username: string;
+  profileImageUrl: string;
+}

@@ -19,6 +19,8 @@ from .schemas import (
     PastMessagesList,
 )
 
+from src.auth.schemas import PartialUserDetails
+
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from uuid import UUID
@@ -76,7 +78,9 @@ async def send_message(
         )
 
         conversation_participants = (
-            await MessagesService.get_participants_in_conversation(db, conversation_id)
+            await MessagesService.get_participant_ids_in_conversation(
+                db, conversation_id
+            )
             or []
         )
 
@@ -142,6 +146,46 @@ async def get_conversation_message_history(
         )
 
         return {"past_messages": past_messages}
+
+    except Exception:
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+
+@router.get("/{conversation_id}/other-participant", response_model=PartialUserDetails)
+async def get_other_conversation_participant(
+    user_id: Annotated[UUID, Depends(get_current_user_id)],
+    conversation_id: UUID,
+    db: AsyncSession = Depends(get_db),
+):
+
+    try:
+        async with AsyncSessionLocal() as db:
+            conversation = await MessagesService.get_conversation_by_id(
+                db, conversation_id
+            )
+
+            if not conversation:
+                raise InvalidConversationID("Conversation ID does not exist.")
+
+        conversation_participants = []
+
+        conversation_participants = (
+            await MessagesService.get_participants_details_in_conversation(
+                db,
+                conversation_id,
+            )
+            or []
+        )
+
+        other_participant = next(
+            (p for p in conversation_participants if p["user_id"] != user_id), None
+        )
+
+        if other_participant is None:
+            raise HTTPException(status_code=404, detail="User not found")
+
+        return other_participant
 
     except Exception:
         traceback.print_exc()

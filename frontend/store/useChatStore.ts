@@ -1,35 +1,41 @@
 import { create } from 'zustand';
-import { Message } from '@/types/chat';
+import { Message, OtherParticipantDetails } from '@/types/chat';
 
 interface ChatState {
   messages: Message[];
+  otherParticipantDetails: OtherParticipantDetails | null;
   socket: WebSocket | null;
   activeConversationId: string | null;
   hasMorePastMessages: boolean;
   isInitialLoad: boolean;
   isGetting: boolean;
   isSending: boolean;
+  isGettingOtherParticipant: boolean;
 
   // Actions
   addMessage: (msg: Message) => void;
   prependPastMessages: (pastMessages: Message[]) => void;
   setMessages: (msgs: Message[]) => void;
   setActiveConversationId: (conversationId: string | null) => void;
+  setOtherParticipantDetails: (newParticipantDetails: OtherParticipantDetails | null) => void;
   setIsInitialLoad: (newVal: boolean) => void;
   setIsGetting: (newVal: boolean) => void;
   setIsSending: (newVal: boolean) => void;
+  setIsGettingOtherParticipant: (newVal: boolean) => void;
   setSocket: (socket: WebSocket | null) => void;
   clearChat: () => void;
 }
 
 export const useChatStore = create<ChatState>((set) => ({
   messages: [],
+  otherParticipantDetails: null,
   socket: null,
   activeConversationId: null,
   hasMorePastMessages: true,
   isInitialLoad: false,
   isGetting: false,
   isSending: false,
+  isGettingOtherParticipant: false,
 
   addMessage: (newMessage) =>
     set((state) => {
@@ -66,11 +72,18 @@ export const useChatStore = create<ChatState>((set) => ({
       isInitialLoad: true,
     }),
 
+  setOtherParticipantDetails: (newParticipantDetails) =>
+    set({
+      otherParticipantDetails: newParticipantDetails,
+    }),
+
   setIsInitialLoad: (newVal: boolean) => set({ isInitialLoad: newVal }),
 
   setIsGetting: (newVal: boolean) => set({ isGetting: newVal }),
 
   setIsSending: (newVal: boolean) => set({ isSending: newVal }),
+
+  setIsGettingOtherParticipant: (newVal: boolean) => set({ isSending: newVal }),
 
   setSocket: (socket) => set({ socket }),
 

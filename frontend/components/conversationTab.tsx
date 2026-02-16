@@ -21,7 +21,7 @@ export default function ConversationTab({ conversationSnippet }: ConversationTab
     setActiveConversationId: setSelectedConversationId,
   } = useChatStore();
 
-  const { getPastMessagesFromConversation } = useChat();
+  const { getPastMessagesFromConversation, getOtherParticipantFromConversation } = useChat();
 
   const [formattedTime, setFormattedTime] = useState('');
   const timestamp = conversationSnippet.latestMessageTime;
@@ -71,6 +71,7 @@ export default function ConversationTab({ conversationSnippet }: ConversationTab
       onClick={() => {
         setSelectedConversationId(conversationSnippet.conversationId);
         getPastMessagesFromConversation();
+        getOtherParticipantFromConversation();
       }}
     >
       <div className="relative w-12 h-12 shrink-0 overflow-hidden rounded-full">

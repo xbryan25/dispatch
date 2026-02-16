@@ -9,8 +9,9 @@ import { Icon } from '@iconify/react';
 import MessageThread from './messageThread';
 
 import { useChat } from '@/hooks/useChat';
+import { useChatStore } from '@/store/useChatStore';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 interface ChatListProps {
   onToggle: () => void; // This is a function prop
@@ -20,6 +21,7 @@ export default function ConversationArea({ onToggle }: ChatListProps) {
   const [newMessage, setNewMessage] = useState<string>('');
 
   const { sendMessage } = useChat();
+  const { otherParticipantDetails } = useChatStore();
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -38,7 +40,11 @@ export default function ConversationArea({ onToggle }: ChatListProps) {
         <div className="flex gap-3">
           <div className="relative w-12 h-12 shrink-0 overflow-hidden rounded-full ">
             <Image
-              src="/testdp.jpg"
+              src={
+                otherParticipantDetails?.profileImageUrl
+                  ? otherParticipantDetails.profileImageUrl
+                  : '/blank_picture.png'
+              }
               alt="User avatar"
               fill
               sizes="96px" // Helps Next.js optimize the download size
@@ -47,7 +53,7 @@ export default function ConversationArea({ onToggle }: ChatListProps) {
           </div>
 
           <div className="flex flex-col">
-            <h3 className="font-semibold">gwapo</h3>
+            <h3 className="font-semibold">{otherParticipantDetails?.username}</h3>
             <div className="flex gap-1 items-center">
               <div className="bg-green-400 size-2 rounded-full"></div>
               <p className="">Active now</p>

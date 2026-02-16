@@ -1,5 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, desc
+from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
 from .schemas import MessageCreate
@@ -38,7 +38,33 @@ class MessagesService:
             traceback.print_exc()
 
     @staticmethod
-    async def get_participants_in_conversation(db: AsyncSession, conversation_id: UUID):
+    async def get_participants_details_in_conversation(
+        db: AsyncSession, conversation_id: UUID
+    ):
+
+        try:
+            query = (
+                select(
+                    ConversationParticipant.user_id,
+                    UserProfile.username,
+                    UserProfile.profile_image_url,
+                )
+                .join(
+                    UserProfile, ConversationParticipant.user_id == UserProfile.user_id
+                )
+                .where(
+                    ConversationParticipant.conversation_id == conversation_id,
+                )
+            )
+            result = await db.execute(query)
+            return result.mappings().all()
+        except Exception:
+            traceback.print_exc()
+
+    @staticmethod
+    async def get_participant_ids_in_conversation(
+        db: AsyncSession, conversation_id: UUID
+    ):
 
         try:
             query = select(ConversationParticipant.user_id).where(
@@ -104,7 +130,9 @@ class MessagesService:
                     }
                 )
 
-            formatted_conversations.sort(key=lambda x: x['latest_message_time'], reverse=True)
+            formatted_conversations.sort(
+                key=lambda x: x["latest_message_time"], reverse=True
+            )
 
             return formatted_conversations
         except Exception:
