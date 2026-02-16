@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useChatStore } from '@/store/useChatStore';
 import { useSidebarStore } from '@/store/useSidebarStore';
 import { useAuthStore } from '@/store/useAuthStore';
-import { Message } from '@/types/chat';
+import { Message, OtherParticipantDetails } from '@/types/chat';
 
 const fastapiServerUrl = process.env.NEXT_PUBLIC_FASTAPI_SERVER_URL;
 const fastapiWebsocketUrl = process.env.NEXT_PUBLIC_FASTAPI_WEBSOCKET_URL;
@@ -14,11 +14,14 @@ export const useChat = () => {
     setIsInitialLoad,
     setIsGetting,
     setIsSending,
+    setIsGettingOtherParticipant,
     setSocket,
     addMessage,
     prependPastMessages,
+    setOtherParticipantDetails,
     clearChat,
   } = useChatStore();
+
   const { currentUserId } = useAuthStore();
 
   const { upsertSnippet } = useSidebarStore();
@@ -107,5 +110,36 @@ export const useChat = () => {
     }
   };
 
-  return { messages, sendMessage, getPastMessagesFromConversation };
+  const getOtherParticipantFromConversation = async () => {
+    const latestActiveConversationId = useChatStore.getState().activeConversationId;
+
+    setIsGettingOtherParticipant(true);
+    try {
+      const data = await fetch(
+        `${fastapiServerUrl}/api/messages/${latestActiveConversationId}/other-participant`,
+        {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+        }
+      );
+
+      const otherParticipant: OtherParticipantDetails | null = await data.json();
+
+      console.log(otherParticipant);
+
+      setOtherParticipantDetails(otherParticipant);
+    } catch (error) {
+      console.error('Failed to send:', error);
+    } finally {
+      setIsSending(false);
+    }
+  };
+
+  return {
+    messages,
+    sendMessage,
+    getPastMessagesFromConversation,
+    getOtherParticipantFromConversation,
+  };
 };
