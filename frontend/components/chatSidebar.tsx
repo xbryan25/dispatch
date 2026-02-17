@@ -6,6 +6,8 @@ import ThemeToggleButton from './themeToggleButton';
 
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group';
 
+import { Input } from '@/components/ui/input';
+
 import { Search } from 'lucide-react';
 
 import ChatList from './chatList';
@@ -27,6 +29,18 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+
+import { Field, FieldGroup, FieldLabel } from '@/components/ui/field';
 
 import { Icon } from '@iconify/react';
 
@@ -76,6 +90,77 @@ export default function ChatSidebar() {
               <PopoverHeader>
                 <PopoverTitle className="text-xl font-bold">Settings</PopoverTitle>
               </PopoverHeader>
+
+              <Dialog>
+                <DialogTrigger asChild>
+                  <button className="flex items-center gap-1 bg-white dark:bg-stone-900 hover:bg-stone-200 dark:hover:bg-stone-700 cursor-pointer rounded-md p-2 font-medium">
+                    <Icon icon="material-symbols:person" className="size-4" />
+                    Update profile
+                  </button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Update Profile</DialogTitle>
+                    <DialogDescription>
+                      Update your details below. Changes take a moment to sync everywhere.
+                    </DialogDescription>
+                    <div className="flex w-full gap-2 pt-2">
+                      <div className="w-full max-w-md">
+                        <form className="flex flex-col gap-5">
+                          <FieldGroup className="flex flex-col gap-3">
+                            <Field>
+                              <FieldLabel htmlFor="fullName">Full Name</FieldLabel>
+
+                              <div className="flex flex-col gap-2">
+                                <Input
+                                  id="fullName"
+                                  type="text"
+                                  placeholder="[Current full name]"
+                                />
+                              </div>
+                            </Field>
+
+                            <Field>
+                              <FieldLabel htmlFor="gender">Gender</FieldLabel>
+
+                              <div className="flex flex-col gap-2">
+                                <Select>
+                                  <SelectTrigger className="w-full max-w-full">
+                                    <SelectValue placeholder="Select a new gender" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectGroup>
+                                      <SelectLabel>Gender</SelectLabel>
+                                      <SelectItem value="apple">Male</SelectItem>
+                                      <SelectItem value="banana">Female</SelectItem>
+                                      <SelectItem value="blueberry">Others</SelectItem>
+                                      <SelectItem value="grapes">Prefer not to say</SelectItem>
+                                    </SelectGroup>
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                            </Field>
+
+                            <Field>
+                              <FieldLabel htmlFor="fullName">Username</FieldLabel>
+
+                              <div className="flex flex-col gap-2">
+                                <Input id="username" type="text" placeholder="[Current username]" />
+                              </div>
+                            </Field>
+
+                            <Field orientation="horizontal">
+                              <Button type="submit" className="w-full cursor-pointer text-lg">
+                                Login
+                              </Button>
+                            </Field>
+                          </FieldGroup>
+                        </form>
+                      </div>
+                    </div>
+                  </DialogHeader>
+                </DialogContent>
+              </Dialog>
 
               <Dialog>
                 <DialogTrigger asChild>
