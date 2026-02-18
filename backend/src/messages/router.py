@@ -19,7 +19,7 @@ from .schemas import (
     PastMessagesList,
 )
 
-from src.auth.schemas import PartialUserDetails
+from src.auth.schemas import UserMinimal
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -152,7 +152,7 @@ async def get_conversation_message_history(
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
-@router.get("/{conversation_id}/other-participant", response_model=PartialUserDetails)
+@router.get("/{conversation_id}/other-participant", response_model=UserMinimal)
 async def get_other_conversation_participant(
     user_id: Annotated[UUID, Depends(get_current_user_id)],
     conversation_id: UUID,
