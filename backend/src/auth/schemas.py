@@ -6,19 +6,26 @@ from src.core import BaseSchema
 
 from uuid import UUID
 
+from typing import Optional
+
 
 class UsernameCheckResponse(BaseSchema):
     does_username_exist: bool
 
 
-class UserProfileCreate(BaseSchema):
-    username: str = Field(..., min_length=3, max_length=30)
-    full_name: str | None = None
-    date_of_birth: date | None = None
-    gender: GenderEnum | None = None
+class UserUpdate(BaseSchema):
+    username: Optional[str] = None
+    full_name: Optional[str] = None
+    gender: Optional[str] = None
+    date_of_birth: Optional[date] = None
+    profile_image_url: Optional[str] = None
 
-
-class PartialUserDetails(BaseSchema):
+class UserMinimal(BaseSchema):
     user_id: UUID
     username: str
-    profile_image_url: str | None
+    profile_image_url: Optional[str] = None
+
+class UserResponse(UserMinimal):
+    full_name: str
+    gender: str
+    date_of_birth: date
