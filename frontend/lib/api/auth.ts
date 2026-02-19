@@ -16,6 +16,17 @@ export async function getCurrentUserId() {
     credentials: 'include',
   });
 
-  if (!res.ok) throw new Error('Something went wrong when checking for getting userId.');
+  if (!res.ok) throw new Error('Something went wrong when getting userId.');
+  return res.json();
+}
+
+export async function getCurrentUserDetails() {
+  const res = await fetch(`${fastapiServerUrl}/api/auth/user-details`, {
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+  });
+
+  if (!res.ok) throw new Error('Something went wrong when getting user details.');
   return res.json();
 }

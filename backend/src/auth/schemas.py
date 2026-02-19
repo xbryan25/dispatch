@@ -1,5 +1,4 @@
-from pydantic import Field
-from datetime import date
+from datetime import date, datetime
 
 from src.auth.constants import GenderEnum
 from src.core import BaseSchema
@@ -16,16 +15,20 @@ class UsernameCheckResponse(BaseSchema):
 class UserUpdate(BaseSchema):
     username: Optional[str] = None
     full_name: Optional[str] = None
-    gender: Optional[str] = None
+    gender: Optional[GenderEnum] = None
     date_of_birth: Optional[date] = None
     profile_image_url: Optional[str] = None
+
 
 class UserMinimal(BaseSchema):
     user_id: UUID
     username: str
     profile_image_url: Optional[str] = None
 
+
 class UserResponse(UserMinimal):
     full_name: str
-    gender: str
-    date_of_birth: date
+    gender: Optional[GenderEnum]
+    date_of_birth: Optional[date]
+    joined_at: datetime
+    is_email_verified: bool
