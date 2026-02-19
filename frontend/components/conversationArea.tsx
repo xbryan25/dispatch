@@ -11,7 +11,7 @@ import MessageThread from './messageThread';
 import { useChat } from '@/hooks/useChat';
 import { useChatStore } from '@/store/useChatStore';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 interface ChatListProps {
   onToggle: () => void; // This is a function prop

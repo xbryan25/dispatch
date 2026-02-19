@@ -1,10 +1,16 @@
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core import get_db
 from .dependencies import get_current_user_id
 from .services import AuthService
-from .schemas import UsernameCheckResponse
+from .schemas import UsernameCheckResponse, UserResponse
+
+from typing import Annotated
+
+from uuid import UUID
+
+import traceback
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
@@ -18,6 +24,20 @@ async def check_username(
 
 
 @router.get("/me")
-async def get_me(user_id: str = Depends(get_current_user_id)):
+async def get_me(user_id: Annotated[UUID, Depends(get_current_user_id)]):
 
     return {"currentUserId": user_id}
+
+
+@router.get("/user-details", response_model=UserResponse)
+async def get_user_details(
+    user_id: Annotated[UUID, Depends(get_current_user_id)],
+    db: AsyncSession = Depends(get_db),
+):
+
+    try:
+        return await AuthService.get_participant_details(db, user_id)
+
+    except Exception:
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail="Internal Server Error")
