@@ -32,14 +32,23 @@ import { Icon } from '@iconify/react';
 
 import { useState } from 'react';
 
-import { useGetCurrentUserDetails } from '@/hooks/useAuth';
+import { useGetCurrentUserDetails, useUpdateCurrentUserDetails } from '@/hooks/useAuth';
 import { UserProfile } from '@/types/auth';
+
+import { FormEvent } from 'react';
+
+import { toast } from 'sonner';
 
 export default function UpdateProfileDialog() {
   const { retrieveUserDetails } = useGetCurrentUserDetails();
+  const { patchUserDetails } = useUpdateCurrentUserDetails();
 
-  const [open, setOpen] = useState(false);
-  const [date, setDate] = useState<Date | undefined>(undefined);
+  const [open, setOpen] = useState<boolean>(false);
+  const [dateOfBirth, setDateOfBirth] = useState<Date | undefined>(undefined);
+  const [fullName, setFullName] = useState<string>('');
+  const [gender, setGender] = useState<string>('');
+  const [username, setUsername] = useState<string>('');
+
   const [userDetails, setUserDetails] = useState<UserProfile | null>(null);
 
   const getUserDetails = async () => {
@@ -48,7 +57,14 @@ export default function UpdateProfileDialog() {
     setUserDetails(data);
 
     const birthDate = data?.dateOfBirth ? new Date(data.dateOfBirth.replace(/-/g, '/')) : undefined;
-    setDate(birthDate);
+    setDateOfBirth(birthDate);
+  };
+
+  const updateUserDetails = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    await patchUserDetails({ dateOfBirth, fullName, gender, username });
+
+    toast.success('Profile update is successful!');
   };
 
   return (
@@ -71,14 +87,20 @@ export default function UpdateProfileDialog() {
           </DialogDescription>
           <div className="flex w-full gap-2 pt-2">
             <div className="w-full max-w-md">
-              <form className="flex flex-col gap-5">
+              <form onSubmit={(e) => updateUserDetails(e)} className="flex flex-col gap-5">
                 <FieldGroup className="flex flex-col gap-5">
                   <div className="flex flex-col gap-2">
                     <Field className="flex flex-col gap-1">
                       <FieldLabel htmlFor="fullName">Full Name</FieldLabel>
 
                       <div className="flex flex-col gap-2">
-                        <Input id="fullName" type="text" placeholder={userDetails?.fullName} />
+                        <Input
+                          id="fullName"
+                          type="text"
+                          value={fullName ?? undefined}
+                          placeholder={userDetails?.fullName}
+                          onChange={(e) => setFullName(e.target.value)}
+                        />
                       </div>
                     </Field>
 
@@ -86,7 +108,10 @@ export default function UpdateProfileDialog() {
                       <FieldLabel htmlFor="gender">Gender</FieldLabel>
 
                       <div className="flex flex-col gap-2">
-                        <Select>
+                        <Select
+                          value={gender ?? undefined}
+                          onValueChange={(value) => setGender(value)}
+                        >
                           <SelectTrigger className="w-full max-w-full">
                             <SelectValue
                               placeholder={`${userDetails?.gender[0]?.toUpperCase()}${userDetails?.gender.slice(1)}`}
@@ -98,7 +123,7 @@ export default function UpdateProfileDialog() {
                               <SelectItem value="male">Male</SelectItem>
                               <SelectItem value="female">Female</SelectItem>
                               <SelectItem value="others">Others</SelectItem>
-                              <SelectItem value="preferNotToSay">Prefer not to say</SelectItem>
+                              <SelectItem value="prefer_not_to_say">Prefer not to say</SelectItem>
                             </SelectGroup>
                           </SelectContent>
                         </Select>
@@ -117,8 +142,8 @@ export default function UpdateProfileDialog() {
                               className="justify-start font-normal"
                             >
                               {/* {userDetails?.dateOfBirth ? userDetails.dateOfBirth : 'Select date'} */}
-                              {date
-                                ? date.toLocaleDateString('en-US', {
+                              {dateOfBirth
+                                ? dateOfBirth.toLocaleDateString('en-US', {
                                     month: 'long', // "October"
                                     day: 'numeric', // "12"
                                     year: 'numeric', // "2005"
@@ -129,11 +154,11 @@ export default function UpdateProfileDialog() {
                           <PopoverContent className="w-auto overflow-hidden p-0" align="start">
                             <Calendar
                               mode="single"
-                              selected={date}
-                              defaultMonth={date}
+                              selected={dateOfBirth}
+                              defaultMonth={dateOfBirth}
                               captionLayout="dropdown"
                               onSelect={(date) => {
-                                setDate(date);
+                                setDateOfBirth(date);
                                 setOpen(false);
                               }}
                             />
@@ -146,7 +171,13 @@ export default function UpdateProfileDialog() {
                       <FieldLabel htmlFor="fullName">Username</FieldLabel>
 
                       <div className="flex flex-col gap-2">
-                        <Input id="username" type="text" placeholder={userDetails?.username} />
+                        <Input
+                          id="username"
+                          type="text"
+                          value={username ?? undefined}
+                          placeholder={userDetails?.username}
+                          onChange={(e) => setUsername(e.target.value)}
+                        />
                       </div>
                     </Field>
                   </div>
