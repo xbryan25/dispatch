@@ -44,6 +44,8 @@ export default function UpdateProfileDialog() {
   const { patchUserDetails } = useUpdateCurrentUserDetails();
 
   const [open, setOpen] = useState<boolean>(false);
+  const [oldDateOfBirth, setOldDateOfBirth] = useState<Date | undefined>(undefined);
+
   const [dateOfBirth, setDateOfBirth] = useState<Date | undefined>(undefined);
   const [fullName, setFullName] = useState<string>('');
   const [gender, setGender] = useState<string>('');
@@ -57,7 +59,7 @@ export default function UpdateProfileDialog() {
     setUserDetails(data);
 
     const birthDate = data?.dateOfBirth ? new Date(data.dateOfBirth.replace(/-/g, '/')) : undefined;
-    setDateOfBirth(birthDate);
+    setOldDateOfBirth(birthDate);
   };
 
   const updateUserDetails = async (e: FormEvent<HTMLFormElement>) => {
@@ -141,9 +143,8 @@ export default function UpdateProfileDialog() {
                               id="date"
                               className="justify-start font-normal"
                             >
-                              {/* {userDetails?.dateOfBirth ? userDetails.dateOfBirth : 'Select date'} */}
-                              {dateOfBirth
-                                ? dateOfBirth.toLocaleDateString('en-US', {
+                              {oldDateOfBirth
+                                ? oldDateOfBirth.toLocaleDateString('en-US', {
                                     month: 'long', // "October"
                                     day: 'numeric', // "12"
                                     year: 'numeric', // "2005"
@@ -154,8 +155,8 @@ export default function UpdateProfileDialog() {
                           <PopoverContent className="w-auto overflow-hidden p-0" align="start">
                             <Calendar
                               mode="single"
-                              selected={dateOfBirth}
-                              defaultMonth={dateOfBirth}
+                              selected={dateOfBirth == undefined ? oldDateOfBirth : dateOfBirth}
+                              defaultMonth={dateOfBirth == undefined ? oldDateOfBirth : dateOfBirth}
                               captionLayout="dropdown"
                               onSelect={(date) => {
                                 setDateOfBirth(date);
