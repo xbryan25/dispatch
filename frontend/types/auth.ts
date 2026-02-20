@@ -8,3 +8,10 @@ export interface UserProfile {
   joinedAt: string;
   isEmailVerified: boolean;
 }
+
+export interface UserProfileUpdate {
+  username: string;
+  fullName: string;
+  dateOfBirth: Date | undefined;
+  gender: string;
+}

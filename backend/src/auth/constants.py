@@ -4,5 +4,5 @@ from enum import Enum
 class GenderEnum(str, Enum):
     male = "male"
     female = "female"
-    other = "other"
+    others = "others"
     prefer_not_to_say = "prefer_not_to_say"

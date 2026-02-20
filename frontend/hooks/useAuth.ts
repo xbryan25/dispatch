@@ -4,9 +4,9 @@ import { useState, useCallback } from 'react';
 import { register, login, logout } from '@/lib/auth';
 import { useAuthStore } from '@/store/useAuthStore';
 
-import { getCurrentUserId, getCurrentUserDetails } from '@/lib/api/auth';
+import { getCurrentUserId, getCurrentUserDetails, updateUserDetails } from '@/lib/api/auth';
 
-import { UserProfile } from '@/types/auth';
+import { UserProfile, UserProfileUpdate } from '@/types/auth';
 
 export function useRegisterUser() {
   const [loading, setLoading] = useState(false);
@@ -133,4 +133,29 @@ export function useGetCurrentUserDetails() {
   };
 
   return { retrieveUserDetails, loading, error };
+}
+
+export function useUpdateCurrentUserDetails() {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const patchUserDetails = async (payload: UserProfileUpdate) => {
+    setLoading(true);
+    setError(null);
+    try {
+      await updateUserDetails(payload);
+
+      return { error: null };
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred';
+
+      setError(errorMessage);
+
+      return { error: errorMessage };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return { patchUserDetails, loading, error };
 }

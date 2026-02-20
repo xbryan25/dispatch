@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.core import get_db
 from .dependencies import get_current_user_id
 from .services import AuthService
-from .schemas import UsernameCheckResponse, UserResponse
+from .schemas import UsernameCheckResponse, UserResponse, UserUpdate
 
 from typing import Annotated
 
@@ -37,6 +37,21 @@ async def get_user_details(
 
     try:
         return await AuthService.get_participant_details(db, user_id)
+
+    except Exception:
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+
+@router.patch("/user-details")
+async def update_user_details(
+    payload: UserUpdate,
+    user_id: Annotated[UUID, Depends(get_current_user_id)],
+    db: AsyncSession = Depends(get_db),
+):
+
+    try:
+        print(payload)
 
     except Exception:
         traceback.print_exc()

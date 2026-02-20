@@ -17,7 +17,6 @@ class UserUpdate(BaseSchema):
     full_name: Optional[str] = None
     gender: Optional[GenderEnum] = None
     date_of_birth: Optional[date] = None
-    profile_image_url: Optional[str] = None
 
 
 class UserMinimal(BaseSchema):
