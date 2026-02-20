@@ -51,7 +51,8 @@ async def update_user_details(
 ):
 
     try:
-        print(payload)
+
+        return await AuthService.update_participant_details(db, user_id, payload)
 
     except Exception:
         traceback.print_exc()

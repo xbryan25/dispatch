@@ -42,10 +42,14 @@ export async function updateUserDetails(payload: UserProfileUpdate) {
         : payload.dateOfBirth,
   };
 
+  const body = Object.fromEntries(
+    Object.entries(dataToSend).map(([k, v]) => [k, v === '' ? null : v])
+  );
+
   const res = await fetch(`${fastapiServerUrl}/api/auth/user-details`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(dataToSend),
+    body: JSON.stringify(body),
     credentials: 'include',
   });
 

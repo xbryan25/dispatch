@@ -10,8 +10,8 @@ export interface UserProfile {
 }
 
 export interface UserProfileUpdate {
-  username: string;
-  fullName: string;
+  username: string | null;
+  fullName: string | null;
   dateOfBirth: Date | undefined;
-  gender: string;
+  gender: string | null;
 }
