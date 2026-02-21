@@ -13,6 +13,7 @@ import { Icon } from '@iconify/react';
 
 import LogoutDialog from './logoutDialog';
 import UpdateProfileDialog from './updateProfileDialog';
+import ChangeProfilePictureDialog from './changeProfilePictureDialog';
 
 export default function SidebarPopover() {
   return (
@@ -28,6 +29,7 @@ export default function SidebarPopover() {
           <PopoverTitle className="text-xl font-bold">Settings</PopoverTitle>
         </PopoverHeader>
 
+        <ChangeProfilePictureDialog />
         <UpdateProfileDialog />
         <LogoutDialog />
       </PopoverContent>
