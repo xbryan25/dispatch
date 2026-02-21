@@ -8,7 +8,7 @@ import Image from 'next/image';
 import { Icon } from '@iconify/react';
 import MessageThread from './messageThread';
 
-import { useChat } from '@/hooks/useChat';
+import { useSendMessage } from '@/hooks/useChat';
 import { useChatStore } from '@/store/useChatStore';
 
 import { useState } from 'react';
@@ -20,7 +20,7 @@ interface ChatListProps {
 export default function ConversationArea({ onToggle }: ChatListProps) {
   const [newMessage, setNewMessage] = useState<string>('');
 
-  const { sendMessage } = useChat();
+  const { send } = useSendMessage();
   const { otherParticipantDetails } = useChatStore();
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -28,7 +28,7 @@ export default function ConversationArea({ onToggle }: ChatListProps) {
       e.preventDefault();
 
       if (newMessage.trim() !== '') {
-        sendMessage(newMessage.trim());
+        send(newMessage.trim());
         setNewMessage('');
       }
     }
@@ -81,7 +81,7 @@ export default function ConversationArea({ onToggle }: ChatListProps) {
 
         <Button
           className="cursor-pointer h-9.5"
-          onClick={() => (sendMessage(newMessage.trim()), setNewMessage(''))}
+          onClick={() => (send(newMessage.trim()), setNewMessage(''))}
           disabled={newMessage.trim() === ''}
         >
           Send

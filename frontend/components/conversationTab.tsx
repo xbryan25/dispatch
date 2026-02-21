@@ -7,7 +7,10 @@ import { ConversationSnippet } from '@/types/chat';
 
 import { useChatStore } from '@/store/useChatStore';
 
-import { useChat } from '@/hooks/useChat';
+import {
+  useGetPastMessagesFromConversation,
+  useGetOtherParticipantFromConversation,
+} from '@/hooks/useChat';
 
 import { useEffect, useState } from 'react';
 
@@ -21,7 +24,9 @@ export default function ConversationTab({ conversationSnippet }: ConversationTab
     setActiveConversationId: setSelectedConversationId,
   } = useChatStore();
 
-  const { getPastMessagesFromConversation, getOtherParticipantFromConversation } = useChat();
+  const { getOtherParticipant } = useGetOtherParticipantFromConversation();
+
+  const { getPastMessages } = useGetPastMessagesFromConversation();
 
   const [formattedTime, setFormattedTime] = useState('');
   const timestamp = conversationSnippet.latestMessageTime;
@@ -70,8 +75,8 @@ export default function ConversationTab({ conversationSnippet }: ConversationTab
       className={`flex items-center justify-center gap-2 rounded-md p-2 w-full cursor-pointer min-w-0 ${isActive ? 'bg-stone-200 dark:bg-stone-700' : 'bg-white dark:bg-stone-900'}`}
       onClick={() => {
         setSelectedConversationId(conversationSnippet.conversationId);
-        getPastMessagesFromConversation();
-        getOtherParticipantFromConversation();
+        getPastMessages();
+        getOtherParticipant();
       }}
     >
       <div className="relative w-12 h-12 shrink-0 overflow-hidden rounded-full">
