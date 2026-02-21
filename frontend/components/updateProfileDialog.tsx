@@ -38,9 +38,10 @@ import { UserProfile } from '@/types/auth';
 import { FormEvent } from 'react';
 
 import { toast } from 'sonner';
+import LoadingSpinner from './loadingSpinner';
 
 export default function UpdateProfileDialog() {
-  const { retrieveUserDetails } = useGetCurrentUserDetails();
+  const { retrieveUserDetails, loading: retrieveUserDetailsLoading } = useGetCurrentUserDetails();
   const { patchUserDetails } = useUpdateCurrentUserDetails();
 
   const [open, setOpen] = useState<boolean>(false);
@@ -87,6 +88,10 @@ export default function UpdateProfileDialog() {
           <DialogDescription>
             Update your details below. Changes take a moment to sync everywhere.
           </DialogDescription>
+        </DialogHeader>
+
+        {retrieveUserDetailsLoading && <LoadingSpinner />}
+        {!retrieveUserDetailsLoading && (
           <div className="flex w-full gap-2 pt-2">
             <div className="w-full max-w-md">
               <form onSubmit={(e) => updateUserDetails(e)} className="flex flex-col gap-5">
@@ -145,9 +150,9 @@ export default function UpdateProfileDialog() {
                             >
                               {oldDateOfBirth
                                 ? oldDateOfBirth.toLocaleDateString('en-US', {
-                                    month: 'long', // "October"
-                                    day: 'numeric', // "12"
-                                    year: 'numeric', // "2005"
+                                    month: 'long',
+                                    day: 'numeric',
+                                    year: 'numeric',
                                   })
                                 : 'Select date'}
                             </Button>
@@ -192,7 +197,7 @@ export default function UpdateProfileDialog() {
               </form>
             </div>
           </div>
-        </DialogHeader>
+        )}
       </DialogContent>
     </Dialog>
   );
