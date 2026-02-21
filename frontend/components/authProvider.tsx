@@ -11,7 +11,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const verifySession = async () => {
       try {
-        console.log('reach here?');
         await initCurrentUserId();
       } catch {
         // If the backend says the session is dead, wipe the store

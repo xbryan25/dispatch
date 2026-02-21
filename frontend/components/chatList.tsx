@@ -4,13 +4,13 @@ import ConversationTab from './conversationTab';
 
 import { useConversationTabs } from '@/hooks/useConversationTabs';
 
-import { useChat } from '@/hooks/useChat';
+import { useInitializeWebsocket } from '@/hooks/useChat';
 import LoadingSpinner from './loadingSpinner';
 
 export default function ChatList() {
   const { conversationSnippets, loading } = useConversationTabs();
 
-  useChat();
+  useInitializeWebsocket();
 
   if (conversationSnippets.length == 0 && !loading) {
     return (

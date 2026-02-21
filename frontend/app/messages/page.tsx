@@ -19,10 +19,6 @@ export default function MessagesPage() {
     <div className="flex h-screen items-stretch justify-center gap-6 overflow-hidden bg-zinc-200 dark:bg-stone-800 font-sans  p-4">
       <ChatSidebar />
 
-      {/* {activeConversationId && (
-        <ConversationArea onToggle={() => setShowConversationDetails(!showConversationDetails)} />
-      )} */}
-
       <ConversationArea onToggle={() => setShowConversationDetails(!showConversationDetails)} />
 
       {showConversationDetails && <ConversationDetails />}

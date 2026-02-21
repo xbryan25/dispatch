@@ -5,13 +5,14 @@ import { useEffect, useRef } from 'react';
 
 import { useAuthStore } from '@/store/useAuthStore';
 import { useChatStore } from '@/store/useChatStore';
-import { useChat } from '@/hooks/useChat';
+import { useGetPastMessagesFromConversation } from '@/hooks/useChat';
 import LoadingSpinner from './loadingSpinner';
 
 export default function MessageThread() {
   const { messages, hasMorePastMessages, activeConversationId, isInitialLoad, isGetting } =
     useChatStore();
-  const { getPastMessagesFromConversation } = useChat();
+
+  const { getPastMessages } = useGetPastMessagesFromConversation();
 
   const { currentUserId } = useAuthStore();
 
@@ -80,7 +81,7 @@ export default function MessageThread() {
 
         if (entries[0].isIntersecting && activeConversationId && !isInitialLoad) {
           previousHeightRef.current = container.scrollHeight;
-          getPastMessagesFromConversation();
+          getPastMessages();
         }
       },
       { threshold: 0.5 }
@@ -91,13 +92,7 @@ export default function MessageThread() {
     }
 
     return () => observer.disconnect();
-  }, [
-    hasMorePastMessages,
-    isGetting,
-    activeConversationId,
-    getPastMessagesFromConversation,
-    isInitialLoad,
-  ]);
+  }, [hasMorePastMessages, isGetting, activeConversationId, getPastMessages, isInitialLoad]);
 
   useEffect(() => {
     // This useEffect readjusts the position of the container when old messages are added
