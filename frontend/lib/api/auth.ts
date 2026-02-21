@@ -56,3 +56,19 @@ export async function updateUserDetails(payload: UserProfileUpdate) {
   if (!res.ok) throw new Error('Something went wrong when getting user details.');
   return res.json();
 }
+
+export async function updateUserProfilePicture(image: File) {
+  const formData = new FormData();
+
+  formData.append('newProfilePicture', image);
+
+  const res = await fetch(`${fastapiServerUrl}/api/auth/profile-picture`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: formData,
+    credentials: 'include',
+  });
+
+  if (!res.ok) throw new Error('Something went wrong when updating profile picture.');
+  return res.json();
+}

@@ -4,7 +4,12 @@ import { useState, useCallback } from 'react';
 import { register, login, logout } from '@/lib/auth';
 import { useAuthStore } from '@/store/useAuthStore';
 
-import { getCurrentUserId, getCurrentUserDetails, updateUserDetails } from '@/lib/api/auth';
+import {
+  getCurrentUserId,
+  getCurrentUserDetails,
+  updateUserDetails,
+  updateUserProfilePicture,
+} from '@/lib/api/auth';
 
 import { UserProfile, UserProfileUpdate } from '@/types/auth';
 
@@ -158,4 +163,29 @@ export function useUpdateCurrentUserDetails() {
   };
 
   return { patchUserDetails, loading, error };
+}
+
+export function useUpdateUserProfilePicture() {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const patchUserProfilePicture = async (image: File) => {
+    setLoading(true);
+    setError(null);
+    try {
+      await updateUserProfilePicture(image);
+
+      return { error: null };
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred';
+
+      setError(errorMessage);
+
+      return { error: errorMessage };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return { patchUserProfilePicture, loading, error };
 }
