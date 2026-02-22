@@ -1,10 +1,14 @@
-from fastapi import HTTPException
+from fastapi import HTTPException, UploadFile
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from sqlalchemy import select, update
 
 from .models import UserProfile
 from .schemas import UserUpdate
+
+from src.core import s3_client
+from src.core import settings
+
 
 from uuid import UUID
 
@@ -60,5 +64,41 @@ class AuthService:
             await db.commit()
 
             return {"message": "Profile updated successfully"}
+        except Exception:
+            traceback.print_exc()
+
+    @staticmethod
+    async def update_user_profile_image_url(
+        db: AsyncSession, user_id: UUID, image_url: str
+    ):
+
+        try:
+            query = (
+                update(UserProfile)
+                .where(UserProfile.user_id == user_id)
+                .values(profile_image_url=image_url)
+            )
+
+            await db.execute(query)
+            await db.commit()
+
+            return {"message": "Profile image URL updated successfully"}
+        except Exception:
+            traceback.print_exc()
+
+    @staticmethod
+    def upload_user_profile_image_to_bucket(file: UploadFile):
+
+        try:
+            s3_client.upload_fileobj(
+                file.file,
+                settings.SUPABASE_S3_BUCKET_NAME,
+                file.filename,
+                ExtraArgs={"ContentType": file.content_type},
+            )
+
+            image_url = f"https://{settings.SUPABASE_PROJECT_ID}.supabase.co/storage/v1/object/public/{settings.SUPABASE_S3_BUCKET_NAME}/{file.filename}"
+
+            return image_url
         except Exception:
             traceback.print_exc()

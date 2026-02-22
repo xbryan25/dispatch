@@ -19,7 +19,7 @@ import { Icon } from '@iconify/react';
 
 import { useState } from 'react';
 
-import { useUpdateUserProfilePicture } from '@/hooks/useAuth';
+import { useUpdateUserProfileImage } from '@/hooks/useAuth';
 
 import { FormEvent } from 'react';
 
@@ -29,8 +29,8 @@ import { validateImageFile } from '@/lib/validation';
 
 import { ChangeEvent } from 'react';
 
-export default function ChangeProfilePictureDialog() {
-  const { patchUserProfilePicture } = useUpdateUserProfilePicture();
+export default function ChangeProfileImageDialog() {
+  const { patchUserProfileImage } = useUpdateUserProfileImage();
 
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
 
@@ -56,7 +56,7 @@ export default function ChangeProfilePictureDialog() {
     console.log(selectedImage);
 
     if (selectedImage) {
-      await patchUserProfilePicture(selectedImage);
+      await patchUserProfileImage(selectedImage);
       toast.success('Profile update is successful!');
     } else {
       toast.error('No image is currently selected.');
@@ -74,7 +74,7 @@ export default function ChangeProfilePictureDialog() {
 
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Change Profile Picture</DialogTitle>
+          <DialogTitle>Change Profile Image</DialogTitle>
           <DialogDescription>Update your profile image below.</DialogDescription>
           <div className="flex w-full gap-2 pt-2">
             <div className="w-full max-w-md">
@@ -82,11 +82,11 @@ export default function ChangeProfilePictureDialog() {
                 <FieldGroup className="flex flex-col gap-5">
                   <div className="flex flex-col gap-2">
                     <Field className="flex flex-col gap-1">
-                      <FieldLabel htmlFor="fullName">New Profile Picture</FieldLabel>
+                      <FieldLabel htmlFor="fullName">New Profile Image</FieldLabel>
 
                       <div className="flex flex-col gap-2">
                         <Input
-                          id="profile_picture"
+                          id="profile_image"
                           type="file"
                           accept="image/png, image/jpeg, image/webp"
                           onChange={handleFileChange}
