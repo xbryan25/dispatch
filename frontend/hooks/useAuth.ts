@@ -8,7 +8,7 @@ import {
   getCurrentUserId,
   getCurrentUserDetails,
   updateUserDetails,
-  updateUserProfilePicture,
+  updateUserProfileImage,
 } from '@/lib/api/auth';
 
 import { UserProfile, UserProfileUpdate } from '@/types/auth';
@@ -165,15 +165,15 @@ export function useUpdateCurrentUserDetails() {
   return { patchUserDetails, loading, error };
 }
 
-export function useUpdateUserProfilePicture() {
+export function useUpdateUserProfileImage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const patchUserProfilePicture = async (image: File) => {
+  const patchUserProfileImage = async (image: File) => {
     setLoading(true);
     setError(null);
     try {
-      await updateUserProfilePicture(image);
+      await updateUserProfileImage(image);
 
       return { error: null };
     } catch (err: unknown) {
@@ -187,5 +187,5 @@ export function useUpdateUserProfilePicture() {
     }
   };
 
-  return { patchUserProfilePicture, loading, error };
+  return { patchUserProfileImage, loading, error };
 }

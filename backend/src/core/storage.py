@@ -1,0 +1,10 @@
+import boto3
+from .config import settings
+
+s3_client = boto3.client(
+    "s3",
+    endpoint_url=settings.SUPABASE_S3_ENDPOINT,
+    aws_access_key_id=settings.SUPABASE_S3_ACCESS_KEY,
+    aws_secret_access_key=settings.SUPABASE_S3_SECRET_KEY,
+    region_name="ap-south-1",
+)
