@@ -1,4 +1,4 @@
-from fastapi import HTTPException, UploadFile
+from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from sqlalchemy import select, update
@@ -6,13 +6,13 @@ from sqlalchemy import select, update
 from .models import UserProfile
 from .schemas import UserUpdate
 
-from src.core import s3_client
-from src.core import settings
-
-
 from uuid import UUID
 
 import traceback
+
+from types_aiobotocore_s3 import S3Client
+
+from src.core import settings
 
 
 class AuthService:
@@ -87,18 +87,19 @@ class AuthService:
             traceback.print_exc()
 
     @staticmethod
-    def upload_user_profile_image_to_bucket(file: UploadFile):
+    async def get_upload_url(s3: S3Client, file_key: str, file_type: str):
 
         try:
-            s3_client.upload_fileobj(
-                file.file,
-                settings.SUPABASE_S3_BUCKET_NAME,
-                file.filename,
-                ExtraArgs={"ContentType": file.content_type},
+            upload_url = await s3.generate_presigned_url(
+                ClientMethod="put_object",
+                Params={
+                    "Bucket": settings.SUPABASE_S3_BUCKET_NAME,
+                    "Key": file_key,
+                    "ContentType": file_type,
+                },
+                ExpiresIn=3600,
             )
 
-            image_url = f"https://{settings.SUPABASE_PROJECT_ID}.supabase.co/storage/v1/object/public/{settings.SUPABASE_S3_BUCKET_NAME}/{file.filename}"
-
-            return image_url
+            return upload_url
         except Exception:
             traceback.print_exc()
