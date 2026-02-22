@@ -1,14 +1,14 @@
-from fastapi import APIRouter, Depends, Query, HTTPException, UploadFile, File
-from fastapi.concurrency import run_in_threadpool
+from fastapi import APIRouter, Depends, Query, HTTPException
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.core import get_db
+from src.core import get_db, get_s3_client, settings
 from .dependencies import get_current_user_id
 from .services import AuthService
 from .schemas import UsernameCheckResponse, UserResponse, UserUpdate
 
 from typing import Annotated
+from types_aiobotocore_s3 import S3Client
 
 from uuid import UUID
 
@@ -63,30 +63,27 @@ async def update_user_details(
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
-@router.patch("/profile-image")
+@router.get("/profile-image-upload-url")
 async def update_user_profile_image(
-    file: Annotated[UploadFile, File()],
+    filename: str,
+    file_type: str,
     user_id: Annotated[UUID, Depends(get_current_user_id)],
-    db: AsyncSession = Depends(get_db),
+    s3: S3Client = Depends(get_s3_client),
 ):
-    if file.content_type is None:
-        raise HTTPException(
-            status_code=400,
-            detail="Could not determine file type. Please ensure you are uploading an image.",
-        )
 
-    if not file.content_type.startswith("image/"):
-        raise HTTPException(status_code=400, detail="File must be an image.")
+    if not file_type.startswith("image/"):
+        raise HTTPException(status_code=400, detail="Only images are allowed")
+
+    file_extension = filename.split(".")[-1]
+    file_key = f"{user_id}.{file_extension}"
 
     try:
-        image_url = await run_in_threadpool(
-            AuthService.upload_user_profile_image_to_bucket, file
-        )
+        upload_url = await AuthService.get_upload_url(s3, file_key, file_type)
 
-        if image_url:
-            await AuthService.update_user_profile_image_url(db, user_id, image_url)
-
-        return image_url
+        return {
+            "upload_url": upload_url,
+            "final_image_url": f"{settings.SUPABASE_S3_BUCKET_NAME}/storage/v1/object/public/{settings.SUPABASE_S3_BUCKET_NAME}/{file_key}",
+        }
 
     except Exception:
         traceback.print_exc()
