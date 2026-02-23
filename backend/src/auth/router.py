@@ -16,6 +16,7 @@ from typing import Annotated
 from types_aiobotocore_s3 import S3Client
 
 from uuid import UUID
+import uuid
 
 import traceback
 
@@ -45,7 +46,7 @@ async def get_user_details(
 ):
 
     try:
-        return await AuthService.get_participant_details(db, user_id)
+        return await AuthService.get_user_details(db, user_id)
 
     except Exception:
         traceback.print_exc()
@@ -79,8 +80,10 @@ async def get_profile_image_upload_url(
     if not file_type.startswith("image/"):
         raise HTTPException(status_code=400, detail="Only images are allowed")
 
+    new_uuid = uuid.uuid4()
+
     file_extension = filename.split(".")[-1]
-    file_key = f"{user_id}.{file_extension}"
+    file_key = f"{user_id}/{new_uuid}.{file_extension}"
 
     try:
         upload_url = await AuthService.get_upload_url(s3, file_key, file_type)
@@ -108,8 +111,7 @@ async def update_profile_image_url(
     if not image_url:
         raise HTTPException(status_code=400, detail="Image URL cannot be None.")
 
-    file_extension = image_url.split(".")[-1]
-    file_key = f"{user_id}.{file_extension}"
+    file_key = image_url.split(f"/{settings.SUPABASE_S3_BUCKET_NAME}/")[-1]
 
     if not image_url.startswith(
         f"https://{settings.SUPABASE_PROJECT_ID}.supabase.co/storage/v1/object/public/"
@@ -117,9 +119,19 @@ async def update_profile_image_url(
         raise HTTPException(status_code=400, detail="Not a valid image URL.")
 
     try:
+        user = await AuthService.get_user_details(db, user_id)
+
+        if not user:
+            raise HTTPException(status_code=404, detail="User record not found")
+
+        old_url = user.profile_image_url
+
         await AuthService.verify_image_existence(s3, file_key)
 
         await AuthService.update_user_profile_image_url(db, user_id, image_url)
+
+        if old_url:
+            await AuthService.delete_user_profile_image(s3, old_url)
 
         return {"status": "success"}
 

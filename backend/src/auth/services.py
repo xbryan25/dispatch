@@ -28,7 +28,7 @@ class AuthService:
         return {"does_username_exist": user is not None}
 
     @staticmethod
-    async def get_participant_details(db: AsyncSession, user_id: UUID):
+    async def get_user_details(db: AsyncSession, user_id: UUID):
 
         try:
             query = select(UserProfile).where(
@@ -117,6 +117,23 @@ class AuthService:
         except botocore.exceptions.ClientError:
             raise HTTPException(
                 status_code=400, detail="File verification failed. Please upload again."
+            )
+
+        except Exception:
+            traceback.print_exc()
+
+    @staticmethod
+    async def delete_user_profile_image(s3: S3Client, old_profile_image_url: str):
+        try:
+
+            file_key = old_profile_image_url.split(
+                f"/{settings.SUPABASE_S3_BUCKET_NAME}/"
+            )[-1]
+
+            # Doesn't raise exception if image doesn't exist
+            await s3.delete_object(
+                Bucket=settings.SUPABASE_S3_BUCKET_NAME,
+                Key=file_key,
             )
 
         except Exception:
