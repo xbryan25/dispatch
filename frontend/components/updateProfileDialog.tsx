@@ -70,8 +70,6 @@ export default function UpdateProfileDialog() {
     toast.success('Profile update is successful!');
   };
 
-  // TODO: Verify if changes reflect when viewed by other users
-
   return (
     <Dialog>
       <DialogTrigger asChild>
