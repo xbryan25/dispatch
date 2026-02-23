@@ -28,9 +28,14 @@ import { toast } from 'sonner';
 import { validateImageFile } from '@/lib/validation';
 
 import { ChangeEvent } from 'react';
+import LoadingSpinner from './loadingSpinner';
 
 export default function ChangeProfileImageDialog() {
-  const { patchUserProfileImage } = useUpdateUserProfileImage();
+  const { patchUserProfileImage, loading: patchUserProfileImageLoading } =
+    useUpdateUserProfileImage();
+
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+  const [isSuccessfulUpdate, setIsSuccessfulUpdate] = useState<boolean>(false);
 
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
 
@@ -56,17 +61,31 @@ export default function ChangeProfileImageDialog() {
     console.log(selectedImage);
 
     if (selectedImage) {
+      setIsSuccessfulUpdate(true);
+
       await patchUserProfileImage(selectedImage);
+
+      setIsOpen(false);
       toast.success('Profile update is successful!');
     } else {
+      setIsSuccessfulUpdate(false);
       toast.error('No image is currently selected.');
     }
   };
 
   return (
-    <Dialog>
+    <Dialog
+      open={isOpen}
+      onOpenChange={(value) => {
+        setIsOpen(value);
+        setIsSuccessfulUpdate(false);
+      }}
+    >
       <DialogTrigger asChild>
-        <button className="flex items-center gap-1 bg-white dark:bg-stone-900 hover:bg-stone-200 dark:hover:bg-stone-700 cursor-pointer rounded-md p-2 font-medium">
+        <button
+          className="flex items-center gap-1 bg-white dark:bg-stone-900 hover:bg-stone-200 dark:hover:bg-stone-700 cursor-pointer rounded-md p-2 font-medium"
+          onClick={() => setIsOpen(true)}
+        >
           <Icon icon="material-symbols:image" className="size-4" />
           Change profile picture
         </button>
@@ -76,7 +95,12 @@ export default function ChangeProfileImageDialog() {
         <DialogHeader>
           <DialogTitle>Change Profile Image</DialogTitle>
           <DialogDescription>Update your profile image below.</DialogDescription>
-          <div className="flex w-full gap-2 pt-2">
+        </DialogHeader>
+
+        {isSuccessfulUpdate && <LoadingSpinner />}
+
+        {!isSuccessfulUpdate && (
+          <div className="flex w-full gap-2 ">
             <div className="w-full max-w-md">
               <form onSubmit={(e) => updateUserProfilePicture(e)} className="flex flex-col gap-5">
                 <FieldGroup className="flex flex-col gap-5">
@@ -90,13 +114,18 @@ export default function ChangeProfileImageDialog() {
                           type="file"
                           accept="image/png, image/jpeg, image/webp"
                           onChange={handleFileChange}
+                          disabled={patchUserProfileImageLoading}
                         />
                       </div>
                     </Field>
                   </div>
 
                   <Field orientation="horizontal">
-                    <Button type="submit" className="w-full cursor-pointer text-lg">
+                    <Button
+                      type="submit"
+                      className="w-full cursor-pointer text-lg"
+                      disabled={!selectedImage || patchUserProfileImageLoading}
+                    >
                       Save changes
                     </Button>
                   </Field>
@@ -104,7 +133,7 @@ export default function ChangeProfileImageDialog() {
               </form>
             </div>
           </div>
-        </DialogHeader>
+        )}
       </DialogContent>
     </Dialog>
   );
