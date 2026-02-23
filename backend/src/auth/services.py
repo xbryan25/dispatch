@@ -11,6 +11,7 @@ from uuid import UUID
 import traceback
 
 from types_aiobotocore_s3 import S3Client
+import botocore.exceptions
 
 from src.core import settings
 
@@ -101,5 +102,22 @@ class AuthService:
             )
 
             return upload_url
+        except Exception:
+            traceback.print_exc()
+
+    @staticmethod
+    async def verify_image_existence(s3: S3Client, file_key: str):
+        try:
+            # Doesn't raise exception if image exists
+            await s3.head_object(
+                Bucket=settings.SUPABASE_S3_BUCKET_NAME,
+                Key=file_key,
+            )
+
+        except botocore.exceptions.ClientError:
+            raise HTTPException(
+                status_code=400, detail="File verification failed. Please upload again."
+            )
+
         except Exception:
             traceback.print_exc()

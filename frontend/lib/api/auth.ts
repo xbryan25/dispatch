@@ -57,15 +57,27 @@ export async function updateUserDetails(payload: UserProfileUpdate) {
   return res.json();
 }
 
-export async function updateUserProfileImage(image: File) {
-  const formData = new FormData();
+export async function getPresignedUrl(image: File) {
+  const res = await fetch(
+    `${fastapiServerUrl}/api/auth/profile-image-upload-url?filename=${image.name}&file_type=${image.type}`,
+    {
+      method: 'GET',
+      credentials: 'include',
+    }
+  );
 
-  formData.append('file', image);
+  if (!res.ok) throw new Error('Something went wrong when updating profile image.');
+  return res.json();
+}
 
+export async function updateProfileImageUrl(imageUrl: string) {
   const res = await fetch(`${fastapiServerUrl}/api/auth/profile-image`, {
     method: 'PATCH',
-    body: formData,
     credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json', // Must be here!
+    },
+    body: JSON.stringify({ profile_image_url: imageUrl }),
   });
 
   if (!res.ok) throw new Error('Something went wrong when updating profile image.');

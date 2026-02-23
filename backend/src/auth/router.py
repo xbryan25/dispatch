@@ -5,7 +5,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.core import get_db, get_s3_client, settings
 from .dependencies import get_current_user_id
 from .services import AuthService
-from .schemas import UsernameCheckResponse, UserResponse, UserUpdate
+from .schemas import (
+    UsernameCheckResponse,
+    UserResponse,
+    UserUpdate,
+    UserProfileImageUrl,
+)
 
 from typing import Annotated
 from types_aiobotocore_s3 import S3Client
@@ -64,7 +69,7 @@ async def update_user_details(
 
 
 @router.get("/profile-image-upload-url")
-async def update_user_profile_image(
+async def get_profile_image_upload_url(
     filename: str,
     file_type: str,
     user_id: Annotated[UUID, Depends(get_current_user_id)],
@@ -82,8 +87,41 @@ async def update_user_profile_image(
 
         return {
             "upload_url": upload_url,
-            "final_image_url": f"{settings.SUPABASE_S3_BUCKET_NAME}/storage/v1/object/public/{settings.SUPABASE_S3_BUCKET_NAME}/{file_key}",
+            "final_image_url": f"https://{settings.SUPABASE_PROJECT_ID}.supabase.co/storage/v1/object/public/{settings.SUPABASE_S3_BUCKET_NAME}/{file_key}",
         }
+
+    except Exception:
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+
+@router.patch("/profile-image")
+async def update_profile_image_url(
+    payload: UserProfileImageUrl,
+    user_id: Annotated[UUID, Depends(get_current_user_id)],
+    db: AsyncSession = Depends(get_db),
+    s3: S3Client = Depends(get_s3_client),
+):
+
+    image_url = payload.profile_image_url
+
+    if not image_url:
+        raise HTTPException(status_code=400, detail="Image URL cannot be None.")
+
+    file_extension = image_url.split(".")[-1]
+    file_key = f"{user_id}.{file_extension}"
+
+    if not image_url.startswith(
+        f"https://{settings.SUPABASE_PROJECT_ID}.supabase.co/storage/v1/object/public/"
+    ):
+        raise HTTPException(status_code=400, detail="Not a valid image URL.")
+
+    try:
+        await AuthService.verify_image_existence(s3, file_key)
+
+        await AuthService.update_user_profile_image_url(db, user_id, image_url)
+
+        return {"status": "success"}
 
     except Exception:
         traceback.print_exc()

@@ -14,3 +14,16 @@ export const createClient = () =>
     supabaseUrl || 'https://placeholder.supabase.co',
     supabaseAnonKey || 'placeholder'
   );
+
+export async function uploadImageToSupabaseStorage(upload_url: string, image: File) {
+  const res = await fetch(upload_url, {
+    method: 'PUT',
+    body: image,
+    headers: {
+      'Content-Type': image.type,
+    },
+  });
+
+  if (!res.ok) throw new Error('Something went wrong when uploading image to Supabase Storage.');
+  return res;
+}

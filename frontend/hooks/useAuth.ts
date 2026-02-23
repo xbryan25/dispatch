@@ -8,8 +8,11 @@ import {
   getCurrentUserId,
   getCurrentUserDetails,
   updateUserDetails,
-  updateUserProfileImage,
+  getPresignedUrl,
+  updateProfileImageUrl,
 } from '@/lib/api/auth';
+
+import { uploadImageToSupabaseStorage } from '@/lib/supabase/client';
 
 import { UserProfile, UserProfileUpdate } from '@/types/auth';
 
@@ -173,7 +176,11 @@ export function useUpdateUserProfileImage() {
     setLoading(true);
     setError(null);
     try {
-      await updateUserProfileImage(image);
+      const data = await getPresignedUrl(image);
+
+      await uploadImageToSupabaseStorage(data.upload_url, image);
+
+      await updateProfileImageUrl(data.final_image_url);
 
       return { error: null };
     } catch (err: unknown) {
