@@ -19,10 +19,13 @@ class UserUpdate(BaseSchema):
     date_of_birth: Optional[date] = None
 
 
-class UserMinimal(BaseSchema):
+class UserProfileImageUrl(BaseSchema):
+    profile_image_url: Optional[str] = None
+
+
+class UserMinimal(UserProfileImageUrl):
     user_id: UUID
     username: str
-    profile_image_url: Optional[str] = None
 
 
 class UserResponse(UserMinimal):
