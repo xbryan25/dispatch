@@ -45,7 +45,7 @@ class AuthService:
     ):
 
         try:
-            update_data = payload.model_dump(exclude_unset=True)
+            update_data = payload.model_dump(exclude_unset=True, exclude_none=True)
 
             update_data = {k: v for k, v in update_data.items() if v != ""}
 
