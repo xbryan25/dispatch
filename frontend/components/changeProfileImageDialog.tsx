@@ -58,8 +58,6 @@ export default function ChangeProfileImageDialog() {
   const updateUserProfilePicture = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    console.log(selectedImage);
-
     if (selectedImage) {
       setIsSuccessfulUpdate(true);
 
