@@ -44,7 +44,10 @@ export default function UpdateProfileDialog() {
   const { retrieveUserDetails, loading: retrieveUserDetailsLoading } = useGetCurrentUserDetails();
   const { patchUserDetails } = useUpdateCurrentUserDetails();
 
-  const [open, setOpen] = useState<boolean>(false);
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+  const [isSuccessfulUpdate, setIsSuccessfulUpdate] = useState<boolean>(false);
+
+  const [isCalendarOpen, setIsCalendarOpen] = useState<boolean>(false);
   const [oldDateOfBirth, setOldDateOfBirth] = useState<Date | undefined>(undefined);
 
   const [dateOfBirth, setDateOfBirth] = useState<Date | undefined>(undefined);
@@ -65,13 +68,38 @@ export default function UpdateProfileDialog() {
 
   const updateUserDetails = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    await patchUserDetails({ dateOfBirth, fullName, gender, username });
 
-    toast.success('Profile update is successful!');
+    try {
+      setIsSuccessfulUpdate(true);
+      await patchUserDetails({ dateOfBirth, fullName, gender, username });
+      setIsOpen(false);
+      toast.success('Profile update is successful!');
+    } catch {
+      setIsSuccessfulUpdate(false);
+      toast.error('Profile update has failed.');
+    }
   };
 
+  const resetValues = () => {
+    setDateOfBirth(undefined);
+    setFullName('');
+    setGender('');
+    setUsername('');
+  };
+
+  const enableSaveButton =
+    dateOfBirth !== undefined || fullName !== '' || gender !== '' || username !== '';
+
   return (
-    <Dialog>
+    <Dialog
+      open={isOpen}
+      onOpenChange={(value) => {
+        setIsOpen(value);
+        setIsSuccessfulUpdate(false);
+
+        if (value) resetValues();
+      }}
+    >
       <DialogTrigger asChild>
         <button
           className="flex items-center gap-1 bg-white dark:bg-stone-900 hover:bg-stone-200 dark:hover:bg-stone-700 cursor-pointer rounded-md p-2 font-medium"
@@ -90,8 +118,8 @@ export default function UpdateProfileDialog() {
           </DialogDescription>
         </DialogHeader>
 
-        {retrieveUserDetailsLoading && <LoadingSpinner />}
-        {!retrieveUserDetailsLoading && (
+        {(retrieveUserDetailsLoading || isSuccessfulUpdate) && <LoadingSpinner />}
+        {!retrieveUserDetailsLoading && !isSuccessfulUpdate && (
           <div className="flex w-full gap-2 pt-2">
             <div className="w-full max-w-md">
               <form onSubmit={(e) => updateUserDetails(e)} className="flex flex-col gap-5">
@@ -141,20 +169,26 @@ export default function UpdateProfileDialog() {
                       <FieldLabel htmlFor="birthDate">Birth Date</FieldLabel>
 
                       <div className="flex flex-col gap-2">
-                        <Popover open={open} onOpenChange={setOpen}>
+                        <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
                           <PopoverTrigger asChild>
                             <Button
                               variant="outline"
                               id="date"
                               className="justify-start font-normal"
                             >
-                              {oldDateOfBirth
-                                ? oldDateOfBirth.toLocaleDateString('en-US', {
+                              {dateOfBirth
+                                ? dateOfBirth.toLocaleDateString('en-US', {
                                     month: 'long',
                                     day: 'numeric',
                                     year: 'numeric',
                                   })
-                                : 'Select date'}
+                                : oldDateOfBirth
+                                  ? oldDateOfBirth.toLocaleDateString('en-US', {
+                                      month: 'long',
+                                      day: 'numeric',
+                                      year: 'numeric',
+                                    })
+                                  : 'Select a date'}
                             </Button>
                           </PopoverTrigger>
                           <PopoverContent className="w-auto overflow-hidden p-0" align="start">
@@ -165,7 +199,7 @@ export default function UpdateProfileDialog() {
                               captionLayout="dropdown"
                               onSelect={(date) => {
                                 setDateOfBirth(date);
-                                setOpen(false);
+                                setIsCalendarOpen(false);
                               }}
                             />
                           </PopoverContent>
@@ -189,7 +223,11 @@ export default function UpdateProfileDialog() {
                   </div>
 
                   <Field orientation="horizontal">
-                    <Button type="submit" className="w-full cursor-pointer text-lg">
+                    <Button
+                      type="submit"
+                      className="w-full cursor-pointer text-lg"
+                      disabled={!enableSaveButton}
+                    >
                       Save changes
                     </Button>
                   </Field>
