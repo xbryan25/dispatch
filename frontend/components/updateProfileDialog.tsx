@@ -149,7 +149,7 @@ export default function UpdateProfileDialog() {
                         >
                           <SelectTrigger className="w-full max-w-full">
                             <SelectValue
-                              placeholder={`${userDetails?.gender[0]?.toUpperCase()}${userDetails?.gender.slice(1)}`}
+                              placeholder={`${userDetails?.gender[0]?.toUpperCase()}${userDetails?.gender.slice(1).replaceAll('_', ' ')}`}
                             />
                           </SelectTrigger>
                           <SelectContent>
