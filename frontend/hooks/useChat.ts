@@ -81,17 +81,19 @@ export function useGetOtherParticipantFromConversation() {
 
   const { setIsGettingOtherParticipant, setOtherParticipantDetails } = useChatStore();
 
-  const latestActiveConversationId = useChatStore.getState().activeConversationId;
-
   const getOtherParticipant = async () => {
     // put this here??
     setIsGettingOtherParticipant(true);
 
     setLoading(true);
     setError(null);
+
+    const latestActiveConversationId = useChatStore.getState().activeConversationId;
     try {
       if (latestActiveConversationId) {
         const data = await getOtherParticipantFromConversation(latestActiveConversationId);
+
+        console.log(data);
 
         setOtherParticipantDetails(data);
       } else {
