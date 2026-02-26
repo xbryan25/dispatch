@@ -4,11 +4,9 @@ import { Button } from '@/components/ui/button';
 
 import { useRouter } from 'next/navigation';
 
-import { Icon } from '@iconify/react';
 import { ConversationIcon } from '@/components/icons/conversationIcon';
 import { MessagesIcon } from '@/components/icons/messagesIcon';
 import { OrganizeIcon } from '@/components/icons/organizeIcon';
-import ThemeToggleButton from '@/components/themeToggleButton';
 import GuestHeader from '@/components/guestHeader';
 
 export default function HomePage() {
