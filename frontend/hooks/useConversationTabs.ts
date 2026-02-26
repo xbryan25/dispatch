@@ -6,9 +6,7 @@ import { getUserConversationsList } from '@/lib/api/messages';
 import { useSidebarStore } from '@/store/useSidebarStore';
 
 export function useConversationTabs() {
-  const { conversationSnippets, setSnippets } = useSidebarStore();
-
-  const [loading, setLoading] = useState(true);
+  const { conversationSnippets, isLoading, setSnippets, setLoading } = useSidebarStore();
   const [error, setError] = useState<string | null>(null);
 
   const getConversations = async () => {
@@ -34,5 +32,5 @@ export function useConversationTabs() {
     getConversations();
   }, []);
 
-  return { conversationSnippets, loading, error };
+  return { conversationSnippets, isLoading, error };
 }

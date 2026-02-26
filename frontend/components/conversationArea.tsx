@@ -35,7 +35,7 @@ export default function ConversationArea({ onToggle }: ChatListProps) {
   };
 
   return (
-    <div className="flex-3 flex flex-col items-teo justify-start gap-2 bg-white dark:bg-stone-900 rounded-xl">
+    <div className="flex-3 flex flex-col justify-start gap-2 bg-white dark:bg-stone-900 rounded-xl">
       <div className="flex justify-between p-2 gap-3">
         <div className="flex gap-3">
           <div className="relative w-12 h-12 shrink-0 overflow-hidden rounded-full ">

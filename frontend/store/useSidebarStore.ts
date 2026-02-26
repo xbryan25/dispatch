@@ -3,14 +3,17 @@ import { ConversationSnippet, Message } from '@/types/chat';
 
 interface SidebarState {
   conversationSnippets: ConversationSnippet[];
+  isLoading: boolean;
 
   // Actions
   setSnippets: (snippets: ConversationSnippet[]) => void;
   upsertSnippet: (message: Message) => void;
+  setLoading: (value: boolean) => void;
 }
 
 export const useSidebarStore = create<SidebarState>((set) => ({
   conversationSnippets: [],
+  isLoading: true,
 
   setSnippets: (snippets: ConversationSnippet[]) => set({ conversationSnippets: snippets }),
 
@@ -31,4 +34,6 @@ export const useSidebarStore = create<SidebarState>((set) => ({
 
       return { conversationSnippets: updatedSnippets };
     }),
+
+  setLoading: (value: boolean) => set({ isLoading: value }),
 }));
