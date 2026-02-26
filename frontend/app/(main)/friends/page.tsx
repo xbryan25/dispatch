@@ -4,10 +4,8 @@ import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/in
 
 import { Search } from 'lucide-react';
 
-import { Button } from '@/components/ui/button';
-import { ButtonGroup } from '@/components/ui/button-group';
-
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import FriendsTab from '@/components/friendsTab';
 
 export default function FriendsPage() {
   return (
@@ -17,14 +15,24 @@ export default function FriendsPage() {
           <h2 className="font-bold text-2xl">My Friends</h2>
         </div>
 
-        <Tabs defaultValue="friends" className="w-full">
+        <Tabs defaultValue="friends" className="flex-1 w-full">
           <div className="flex gap-5 justify-between">
             <TabsList>
-              <TabsTrigger value="friends">Friends</TabsTrigger>
-              <TabsTrigger value="pending">Pending</TabsTrigger>
-              <TabsTrigger value="requests">Requests</TabsTrigger>
-              <TabsTrigger value="removed">Removed</TabsTrigger>
-              <TabsTrigger value="addFriend">Add Friend</TabsTrigger>
+              <TabsTrigger value="friends" className="cursor-pointer">
+                Friends
+              </TabsTrigger>
+              <TabsTrigger value="pending" className="cursor-pointer">
+                Pending
+              </TabsTrigger>
+              <TabsTrigger value="requests" className="cursor-pointer">
+                Requests
+              </TabsTrigger>
+              <TabsTrigger value="removed" className="cursor-pointer">
+                Removed
+              </TabsTrigger>
+              <TabsTrigger value="addFriend" className="cursor-pointer">
+                Add Friend
+              </TabsTrigger>
             </TabsList>
             <InputGroup className="max-w-md ">
               <InputGroupInput placeholder="Search username..." />
@@ -34,11 +42,21 @@ export default function FriendsPage() {
             </InputGroup>
           </div>
 
-          <TabsContent value="friends">Friends grid here</TabsContent>
-          <TabsContent value="pending">Outgoing requests grid here</TabsContent>
-          <TabsContent value="requests">Inbound requests grid here.</TabsContent>
-          <TabsContent value="removed">Former friend grid here.</TabsContent>
-          <TabsContent value="addFriend">Look for friend after debounce grid here</TabsContent>
+          <TabsContent value="friends">
+            <FriendsTab />
+          </TabsContent>
+          <TabsContent value="pending">
+            <FriendsTab />
+          </TabsContent>
+          <TabsContent value="requests">
+            <FriendsTab />
+          </TabsContent>
+          <TabsContent value="removed">
+            <FriendsTab />
+          </TabsContent>
+          <TabsContent value="addFriend">
+            <FriendsTab />
+          </TabsContent>
         </Tabs>
       </div>
     </div>
