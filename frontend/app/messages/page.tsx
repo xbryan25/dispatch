@@ -2,6 +2,7 @@
 
 import ChatSidebar from '@/components/chatSidebar';
 import ConversationArea from '@/components/conversationArea';
+import ConversationAreaPlaceholder from '@/components/conversationAreaPlaceholder';
 import ConversationDetails from '@/components/conversationDetails';
 import { useChatStore } from '@/store/useChatStore';
 import { useEffect, useState } from 'react';
@@ -19,7 +20,11 @@ export default function MessagesPage() {
     <div className="flex h-screen items-stretch justify-center gap-6 overflow-hidden bg-zinc-200 dark:bg-stone-800 font-sans  p-4">
       <ChatSidebar />
 
-      <ConversationArea onToggle={() => setShowConversationDetails(!showConversationDetails)} />
+      {activeConversationId && (
+        <ConversationArea onToggle={() => setShowConversationDetails(!showConversationDetails)} />
+      )}
+
+      {!activeConversationId && <ConversationAreaPlaceholder />}
 
       {showConversationDetails && <ConversationDetails />}
     </div>

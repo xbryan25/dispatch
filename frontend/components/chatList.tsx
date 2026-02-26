@@ -8,11 +8,11 @@ import { useInitializeWebsocket } from '@/hooks/useChat';
 import LoadingSpinner from './loadingSpinner';
 
 export default function ChatList() {
-  const { conversationSnippets, loading } = useConversationTabs();
+  const { conversationSnippets, isLoading } = useConversationTabs();
 
   useInitializeWebsocket();
 
-  if (conversationSnippets.length == 0 && !loading) {
+  if (conversationSnippets.length == 0 && !isLoading) {
     return (
       <div className="flex-1 flex w-full gap-1 items-center justify-center">
         <p className="font-medium text-center text-xl">
@@ -20,7 +20,7 @@ export default function ChatList() {
         </p>
       </div>
     );
-  } else if (loading) {
+  } else if (isLoading) {
     return (
       <div className="flex-1 flex w-full gap-1 items-center justify-center">
         <LoadingSpinner />
