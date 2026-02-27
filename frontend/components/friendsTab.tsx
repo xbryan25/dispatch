@@ -7,39 +7,17 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from '@/components/ui/pagination';
+import UserCard from './userCard';
 
 export default function FriendsTab() {
   return (
     <div className="flex flex-col h-full">
-      <div className="grid grid-cols-5 grid-rows-5 h-full gap-3 overflow-hidden font-sans p-4">
-        <div className="h-full w-full bg-stone-200 dark:bg-stone-700 rounded-lg transition-all duration-500 hover:scale-102"></div>
-        <div className="h-full w-full bg-stone-200 dark:bg-stone-700 rounded-lg transition-all duration-500 hover:scale-102"></div>
-        <div className="h-full w-full bg-stone-200 dark:bg-stone-700 rounded-lg transition-all duration-500 hover:scale-102"></div>
-        <div className="h-full w-full bg-stone-200 dark:bg-stone-700 rounded-lg transition-all duration-500 hover:scale-102"></div>
-        <div className="h-full w-full bg-stone-200 dark:bg-stone-700 rounded-lg transition-all duration-500 hover:scale-102"></div>
-
-        <div className="h-full w-full bg-stone-200 dark:bg-stone-700 rounded-lg transition-all duration-500 hover:scale-102"></div>
-        <div className="h-full w-full bg-stone-200 dark:bg-stone-700 rounded-lg transition-all duration-500 hover:scale-102"></div>
-        <div className="h-full w-full bg-stone-200 dark:bg-stone-700 rounded-lg transition-all duration-500 hover:scale-102"></div>
-        <div className="h-full w-full bg-stone-200 dark:bg-stone-700 rounded-lg transition-all duration-500 hover:scale-102"></div>
-        <div className="h-full w-full bg-stone-200 dark:bg-stone-700 rounded-lg transition-all duration-500 hover:scale-102"></div>
-
-        <div className="h-full w-full bg-stone-200 dark:bg-stone-700 rounded-lg transition-all duration-500 hover:scale-102"></div>
-        <div className="h-full w-full bg-stone-200 dark:bg-stone-700 rounded-lg transition-all duration-500 hover:scale-102"></div>
-        <div className="h-full w-full bg-stone-200 dark:bg-stone-700 rounded-lg transition-all duration-500 hover:scale-102"></div>
-        <div className="h-full w-full bg-stone-200 dark:bg-stone-700 rounded-lg transition-all duration-500 hover:scale-102"></div>
-        <div className="h-full w-full bg-stone-200 dark:bg-stone-700 rounded-lg transition-all duration-500 hover:scale-102"></div>
-
-        <div className="h-full w-full bg-stone-200 dark:bg-stone-700 rounded-lg transition-all duration-500 hover:scale-102"></div>
-        <div className="h-full w-full bg-stone-200 dark:bg-stone-700 rounded-lg transition-all duration-500 hover:scale-102"></div>
-        <div className="h-full w-full bg-stone-200 dark:bg-stone-700 rounded-lg transition-all duration-500 hover:scale-102"></div>
-        <div className="h-full w-full bg-stone-200 dark:bg-stone-700 rounded-lg transition-all duration-500 hover:scale-102"></div>
-        <div className="h-full w-full bg-stone-200 dark:bg-stone-700 rounded-lg transition-all duration-500 hover:scale-102"></div>
-        <div className="h-full w-full bg-stone-200 dark:bg-stone-700 rounded-lg transition-all duration-500 hover:scale-102"></div>
-        <div className="h-full w-full bg-stone-200 dark:bg-stone-700 rounded-lg transition-all duration-500 hover:scale-102"></div>
-        <div className="h-full w-full bg-stone-200 dark:bg-stone-700 rounded-lg transition-all duration-500 hover:scale-102"></div>
-        <div className="h-full w-full bg-stone-200 dark:bg-stone-700 rounded-lg transition-all duration-500 hover:scale-102"></div>
-        <div className="h-full w-full bg-stone-200 dark:bg-stone-700 rounded-lg transition-all duration-500 hover:scale-102"></div>
+      <div className="grid grid-cols-4 grid-rows-4 h-full gap-3 overflow-hidden font-sans p-4 px-30">
+        {Array(16)
+          .fill(0)
+          .map((_, index) => (
+            <UserCard key={index} />
+          ))}
       </div>
 
       <Pagination>
