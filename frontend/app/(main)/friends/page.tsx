@@ -5,6 +5,10 @@ import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/in
 import { Search } from 'lucide-react';
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
+
+import { Icon } from '@iconify/react';
+
 import FriendsPageTab from '@/components/friendsPageTab';
 
 import {
@@ -16,8 +20,15 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from '@/components/ui/pagination';
+import { useState } from 'react';
 
 export default function FriendsPage() {
+  const [sortState, setSortState] = useState<'ascending' | 'descending'>('ascending');
+
+  const changeSort = () => {
+    setSortState((prev) => (prev === 'ascending' ? 'descending' : 'ascending'));
+  };
+
   return (
     <div className="flex h-screen items-stretch justify-center gap-6 overflow-hidden bg-zinc-200 dark:bg-stone-800 font-sans  p-4">
       <div className="flex-1 flex flex-col items-center gap-4 bg-white dark:bg-stone-900 rounded-xl p-5 h-full min-w-0">
@@ -44,12 +55,27 @@ export default function FriendsPage() {
                 Add Friend
               </TabsTrigger>
             </TabsList>
-            <InputGroup className="max-w-md ">
-              <InputGroupInput placeholder="Search username..." />
-              <InputGroupAddon>
-                <Search />
-              </InputGroupAddon>
-            </InputGroup>
+
+            <div className="flex gap-2">
+              <InputGroup className="max-w-xl">
+                <InputGroupInput placeholder="Search username..." />
+                <InputGroupAddon>
+                  <Search />
+                </InputGroupAddon>
+              </InputGroup>
+
+              <Button className="cursor-pointer min-w-35" onClick={changeSort}>
+                <div className="flex items-center">
+                  <Icon
+                    icon="material-symbols:keyboard-arrow-up"
+                    className={`size-6 transition-transform duration-200 ${
+                      sortState === 'descending' ? 'rotate-180' : 'rotate-0'
+                    }`}
+                  />
+                  <span className="capitalize">{sortState}</span>
+                </div>
+              </Button>
+            </div>
           </div>
 
           <TabsContent value="friends">
