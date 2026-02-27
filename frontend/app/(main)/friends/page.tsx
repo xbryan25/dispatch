@@ -5,7 +5,17 @@ import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/in
 import { Search } from 'lucide-react';
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import FriendsTab from '@/components/friendsTab';
+import FriendsPageTab from '@/components/friendsPageTab';
+
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination';
 
 export default function FriendsPage() {
   return (
@@ -27,8 +37,8 @@ export default function FriendsPage() {
               <TabsTrigger value="requests" className="cursor-pointer">
                 Requests
               </TabsTrigger>
-              <TabsTrigger value="removed" className="cursor-pointer">
-                Removed
+              <TabsTrigger value="formerFriends" className="cursor-pointer">
+                Former Friends
               </TabsTrigger>
               <TabsTrigger value="addFriend" className="cursor-pointer">
                 Add Friend
@@ -43,21 +53,46 @@ export default function FriendsPage() {
           </div>
 
           <TabsContent value="friends">
-            <FriendsTab />
+            <FriendsPageTab userType="friends" />
           </TabsContent>
           <TabsContent value="pending">
-            <FriendsTab />
+            <FriendsPageTab userType="pending" />
           </TabsContent>
           <TabsContent value="requests">
-            <FriendsTab />
+            <FriendsPageTab userType="requests" />
           </TabsContent>
-          <TabsContent value="removed">
-            <FriendsTab />
+          <TabsContent value="formerFriends">
+            <FriendsPageTab userType="formerFriends" />
           </TabsContent>
           <TabsContent value="addFriend">
-            <FriendsTab />
+            <FriendsPageTab userType="addFriend" />
           </TabsContent>
         </Tabs>
+
+        <Pagination>
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious href="#" />
+            </PaginationItem>
+            <PaginationItem>
+              <PaginationLink href="#">1</PaginationLink>
+            </PaginationItem>
+            <PaginationItem>
+              <PaginationLink href="#" isActive>
+                2
+              </PaginationLink>
+            </PaginationItem>
+            <PaginationItem>
+              <PaginationLink href="#">3</PaginationLink>
+            </PaginationItem>
+            <PaginationItem>
+              <PaginationEllipsis />
+            </PaginationItem>
+            <PaginationItem>
+              <PaginationNext href="#" />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
       </div>
     </div>
   );
