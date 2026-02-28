@@ -12,7 +12,7 @@ interface UserCardProps {
 
 export default function UserCard({ userType }: UserCardProps) {
   return (
-    <div className="h-full w-full flex items-center bg-stone-200 dark:bg-stone-700 rounded-lg transition-transform duration-500 hover:scale-102 px-2 gap-2">
+    <div className="w-full flex items-center bg-stone-200 dark:bg-stone-700 rounded-lg transition-transform duration-500 hover:scale-102 px-2 gap-2">
       <div className="h-22 w-22 rounded-full bg-stone-600"></div>
       <div className="flex-1 flex flex-col items-center justify-center gap-1">
         <h2 className="font-semibold">xbryan25</h2>
