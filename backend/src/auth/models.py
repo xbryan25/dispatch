@@ -1,10 +1,11 @@
 from sqlalchemy import String, DateTime, Date, Boolean
 from sqlalchemy.dialects.postgresql import UUID, ENUM
 from sqlalchemy.sql import func
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.core.database import Base
 from src.auth.constants import GenderEnum
+
 import uuid
 
 from datetime import datetime, date
@@ -42,4 +43,12 @@ class UserProfile(Base):
 
     is_email_verified: Mapped[bool] = mapped_column(
         Boolean, server_default="false", nullable=False, index=True
+    )
+
+    sent_friendships = relationship(
+        "Friendship", foreign_keys="Friendship.sender_id", back_populates="sender"
+    )
+
+    received_friendships = relationship(
+        "Friendship", foreign_keys="Friendship.sender_id", back_populates="receiver"
     )

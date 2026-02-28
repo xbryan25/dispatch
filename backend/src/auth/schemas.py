@@ -34,3 +34,8 @@ class UserResponse(UserMinimal):
     date_of_birth: Optional[date]
     joined_at: datetime
     is_email_verified: bool
+
+
+class BaseFriendResponse(UserMinimal):
+    full_name: str
+    total_friend_count: int
