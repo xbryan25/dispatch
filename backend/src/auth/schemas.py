@@ -19,6 +19,10 @@ class UserUpdate(BaseSchema):
     date_of_birth: Optional[date] = None
 
 
+class ReceiverId(BaseSchema):
+    receiver_id: str
+
+
 class UserProfileImageUrl(BaseSchema):
     profile_image_url: Optional[str] = None
 

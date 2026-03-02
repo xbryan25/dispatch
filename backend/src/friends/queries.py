@@ -69,7 +69,7 @@ class FriendsQueries:
 
         stmt = (
             select(UserProfile, sub_stmt.label("total_friend_count"))
-            .join(Friendship, Friendship.sender_id == UserProfile.user_id)
+            .join(Friendship, Friendship.receiver_id == UserProfile.user_id)
             .where(
                 Friendship.sender_id == user_id,
                 UserProfile.user_id != user_id,
