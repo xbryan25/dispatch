@@ -13,7 +13,11 @@ import {
 
 import { Icon } from '@iconify/react';
 
-export default function UnfriendDialog() {
+interface UnfriendDialogProps {
+  username: string;
+}
+
+export default function UnfriendDialog({ username }: UnfriendDialogProps) {
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -23,9 +27,9 @@ export default function UnfriendDialog() {
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Are you sure you want to unfriend .username.?</DialogTitle>
+          <DialogTitle>Are you sure you want to unfriend {username}?</DialogTitle>
           <DialogDescription>
-            Your conversation with .username. will change to view-only.
+            Your conversation with {username} will change to view-only.
           </DialogDescription>
           <div className="flex w-full gap-2 pt-2">
             <Button className="flex-1 cursor-pointer text-md">Confirm unfriend</Button>

@@ -15,3 +15,11 @@ export interface UserProfileUpdate {
   dateOfBirth: Date | undefined;
   gender: string | null;
 }
+
+export interface UserInfo {
+  userId: string;
+  username: string;
+  fullName: string;
+  totalFriendCount: number;
+  profileImageUrl: string;
+}
