@@ -9,11 +9,14 @@ from src.auth.dependencies import get_current_user_id
 
 from .services import FriendsService
 
-from src.auth.schemas import BaseFriendResponse
+from src.auth.schemas import BaseFriendResponse, ReceiverId
 
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.exc import IntegrityError
 
 from uuid import UUID
+import uuid
+
 import traceback
 from typing import Annotated
 
@@ -88,6 +91,35 @@ async def get_friend_suggestions(
 
     try:
         return await FriendsService.get_friend_suggestions(db, user_id)
+
+    except Exception:
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+
+@router.post("/friend-request")
+async def create_new_friend_request(
+    payload: ReceiverId,
+    user_id: Annotated[UUID, Depends(get_current_user_id)],
+    db: AsyncSession = Depends(get_db),
+):
+
+    receiver_id = payload.receiver_id
+
+    try:
+        formatted_receiver_id = uuid.UUID(receiver_id)
+
+        await FriendsService.create_new_friend_request(
+            db, user_id, formatted_receiver_id
+        )
+
+        return {"status": "success"}
+
+    except IntegrityError:
+        await db.rollback()
+        raise HTTPException(
+            status_code=400, detail="Receiver not found or request already pending"
+        )
 
     except Exception:
         traceback.print_exc()

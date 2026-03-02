@@ -20,8 +20,6 @@ class Friendship(Base):
         UUID(as_uuid=True), ForeignKey("user_profiles.user_id"), primary_key=True
     )
 
-    requested_by: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
-
     responded_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
 
     unfriended_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
