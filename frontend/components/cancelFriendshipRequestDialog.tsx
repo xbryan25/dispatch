@@ -15,7 +15,13 @@ import {
 
 import { Icon } from '@iconify/react';
 
-export default function CancelFriendshipRequestDialog() {
+interface CancelFriendshipRequestDialogProps {
+  username: string;
+}
+
+export default function CancelFriendshipRequestDialog({
+  username,
+}: CancelFriendshipRequestDialogProps) {
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -29,6 +35,7 @@ export default function CancelFriendshipRequestDialog() {
           <DialogDescription>
             You can send another request later if you change your mind.
           </DialogDescription>
+
           <div className="flex w-full gap-2 pt-2">
             <Button className="flex-1 cursor-pointer text-md">Accept friendship</Button>
           </div>

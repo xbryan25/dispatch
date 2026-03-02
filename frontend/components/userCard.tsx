@@ -5,19 +5,33 @@ import UnfriendDialog from './unfriendDialog';
 import AcceptFriendshipDialog from './acceptFriendshipDialog';
 import CancelFriendshipRequestDialog from './cancelFriendshipRequestDialog';
 import MakeFriendshipRequestDialog from './makeFriendshipRequestDialog';
+import Image from 'next/image';
+import { UserInfo } from '@/types/auth';
 
 interface UserCardProps {
+  userInfo: UserInfo;
   userType: 'friends' | 'pending' | 'requests' | 'formerFriends' | 'addFriend';
 }
 
-export default function UserCard({ userType }: UserCardProps) {
+export default function UserCard({ userInfo, userType }: UserCardProps) {
   return (
     <div className="w-full flex items-center bg-stone-200 dark:bg-stone-700 rounded-lg transition-transform duration-500 hover:scale-102 px-2 gap-2">
-      <div className="h-22 w-22 rounded-full bg-stone-600"></div>
+      <div className="relative w-22 h-22 shrink-0 overflow-hidden rounded-full ">
+        <Image
+          src={userInfo?.profileImageUrl ? userInfo.profileImageUrl : '/blank_picture.png'}
+          alt="User avatar"
+          fill
+          sizes="96px" // Helps Next.js optimize the download size
+          className="object-cover"
+        />
+      </div>
+
       <div className="flex-1 flex flex-col items-center justify-center gap-1">
-        <h2 className="font-semibold">xbryan25</h2>
-        <h3 className="text-xs">Bryan Agan</h3>
-        <h3 className="text-xs">30 friends</h3>
+        <h2 className="font-semibold">{userInfo.username}</h2>
+        <h3 className="text-xs">{userInfo.fullName}</h3>
+        <h3 className="text-xs">
+          {userInfo.totalFriendCount} {userInfo.totalFriendCount == 1 ? 'friend' : 'friends'}
+        </h3>
         <h3 className="text-xs">5 mutual friends</h3>
       </div>
 
@@ -29,13 +43,13 @@ export default function UserCard({ userType }: UserCardProps) {
             </Button>
           </Link>
 
-          <UnfriendDialog />
+          <UnfriendDialog username={userInfo.username} />
         </div>
       )}
 
       {userType === 'pending' && (
         <div className="flex flex-col items-start justify-start gap-4">
-          <CancelFriendshipRequestDialog />
+          <CancelFriendshipRequestDialog username={userInfo.username} />
         </div>
       )}
 
