@@ -160,8 +160,6 @@ class FriendsService:
                     }
                 )
 
-            print(output)
-
             return output
 
         except Exception:
