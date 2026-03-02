@@ -3,7 +3,13 @@ import UserCard from './userCard';
 import LoadingSpinner from './loadingSpinner';
 import { UserInfo } from '@/types/auth';
 
-import { useGetCurrentFriends } from '@/hooks/useFriendship';
+import {
+  useGetCurrentFriends,
+  useGetSentRequestsProfiles,
+  useGetReceivedRequestsProfiles,
+  useGetFormerFriends,
+  useGetFriendSuggestions,
+} from '@/hooks/useFriendship';
 
 interface FriendsPageTabProps {
   userType: 'friends' | 'pending' | 'requests' | 'formerFriends' | 'addFriend';
@@ -14,6 +20,10 @@ export default function FriendsPageTab({ userType }: FriendsPageTabProps) {
   const [users, setUsers] = useState<UserInfo[]>([]);
 
   const { getFriends } = useGetCurrentFriends();
+  const { getProfilesOfSentRequests } = useGetSentRequestsProfiles();
+  const { getProfilesOfReceivedRequests } = useGetReceivedRequestsProfiles();
+  const { getProfilesOfFormerFriends } = useGetFormerFriends();
+  const { getSuggestedProfiles } = useGetFriendSuggestions();
 
   const getNoUsersPlaceholderMessage = () => {
     const messages = {
@@ -32,20 +42,62 @@ export default function FriendsPageTab({ userType }: FriendsPageTabProps) {
     const loadData = async () => {
       setLoading(true);
 
+      let result: { data: UserInfo[]; error: null } | { data: null; error: unknown };
+
       if (userType === 'friends') {
-        const result = await getFriends();
+        result = await getFriends();
 
         if (result.error) {
           console.log(result.error);
+        } else if (result.data) {
+          setUsers(result.data);
         }
-        setUsers(result.data);
+      } else if (userType === 'pending') {
+        result = await getProfilesOfSentRequests();
+
+        if (result.error) {
+          console.log(result.error);
+        } else if (result.data) {
+          setUsers(result.data);
+        }
+      } else if (userType === 'requests') {
+        result = await getProfilesOfReceivedRequests();
+
+        if (result.error) {
+          console.log(result.error);
+        } else if (result.data) {
+          setUsers(result.data);
+        }
+      } else if (userType === 'formerFriends') {
+        result = await getProfilesOfFormerFriends();
+
+        if (result.error) {
+          console.log(result.error);
+        } else if (result.data) {
+          setUsers(result.data);
+        }
+      } else if (userType === 'addFriend') {
+        result = await getSuggestedProfiles();
+
+        if (result.error) {
+          console.log(result.error);
+        } else if (result.data) {
+          setUsers(result.data);
+        }
       }
 
       setLoading(false);
     };
 
     loadData();
-  }, [userType, getFriends]);
+  }, [
+    userType,
+    getFriends,
+    getProfilesOfSentRequests,
+    getProfilesOfReceivedRequests,
+    getProfilesOfFormerFriends,
+    getSuggestedProfiles,
+  ]);
 
   return (
     <div

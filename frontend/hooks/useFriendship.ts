@@ -1,5 +1,11 @@
 import { useCallback, useState } from 'react';
-import { getCurrentFriends } from '@/lib/api/friendship';
+import {
+  getCurrentFriends,
+  getSentRequestsProfile,
+  getReceivedRequestsProfile,
+  getFormerFriends,
+  getFriendSuggestions,
+} from '@/lib/api/friendship';
 
 export function useGetCurrentFriends() {
   const [loading, setLoading] = useState(false);
@@ -27,4 +33,116 @@ export function useGetCurrentFriends() {
   }, []);
 
   return { getFriends, loading, error };
+}
+
+export function useGetSentRequestsProfiles() {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const getProfilesOfSentRequests = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const data = await getSentRequestsProfile();
+
+      return { data, error: null };
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('An unexpected error occurred');
+      }
+
+      return { data: null, error: err };
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  return { getProfilesOfSentRequests, loading, error };
+}
+
+export function useGetReceivedRequestsProfiles() {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const getProfilesOfReceivedRequests = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const data = await getReceivedRequestsProfile();
+
+      return { data, error: null };
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('An unexpected error occurred');
+      }
+
+      return { data: null, error: err };
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  return { getProfilesOfReceivedRequests, loading, error };
+}
+
+export function useGetFormerFriends() {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const getProfilesOfFormerFriends = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const data = await getFormerFriends();
+
+      return { data, error: null };
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('An unexpected error occurred');
+      }
+
+      return { data: null, error: err };
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  return { getProfilesOfFormerFriends, loading, error };
+}
+
+export function useGetFriendSuggestions() {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const getSuggestedProfiles = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const data = await getFriendSuggestions();
+
+      return { data, error: null };
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('An unexpected error occurred');
+      }
+
+      return { data: null, error: err };
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  return { getSuggestedProfiles, loading, error };
 }
