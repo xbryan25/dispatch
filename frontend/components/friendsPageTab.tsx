@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import UserCard from './userCard';
 import LoadingSpinner from './loadingSpinner';
 import { UserInfo } from '@/types/auth';
@@ -38,66 +38,49 @@ export default function FriendsPageTab({ userType }: FriendsPageTabProps) {
     return messages[userType] || 'No users found.';
   };
 
-  useEffect(() => {
-    const loadData = async () => {
-      setLoading(true);
-
-      let result: { data: UserInfo[]; error: null } | { data: null; error: unknown };
-
-      if (userType === 'friends') {
-        result = await getFriends();
-
-        if (result.error) {
-          console.log(result.error);
-        } else if (result.data) {
-          setUsers(result.data);
-        }
-      } else if (userType === 'pending') {
-        result = await getProfilesOfSentRequests();
-
-        if (result.error) {
-          console.log(result.error);
-        } else if (result.data) {
-          setUsers(result.data);
-        }
-      } else if (userType === 'requests') {
-        result = await getProfilesOfReceivedRequests();
-
-        if (result.error) {
-          console.log(result.error);
-        } else if (result.data) {
-          setUsers(result.data);
-        }
-      } else if (userType === 'formerFriends') {
-        result = await getProfilesOfFormerFriends();
-
-        if (result.error) {
-          console.log(result.error);
-        } else if (result.data) {
-          setUsers(result.data);
-        }
-      } else if (userType === 'addFriend') {
-        result = await getSuggestedProfiles();
-
-        if (result.error) {
-          console.log(result.error);
-        } else if (result.data) {
-          setUsers(result.data);
-        }
-      }
-
-      setLoading(false);
+  const loadData = useCallback(async () => {
+    const apiMap: Record<
+      string,
+      () => Promise<{ data: UserInfo[]; error: null } | { data: null; error: unknown }>
+    > = {
+      friends: getFriends,
+      pending: getProfilesOfSentRequests,
+      requests: getProfilesOfReceivedRequests,
+      formerFriends: getProfilesOfFormerFriends,
+      addFriend: getSuggestedProfiles,
     };
 
-    loadData();
+    const fetchFunc = apiMap[userType];
+    if (!fetchFunc) return;
+
+    setLoading(true);
+    try {
+      setUsers([]);
+
+      const result = await fetchFunc();
+
+      if (result?.data) {
+        setUsers(result.data);
+      } else if (result?.error) {
+        console.error('Fetch error:', result.error);
+      }
+    } catch (err) {
+      console.error('System error:', err);
+    } finally {
+      setLoading(false);
+    }
   }, [
     userType,
     getFriends,
-    getProfilesOfSentRequests,
-    getProfilesOfReceivedRequests,
     getProfilesOfFormerFriends,
+    getProfilesOfReceivedRequests,
+    getProfilesOfSentRequests,
     getSuggestedProfiles,
   ]);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
 
   return (
     <div
@@ -114,7 +97,12 @@ export default function FriendsPageTab({ userType }: FriendsPageTabProps) {
       {!loading &&
         users.length > 0 &&
         users.map((userInfo) => (
-          <UserCard key={userInfo.userId} userInfo={userInfo} userType={userType} />
+          <UserCard
+            key={userInfo.userId}
+            userInfo={userInfo}
+            userType={userType}
+            refreshList={loadData}
+          />
         ))}
     </div>
   );

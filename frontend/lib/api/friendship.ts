@@ -57,3 +57,15 @@ export async function getFriendSuggestions() {
   if (!res.ok) throw new Error('Something went wrong when retrieving the profiles other users.');
   return res.json();
 }
+
+export async function createNewFriendRequest(receiverId: string) {
+  const res = await fetch(`${fastapiServerUrl}/api/friends/friend-request`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ receiverId }),
+    credentials: 'include',
+  });
+
+  if (!res.ok) throw new Error('Something went wrong when creating a new friend request.');
+  return res.json();
+}
