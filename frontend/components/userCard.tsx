@@ -11,9 +11,10 @@ import { UserInfo } from '@/types/auth';
 interface UserCardProps {
   userInfo: UserInfo;
   userType: 'friends' | 'pending' | 'requests' | 'formerFriends' | 'addFriend';
+  refreshList: () => void;
 }
 
-export default function UserCard({ userInfo, userType }: UserCardProps) {
+export default function UserCard({ userInfo, userType, refreshList }: UserCardProps) {
   return (
     <div className="w-full flex items-center bg-stone-200 dark:bg-stone-700 rounded-lg transition-transform duration-500 hover:scale-102 px-2 gap-2">
       <div className="relative w-22 h-22 shrink-0 overflow-hidden rounded-full ">
@@ -61,13 +62,23 @@ export default function UserCard({ userInfo, userType }: UserCardProps) {
 
       {userType === 'formerFriends' && (
         <div className="flex flex-col items-start justify-start gap-4">
-          <MakeFriendshipRequestDialog requestType="reconnect" />
+          <MakeFriendshipRequestDialog
+            username={userInfo.username}
+            receiverId={userInfo.userId}
+            requestType="reconnect"
+            onSuccess={refreshList}
+          />
         </div>
       )}
 
       {userType === 'addFriend' && (
         <div className="flex flex-col items-start justify-start gap-4">
-          <MakeFriendshipRequestDialog requestType="new" />
+          <MakeFriendshipRequestDialog
+            username={userInfo.username}
+            receiverId={userInfo.userId}
+            requestType="new"
+            onSuccess={refreshList}
+          />
         </div>
       )}
     </div>
