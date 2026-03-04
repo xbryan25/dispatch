@@ -1,4 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import HTTPException
 
 from .queries import FriendsQueries
 from .models import Friendship
@@ -147,6 +148,17 @@ class FriendsService:
     async def create_new_friend_request(
         db: AsyncSession, user_id: UUID, receiver_id: UUID
     ):
+
+        stmt = FriendsQueries.check_if_connection_exists_between_two_users_stmt(
+            user_id, receiver_id
+        )
+
+        existing = await db.execute(stmt)
+
+        if existing.scalar_one_or_none():
+            raise HTTPException(
+                status_code=400, detail="A friendship or request already exists."
+            )
 
         db_message = Friendship(sender_id=user_id, receiver_id=receiver_id)
 

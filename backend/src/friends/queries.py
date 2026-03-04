@@ -1,4 +1,4 @@
-from sqlalchemy import select, or_, func, Select, ScalarSelect, exists, Exists
+from sqlalchemy import select, or_, func, Select, ScalarSelect, exists, Exists, and_
 
 from .models import Friendship
 from src.auth.models import UserProfile
@@ -27,7 +27,7 @@ class FriendsQueries:
         return stmt
 
     @staticmethod
-    def check_if_connection_exists_stmt(user_id: UUID) -> Exists:
+    def check_if_connection_exists_for_user_stmt(user_id: UUID) -> Exists:
 
         stmt = exists().where(
             or_(
@@ -35,6 +35,24 @@ class FriendsQueries:
                 Friendship.receiver_id == UserProfile.user_id,
             ),
             or_(Friendship.sender_id == user_id, Friendship.receiver_id == user_id),
+        )
+
+        return stmt
+
+    @staticmethod
+    def check_if_connection_exists_between_two_users_stmt(
+        user_id: UUID, target_id: UUID
+    ) -> Select:
+
+        stmt = select(Friendship).where(
+            or_(
+                and_(
+                    Friendship.sender_id == user_id, Friendship.receiver_id == target_id
+                ),
+                and_(
+                    Friendship.sender_id == target_id, Friendship.receiver_id == user_id
+                ),
+            )
         )
 
         return stmt
@@ -125,7 +143,9 @@ class FriendsQueries:
     def get_friend_suggestions_stmt(user_id: UUID) -> Select:
 
         sub_stmt = FriendsQueries.get_total_friends_sub_stmt()
-        connection_exists_stmt = FriendsQueries.check_if_connection_exists_stmt(user_id)
+        connection_exists_stmt = (
+            FriendsQueries.check_if_connection_exists_for_user_stmt(user_id)
+        )
 
         stmt = (
             select(UserProfile, sub_stmt.label("total_friend_count"))
