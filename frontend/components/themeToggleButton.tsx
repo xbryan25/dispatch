@@ -25,7 +25,7 @@ export default function ThemeToggleButton() {
   return (
     <Button
       size="icon"
-      className="cursor-pointer w-full"
+      className="cursor-pointer min-w-10"
       onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
     >
       {resolvedTheme === 'dark' ? (

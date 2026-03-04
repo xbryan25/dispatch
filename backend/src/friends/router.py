@@ -9,7 +9,7 @@ from src.auth.dependencies import get_current_user_id
 
 from .services import FriendsService
 
-from src.auth.schemas import BaseFriendResponse, ReceiverId
+from src.auth.schemas import BaseFriendResponse, ReceiverId, SenderId
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
@@ -134,10 +134,36 @@ async def cancel_friend_request(
 ):
 
     try:
-
         await FriendsService.cancel_friend_request(db, user_id, receiver_id)
 
         return {"status": "success"}
+
+    except Exception:
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+
+@router.patch("/friend-request")
+async def accept_friend_request(
+    payload: SenderId,
+    user_id: Annotated[UUID, Depends(get_current_user_id)],
+    db: AsyncSession = Depends(get_db),
+):
+
+    sender_id = payload.sender_id
+
+    try:
+        formatted_sender_id = uuid.UUID(sender_id)
+
+        await FriendsService.accept_friend_request(db, user_id, formatted_sender_id)
+
+        return {"status": "success"}
+
+    except IntegrityError:
+        await db.rollback()
+        raise HTTPException(
+            status_code=400, detail="Receiver not found or request already pending"
+        )
 
     except Exception:
         traceback.print_exc()

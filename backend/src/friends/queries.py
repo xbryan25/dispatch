@@ -9,9 +9,13 @@ from sqlalchemy import (
     and_,
     delete,
     Delete,
+    update,
+    Update,
 )
 
 from .models import Friendship
+from .constants import FriendshipStatusEnum
+
 from src.auth.models import UserProfile
 
 from uuid import UUID
@@ -116,7 +120,7 @@ class FriendsQueries:
 
         stmt = (
             select(UserProfile, sub_stmt.label("total_friend_count"))
-            .join(Friendship, Friendship.receiver_id == UserProfile.user_id)
+            .join(Friendship, Friendship.sender_id == UserProfile.user_id)
             .where(
                 Friendship.receiver_id == user_id,
                 UserProfile.user_id != user_id,
@@ -174,6 +178,21 @@ class FriendsQueries:
             Friendship.sender_id == sender_id,
             Friendship.receiver_id == receiver_id,
             Friendship.status == "pending",
+        )
+
+        return stmt
+
+    @staticmethod
+    def accept_friend_request_stmt(sender_id: UUID, receiver_id: UUID) -> Update:
+
+        stmt = (
+            update(Friendship)
+            .where(
+                Friendship.sender_id == sender_id,
+                Friendship.receiver_id == receiver_id,
+                Friendship.status == "pending",
+            )
+            .values(status=FriendshipStatusEnum.accepted, responded_at=func.now())
         )
 
         return stmt
