@@ -17,7 +17,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 
 import { Icon } from '@iconify/react';
 
-import { useAcceptFriendRequest } from '@/hooks/useFriendship';
+import { useRejectFriendRequest } from '@/hooks/useFriendship';
 
 import { toast } from 'sonner';
 
@@ -32,11 +32,11 @@ export default function RejectFriendshipDialog({
   senderId,
   onSuccess,
 }: RejectFriendshipDialogProps) {
-  const { acceptReceivedFriendRequest, loading } = useAcceptFriendRequest();
+  const { rejectReceivedFriendRequest, loading } = useRejectFriendRequest();
 
   const rejectFriendRequest = async () => {
     try {
-      await acceptReceivedFriendRequest(senderId);
+      await rejectReceivedFriendRequest(senderId);
 
       onSuccess();
 
@@ -62,7 +62,7 @@ export default function RejectFriendshipDialog({
       </Tooltip>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Reject friend request from {username}`?</DialogTitle>
+          <DialogTitle>Reject friend request from {username}?</DialogTitle>
           <DialogDescription>This request will be removed from your list.</DialogDescription>
           <div className="flex w-full gap-2 pt-2">
             <Button

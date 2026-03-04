@@ -171,7 +171,7 @@ class FriendsService:
     @staticmethod
     async def cancel_friend_request(db: AsyncSession, user_id: UUID, receiver_id: UUID):
 
-        stmt = FriendsQueries.cancel_friend_request_stmt(user_id, receiver_id)
+        stmt = FriendsQueries.delete_pending_friendship_stmt(user_id, receiver_id)
 
         await db.execute(stmt)
         await db.commit()
@@ -182,6 +182,16 @@ class FriendsService:
     async def accept_friend_request(db: AsyncSession, user_id: UUID, sender_id: UUID):
 
         stmt = FriendsQueries.accept_friend_request_stmt(sender_id, user_id)
+
+        await db.execute(stmt)
+        await db.commit()
+
+        return None
+
+    @staticmethod
+    async def reject_friend_request(db: AsyncSession, user_id: UUID, sender_id: UUID):
+
+        stmt = FriendsQueries.delete_pending_friendship_stmt(sender_id, user_id)
 
         await db.execute(stmt)
         await db.commit()
