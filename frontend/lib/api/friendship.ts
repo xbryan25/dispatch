@@ -69,3 +69,14 @@ export async function createNewFriendRequest(receiverId: string) {
   if (!res.ok) throw new Error('Something went wrong when creating a new friend request.');
   return res.json();
 }
+
+export async function cancelFriendRequest(receiverId: string) {
+  const res = await fetch(`${fastapiServerUrl}/api/friends/friend-request/${receiverId}`, {
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+  });
+
+  if (!res.ok) throw new Error('Something went wrong when deleting the friend request.');
+  return res.json();
+}

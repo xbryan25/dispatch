@@ -4,6 +4,8 @@ import { useRouter } from 'next/navigation';
 
 import { Button } from './ui/button';
 
+import { Spinner } from './ui/spinner';
+
 import {
   Dialog,
   DialogContent,
@@ -15,13 +17,35 @@ import {
 
 import { Icon } from '@iconify/react';
 
+import { useCancelFriendRequest } from '@/hooks/useFriendship';
+
+import { toast } from 'sonner';
+
 interface CancelFriendshipRequestDialogProps {
   username: string;
+  receiverId: string;
+  onSuccess: () => void;
 }
 
 export default function CancelFriendshipRequestDialog({
   username,
+  receiverId,
+  onSuccess,
 }: CancelFriendshipRequestDialogProps) {
+  const { cancelSentFriendRequest, loading } = useCancelFriendRequest();
+
+  const cancelFriendRequest = async () => {
+    try {
+      await cancelSentFriendRequest(receiverId);
+
+      onSuccess();
+
+      toast.success(`Cancelled the sent friend request to ${username}.`);
+    } catch {
+      toast.success(`Something went wrong when making a friend request.`);
+    }
+  };
+
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -37,7 +61,14 @@ export default function CancelFriendshipRequestDialog({
           </DialogDescription>
 
           <div className="flex w-full gap-2 pt-2">
-            <Button className="flex-1 cursor-pointer text-md">Accept friendship</Button>
+            <Button
+              className="flex-1 cursor-pointer text-md"
+              onClick={cancelFriendRequest}
+              disabled={loading}
+            >
+              {loading && <Spinner data-icon="inline-start" />}
+              Cancel friend request
+            </Button>
           </div>
         </DialogHeader>
       </DialogContent>
