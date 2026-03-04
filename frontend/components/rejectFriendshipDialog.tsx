@@ -21,26 +21,26 @@ import { useAcceptFriendRequest } from '@/hooks/useFriendship';
 
 import { toast } from 'sonner';
 
-interface AcceptFriendshipRequestDialogProps {
+interface RejectFriendshipDialogProps {
   username: string;
-  receiverId: string;
+  senderId: string;
   onSuccess: () => void;
 }
 
-export default function AcceptFriendshipDialog({
+export default function RejectFriendshipDialog({
   username,
-  receiverId,
+  senderId,
   onSuccess,
-}: AcceptFriendshipRequestDialogProps) {
+}: RejectFriendshipDialogProps) {
   const { acceptReceivedFriendRequest, loading } = useAcceptFriendRequest();
 
-  const acceptFriendRequest = async () => {
+  const rejectFriendRequest = async () => {
     try {
-      await acceptReceivedFriendRequest(receiverId);
+      await acceptReceivedFriendRequest(senderId);
 
       onSuccess();
 
-      toast.success(`${username} is officially your friend. Start chatting!`);
+      toast.success(`You have rejected the friend request of ${username}.`);
     } catch {
       toast.success(`Something went wrong when making a friend request.`);
     }
@@ -52,26 +52,26 @@ export default function AcceptFriendshipDialog({
         <TooltipTrigger asChild>
           <DialogTrigger asChild>
             <Button size="icon" className="h-9 w-9 shrink-0 cursor-pointer">
-              <Icon icon="material-symbols:check-circle" className="size-6" />
+              <Icon icon="material-symbols:do-not-disturb-on" className="size-6" />
             </Button>
           </DialogTrigger>
         </TooltipTrigger>
         <TooltipContent>
-          <p className="font-medium font-sans">Accept request?</p>
+          <p className="font-medium font-sans">Reject request?</p>
         </TooltipContent>
       </Tooltip>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Are you sure you want to accept {username} as a friend?</DialogTitle>
-          <DialogDescription>You will be able to converse with {username}.</DialogDescription>
+          <DialogTitle>Reject friend request from {username}`?</DialogTitle>
+          <DialogDescription>This request will be removed from your list.</DialogDescription>
           <div className="flex w-full gap-2 pt-2">
             <Button
               className="flex-1 cursor-pointer text-md"
-              onClick={acceptFriendRequest}
+              onClick={rejectFriendRequest}
               disabled={loading}
             >
               {loading && <Spinner data-icon="inline-start" />}
-              Accept friend request
+              Reject friend request
             </Button>
           </div>
         </DialogHeader>

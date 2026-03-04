@@ -15,6 +15,8 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+
 import { Icon } from '@iconify/react';
 
 import { useCancelFriendRequest } from '@/hooks/useFriendship';
@@ -48,11 +50,18 @@ export default function CancelFriendshipRequestDialog({
 
   return (
     <Dialog>
-      <DialogTrigger asChild>
-        <Button size="icon" className="h-9 w-9 shrink-0 cursor-pointer">
-          <Icon icon="material-symbols:close" className="size-6" />
-        </Button>
-      </DialogTrigger>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <DialogTrigger asChild>
+            <Button size="icon" className="h-9 w-9 shrink-0 cursor-pointer">
+              <Icon icon="material-symbols:cancel" className="size-6" />
+            </Button>
+          </DialogTrigger>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p className="font-medium font-sans">Cancel request?</p>
+        </TooltipContent>
+      </Tooltip>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Are you sure you want to cancel friendship request?</DialogTitle>

@@ -11,6 +11,8 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+
 import { Icon } from '@iconify/react';
 
 interface UnfriendDialogProps {
@@ -20,11 +22,18 @@ interface UnfriendDialogProps {
 export default function UnfriendDialog({ username }: UnfriendDialogProps) {
   return (
     <Dialog>
-      <DialogTrigger asChild>
-        <Button size="icon" className="h-9 w-9 shrink-0 cursor-pointer">
-          <Icon icon="material-symbols:person-remove" className="size-5" />
-        </Button>
-      </DialogTrigger>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <DialogTrigger asChild>
+            <Button size="icon" className="h-9 w-9 shrink-0 cursor-pointer">
+              <Icon icon="material-symbols:person-remove" className="size-6" />
+            </Button>
+          </DialogTrigger>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p className="font-medium font-sans">Unfriend {username}?</p>
+        </TooltipContent>
+      </Tooltip>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Are you sure you want to unfriend {username}?</DialogTitle>

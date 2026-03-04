@@ -11,6 +11,8 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+
 import { useCreateNewFriendRequest } from '@/hooks/useFriendship';
 
 import { Icon } from '@iconify/react';
@@ -46,11 +48,20 @@ export default function MakeFriendshipRequestDialog({
 
   return (
     <Dialog>
-      <DialogTrigger asChild>
-        <Button size="icon" className="h-9 w-9 shrink-0 cursor-pointer">
-          <Icon icon="material-symbols:person-add" className="size-5" />
-        </Button>
-      </DialogTrigger>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <DialogTrigger asChild>
+            <Button size="icon" className="h-9 w-9 shrink-0 cursor-pointer">
+              <Icon icon="material-symbols:person-add" className="size-6" />
+            </Button>
+          </DialogTrigger>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p className="font-medium font-sans">
+            {requestType === 'new' ? 'Add as a friend?' : `Reconnect with ${username}`}
+          </p>
+        </TooltipContent>
+      </Tooltip>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>

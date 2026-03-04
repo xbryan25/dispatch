@@ -7,6 +7,9 @@ import CancelFriendshipRequestDialog from './cancelFriendshipRequestDialog';
 import MakeFriendshipRequestDialog from './makeFriendshipRequestDialog';
 import Image from 'next/image';
 import { UserInfo } from '@/types/auth';
+import RejectFriendshipDialog from './rejectFriendshipDialog';
+
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface UserCardProps {
   userInfo: UserInfo;
@@ -38,11 +41,18 @@ export default function UserCard({ userInfo, userType, refreshList }: UserCardPr
 
       {userType === 'friends' && (
         <div className="flex flex-col items-start justify-start gap-4">
-          <Link href="/messages">
-            <Button size="icon" className="h-9 w-9 shrink-0 cursor-pointer">
-              <Icon icon="material-symbols:chat" className="size-5" />
-            </Button>
-          </Link>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Link href="/messages">
+                <Button size="icon" className="h-9 w-9 shrink-0 cursor-pointer">
+                  <Icon icon="material-symbols:chat" className="size-5" />
+                </Button>
+              </Link>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p className="font-medium font-sans">Chat with {userInfo.username}?</p>
+            </TooltipContent>
+          </Tooltip>
 
           <UnfriendDialog username={userInfo.username} />
         </div>
@@ -63,6 +73,11 @@ export default function UserCard({ userInfo, userType, refreshList }: UserCardPr
           <AcceptFriendshipDialog
             username={userInfo.username}
             receiverId={userInfo.userId}
+            onSuccess={refreshList}
+          />
+          <RejectFriendshipDialog
+            username={userInfo.username}
+            senderId={userInfo.userId}
             onSuccess={refreshList}
           />
         </div>
