@@ -27,6 +27,10 @@ class SenderId(BaseSchema):
     sender_id: str
 
 
+class OtherUserId(BaseSchema):
+    other_user_id: str
+
+
 class UserProfileImageUrl(BaseSchema):
     profile_image_url: Optional[str] = None
 

@@ -58,7 +58,7 @@ export default function MakeFriendshipRequestDialog({
         </TooltipTrigger>
         <TooltipContent>
           <p className="font-medium font-sans">
-            {requestType === 'new' ? 'Add as a friend?' : `Reconnect with ${username}`}
+            {requestType === 'new' ? 'Add as a friend?' : `Reconnect with ${username}?`}
           </p>
         </TooltipContent>
       </Tooltip>

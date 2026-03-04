@@ -9,6 +9,7 @@ import {
   cancelFriendRequest,
   acceptFriendRequest,
   rejectFriendRequest,
+  unfriendUser,
 } from '@/lib/api/friendship';
 
 export function useGetCurrentFriends() {
@@ -261,4 +262,32 @@ export function useRejectFriendRequest() {
   };
 
   return { rejectReceivedFriendRequest, loading, error };
+}
+
+export function useUnfriendUser() {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const unfriendSelectedUser = async (otherUserId: string) => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const data = await unfriendUser(otherUserId);
+
+      return { data, error: null };
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('An unexpected error occurred');
+      }
+
+      return { data: null, error: err };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return { unfriendSelectedUser, loading, error };
 }

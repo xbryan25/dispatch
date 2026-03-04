@@ -9,7 +9,7 @@ from src.auth.dependencies import get_current_user_id
 
 from .services import FriendsService
 
-from src.auth.schemas import BaseFriendResponse, ReceiverId, SenderId
+from src.auth.schemas import BaseFriendResponse, ReceiverId, SenderId, OtherUserId
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
@@ -104,10 +104,8 @@ async def create_new_friend_request(
     db: AsyncSession = Depends(get_db),
 ):
 
-    receiver_id = payload.receiver_id
-
     try:
-        formatted_receiver_id = uuid.UUID(receiver_id)
+        formatted_receiver_id = uuid.UUID(payload.receiver_id)
 
         await FriendsService.create_new_friend_request(
             db, user_id, formatted_receiver_id
@@ -150,10 +148,8 @@ async def accept_friend_request(
     db: AsyncSession = Depends(get_db),
 ):
 
-    sender_id = payload.sender_id
-
     try:
-        formatted_sender_id = uuid.UUID(sender_id)
+        formatted_sender_id = uuid.UUID(payload.sender_id)
 
         await FriendsService.accept_friend_request(db, user_id, formatted_sender_id)
 
@@ -181,6 +177,31 @@ async def reject_friend_request(
         await FriendsService.reject_friend_request(db, user_id, sender_id)
 
         return {"status": "success"}
+
+    except Exception:
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+
+@router.patch("/unfriend")
+async def unfriend_user(
+    payload: OtherUserId,
+    user_id: Annotated[UUID, Depends(get_current_user_id)],
+    db: AsyncSession = Depends(get_db),
+):
+
+    try:
+        formatted_other_user_id = uuid.UUID(payload.other_user_id)
+
+        await FriendsService.unfriend_user(db, user_id, formatted_other_user_id)
+
+        return {"status": "success"}
+
+    except IntegrityError:
+        await db.rollback()
+        raise HTTPException(
+            status_code=400, detail="Other user is not found or request already pending"
+        )
 
     except Exception:
         traceback.print_exc()

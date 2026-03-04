@@ -33,7 +33,7 @@ class FriendsQueries:
                     Friendship.sender_id == UserProfile.user_id,
                     Friendship.receiver_id == UserProfile.user_id,
                 ),
-                Friendship.status == "accepted",
+                Friendship.status == FriendshipStatusEnum.accepted,
             )
             .correlate(UserProfile)
             .scalar_subquery()
@@ -89,7 +89,10 @@ class FriendsQueries:
             .where(
                 or_(Friendship.sender_id == user_id, Friendship.receiver_id == user_id)
             )
-            .where(UserProfile.user_id != user_id, Friendship.status == "accepted")
+            .where(
+                UserProfile.user_id != user_id,
+                Friendship.status == FriendshipStatusEnum.accepted,
+            )
             .order_by(UserProfile.username.asc())
         )
 
@@ -106,7 +109,7 @@ class FriendsQueries:
             .where(
                 Friendship.sender_id == user_id,
                 UserProfile.user_id != user_id,
-                Friendship.status == "pending",
+                Friendship.status == FriendshipStatusEnum.pending,
             )
             .order_by(UserProfile.username.asc())
         )
@@ -124,7 +127,7 @@ class FriendsQueries:
             .where(
                 Friendship.receiver_id == user_id,
                 UserProfile.user_id != user_id,
-                Friendship.status == "pending",
+                Friendship.status == FriendshipStatusEnum.pending,
             )
             .order_by(UserProfile.username.asc())
         )
@@ -148,7 +151,10 @@ class FriendsQueries:
             .where(
                 or_(Friendship.sender_id == user_id, Friendship.receiver_id == user_id)
             )
-            .where(UserProfile.user_id != user_id, Friendship.status == "unfriended")
+            .where(
+                UserProfile.user_id != user_id,
+                Friendship.status == FriendshipStatusEnum.unfriended,
+            )
             .order_by(UserProfile.username.asc())
         )
 
@@ -178,7 +184,7 @@ class FriendsQueries:
         stmt = delete(Friendship).where(
             Friendship.sender_id == sender_id,
             Friendship.receiver_id == receiver_id,
-            Friendship.status == "pending",
+            Friendship.status == FriendshipStatusEnum.pending,
         )
 
         return stmt
@@ -191,9 +197,32 @@ class FriendsQueries:
             .where(
                 Friendship.sender_id == sender_id,
                 Friendship.receiver_id == receiver_id,
-                Friendship.status == "pending",
+                Friendship.status == FriendshipStatusEnum.pending,
             )
             .values(status=FriendshipStatusEnum.accepted, responded_at=func.now())
+        )
+
+        return stmt
+
+    @staticmethod
+    def unfriend_user_stmt(user_id: UUID, other_user_id: UUID) -> Update:
+
+        stmt = (
+            update(Friendship)
+            .where(
+                or_(
+                    and_(
+                        Friendship.sender_id == user_id,
+                        Friendship.receiver_id == other_user_id,
+                    ),
+                    and_(
+                        Friendship.sender_id == other_user_id,
+                        Friendship.receiver_id == user_id,
+                    ),
+                ),
+                Friendship.status == FriendshipStatusEnum.accepted,
+            )
+            .values(status=FriendshipStatusEnum.unfriended, unfriended_at=func.now())
         )
 
         return stmt
