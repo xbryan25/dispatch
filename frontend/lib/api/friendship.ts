@@ -89,6 +89,17 @@ export async function acceptFriendRequest(senderId: string) {
     credentials: 'include',
   });
 
-  if (!res.ok) throw new Error('Something went wrong when creating a new friend request.');
+  if (!res.ok) throw new Error('Something went wrong when accepting a new friend request.');
+  return res.json();
+}
+
+export async function rejectFriendRequest(senderId: string) {
+  const res = await fetch(`${fastapiServerUrl}/api/friends/friend-request/reject/${senderId}`, {
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+  });
+
+  if (!res.ok) throw new Error('Something went wrong when rejecting a friend request.');
   return res.json();
 }

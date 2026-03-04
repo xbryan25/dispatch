@@ -172,7 +172,8 @@ class FriendsQueries:
         return stmt
 
     @staticmethod
-    def cancel_friend_request_stmt(sender_id: UUID, receiver_id: UUID) -> Delete:
+    def delete_pending_friendship_stmt(sender_id: UUID, receiver_id: UUID) -> Delete:
+        # Used by both 'cancel request' and 'reject request'
 
         stmt = delete(Friendship).where(
             Friendship.sender_id == sender_id,
