@@ -124,3 +124,21 @@ async def create_new_friend_request(
     except Exception:
         traceback.print_exc()
         raise HTTPException(status_code=500, detail="Internal Server Error")
+
+
+@router.delete("/friend-request/{receiver_id}")
+async def cancel_friend_request(
+    receiver_id: UUID,
+    user_id: Annotated[UUID, Depends(get_current_user_id)],
+    db: AsyncSession = Depends(get_db),
+):
+
+    try:
+
+        await FriendsService.cancel_friend_request(db, user_id, receiver_id)
+
+        return {"status": "success"}
+
+    except Exception:
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail="Internal Server Error")

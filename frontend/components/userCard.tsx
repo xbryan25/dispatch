@@ -50,7 +50,11 @@ export default function UserCard({ userInfo, userType, refreshList }: UserCardPr
 
       {userType === 'pending' && (
         <div className="flex flex-col items-start justify-start gap-4">
-          <CancelFriendshipRequestDialog username={userInfo.username} />
+          <CancelFriendshipRequestDialog
+            username={userInfo.username}
+            receiverId={userInfo.userId}
+            onSuccess={refreshList}
+          />
         </div>
       )}
 

@@ -167,3 +167,13 @@ class FriendsService:
         await db.refresh(db_message)
 
         return db_message
+
+    @staticmethod
+    async def cancel_friend_request(db: AsyncSession, user_id: UUID, receiver_id: UUID):
+
+        stmt = FriendsQueries.cancel_friend_request_stmt(user_id, receiver_id)
+
+        await db.execute(stmt)
+        await db.commit()
+
+        return None

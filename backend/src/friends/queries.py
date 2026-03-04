@@ -1,4 +1,15 @@
-from sqlalchemy import select, or_, func, Select, ScalarSelect, exists, Exists, and_
+from sqlalchemy import (
+    select,
+    or_,
+    func,
+    Select,
+    ScalarSelect,
+    exists,
+    Exists,
+    and_,
+    delete,
+    Delete,
+)
 
 from .models import Friendship
 from src.auth.models import UserProfile
@@ -152,6 +163,17 @@ class FriendsQueries:
             .where(UserProfile.user_id != user_id)
             .where(~connection_exists_stmt)
             .order_by(UserProfile.username.asc())
+        )
+
+        return stmt
+
+    @staticmethod
+    def cancel_friend_request_stmt(sender_id: UUID, receiver_id: UUID) -> Delete:
+
+        stmt = delete(Friendship).where(
+            Friendship.sender_id == sender_id,
+            Friendship.receiver_id == receiver_id,
+            Friendship.status == "pending",
         )
 
         return stmt

@@ -6,6 +6,7 @@ import {
   getFormerFriends,
   getFriendSuggestions,
   createNewFriendRequest,
+  cancelFriendRequest,
 } from '@/lib/api/friendship';
 
 export function useGetCurrentFriends() {
@@ -174,4 +175,32 @@ export function useCreateNewFriendRequest() {
   };
 
   return { createFriendRequest, loading, error };
+}
+
+export function useCancelFriendRequest() {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const cancelSentFriendRequest = async (receiverId: string) => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const data = await cancelFriendRequest(receiverId);
+
+      return { data, error: null };
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('An unexpected error occurred');
+      }
+
+      return { data: null, error: err };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return { cancelSentFriendRequest, loading, error };
 }
