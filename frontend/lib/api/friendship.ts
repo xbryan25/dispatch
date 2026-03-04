@@ -103,3 +103,15 @@ export async function rejectFriendRequest(senderId: string) {
   if (!res.ok) throw new Error('Something went wrong when rejecting a friend request.');
   return res.json();
 }
+
+export async function unfriendUser(otherUserId: string) {
+  const res = await fetch(`${fastapiServerUrl}/api/friends/unfriend`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ otherUserId }),
+    credentials: 'include',
+  });
+
+  if (!res.ok) throw new Error('Something went wrong when unfriending a user.');
+  return res.json();
+}

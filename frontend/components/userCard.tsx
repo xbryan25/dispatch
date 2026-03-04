@@ -54,7 +54,11 @@ export default function UserCard({ userInfo, userType, refreshList }: UserCardPr
             </TooltipContent>
           </Tooltip>
 
-          <UnfriendDialog username={userInfo.username} />
+          <UnfriendDialog
+            username={userInfo.username}
+            otherUserId={userInfo.userId}
+            onSuccess={refreshList}
+          />
         </div>
       )}
 

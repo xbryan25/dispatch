@@ -197,3 +197,13 @@ class FriendsService:
         await db.commit()
 
         return None
+
+    @staticmethod
+    async def unfriend_user(db: AsyncSession, user_id: UUID, other_user_id: UUID):
+
+        stmt = FriendsQueries.unfriend_user_stmt(user_id, other_user_id)
+
+        await db.execute(stmt)
+        await db.commit()
+
+        return None
