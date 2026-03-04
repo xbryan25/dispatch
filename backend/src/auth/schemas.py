@@ -23,6 +23,10 @@ class ReceiverId(BaseSchema):
     receiver_id: str
 
 
+class SenderId(BaseSchema):
+    sender_id: str
+
+
 class UserProfileImageUrl(BaseSchema):
     profile_image_url: Optional[str] = None
 

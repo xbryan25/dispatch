@@ -177,3 +177,13 @@ class FriendsService:
         await db.commit()
 
         return None
+
+    @staticmethod
+    async def accept_friend_request(db: AsyncSession, user_id: UUID, sender_id: UUID):
+
+        stmt = FriendsQueries.accept_friend_request_stmt(sender_id, user_id)
+
+        await db.execute(stmt)
+        await db.commit()
+
+        return None

@@ -60,7 +60,11 @@ export default function UserCard({ userInfo, userType, refreshList }: UserCardPr
 
       {userType === 'requests' && (
         <div className="flex flex-col items-start justify-start gap-4">
-          <AcceptFriendshipDialog />
+          <AcceptFriendshipDialog
+            username={userInfo.username}
+            receiverId={userInfo.userId}
+            onSuccess={refreshList}
+          />
         </div>
       )}
 
