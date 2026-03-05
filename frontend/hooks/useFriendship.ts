@@ -17,12 +17,12 @@ export function useGetCurrentFriends() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const getFriends = useCallback(async () => {
+  const getFriends = useCallback(async (sortState: string) => {
     setLoading(true);
     setError(null);
 
     try {
-      const data = await getCurrentFriends();
+      const data = await getCurrentFriends(sortState);
 
       return { data, error: null };
     } catch (err: unknown) {
@@ -45,12 +45,12 @@ export function useGetSentRequestsProfiles() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const getProfilesOfSentRequests = useCallback(async () => {
+  const getProfilesOfSentRequests = useCallback(async (sortState: string) => {
     setLoading(true);
     setError(null);
 
     try {
-      const data = await getSentRequestsProfile();
+      const data = await getSentRequestsProfile(sortState);
 
       return { data, error: null };
     } catch (err: unknown) {
@@ -73,12 +73,12 @@ export function useGetReceivedRequestsProfiles() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const getProfilesOfReceivedRequests = useCallback(async () => {
+  const getProfilesOfReceivedRequests = useCallback(async (sortState: string) => {
     setLoading(true);
     setError(null);
 
     try {
-      const data = await getReceivedRequestsProfile();
+      const data = await getReceivedRequestsProfile(sortState);
 
       return { data, error: null };
     } catch (err: unknown) {
@@ -101,12 +101,12 @@ export function useGetFormerFriends() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const getProfilesOfFormerFriends = useCallback(async () => {
+  const getProfilesOfFormerFriends = useCallback(async (sortState: string) => {
     setLoading(true);
     setError(null);
 
     try {
-      const data = await getFormerFriends();
+      const data = await getFormerFriends(sortState);
 
       return { data, error: null };
     } catch (err: unknown) {
@@ -129,12 +129,12 @@ export function useGetFriendSuggestions() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const getSuggestedProfiles = useCallback(async () => {
+  const getSuggestedProfiles = useCallback(async (sortState: string) => {
     setLoading(true);
     setError(null);
 
     try {
-      const data = await getFriendSuggestions();
+      const data = await getFriendSuggestions(sortState);
 
       return { data, error: null };
     } catch (err: unknown) {

@@ -79,19 +79,19 @@ export default function FriendsPage() {
           </div>
 
           <TabsContent value="friends">
-            <FriendsPageTab userType="friends" />
+            <FriendsPageTab userType="friends" sortState={sortState} />
           </TabsContent>
           <TabsContent value="pending">
-            <FriendsPageTab userType="pending" />
+            <FriendsPageTab userType="pending" sortState={sortState} />
           </TabsContent>
           <TabsContent value="requests">
-            <FriendsPageTab userType="requests" />
+            <FriendsPageTab userType="requests" sortState={sortState} />
           </TabsContent>
           <TabsContent value="formerFriends">
-            <FriendsPageTab userType="formerFriends" />
+            <FriendsPageTab userType="formerFriends" sortState={sortState} />
           </TabsContent>
           <TabsContent value="addFriend">
-            <FriendsPageTab userType="addFriend" />
+            <FriendsPageTab userType="addFriend" sortState={sortState} />
           </TabsContent>
         </Tabs>
 

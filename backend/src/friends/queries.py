@@ -83,7 +83,7 @@ class FriendsQueries:
         return stmt
 
     @staticmethod
-    def get_current_friends_stmt(current_user_id: UUID) -> Select:
+    def get_current_friends_stmt(current_user_id: UUID, sort_state: str) -> Select:
         """This statement retrieves the current friends of the current user."""
 
         sub_stmt = FriendsQueries.get_total_friends_sub_stmt()
@@ -107,13 +107,21 @@ class FriendsQueries:
                 UserProfile.user_id != current_user_id,
                 Friendship.status == FriendshipStatusEnum.accepted,
             )
-            .order_by(UserProfile.username.asc())
+            .order_by(
+                (
+                    UserProfile.username.asc()
+                    if sort_state == "ascending"
+                    else UserProfile.username.desc()
+                )
+            )
         )
 
         return stmt
 
     @staticmethod
-    def get_sent_requests_profiles_stmt(current_user_id: UUID) -> Select:
+    def get_sent_requests_profiles_stmt(
+        current_user_id: UUID, sort_state: str
+    ) -> Select:
         """This statement retrieves the profiles of the users that the current user sent a friend request to."""
 
         sub_stmt = FriendsQueries.get_total_friends_sub_stmt()
@@ -136,13 +144,21 @@ class FriendsQueries:
                 Friendship.status == FriendshipStatusEnum.pending,
                 Friendship.action_by == current_user_id,
             )
-            .order_by(UserProfile.username.asc())
+            .order_by(
+                (
+                    UserProfile.username.asc()
+                    if sort_state == "ascending"
+                    else UserProfile.username.desc()
+                )
+            )
         )
 
         return stmt
 
     @staticmethod
-    def get_received_requests_profiles_stmt(current_user_id: UUID) -> Select:
+    def get_received_requests_profiles_stmt(
+        current_user_id: UUID, sort_state: str
+    ) -> Select:
         """This statement retrieves the profiles of the users sent a friend request to the current user."""
 
         sub_stmt = FriendsQueries.get_total_friends_sub_stmt()
@@ -165,13 +181,17 @@ class FriendsQueries:
                 Friendship.status == FriendshipStatusEnum.pending,
                 Friendship.action_by != current_user_id,
             )
-            .order_by(UserProfile.username.asc())
+            .order_by(
+                UserProfile.username.asc()
+                if sort_state == "ascending"
+                else UserProfile.username.desc()
+            )
         )
 
         return stmt
 
     @staticmethod
-    def get_former_friends_stmt(current_user_id: UUID) -> Select:
+    def get_former_friends_stmt(current_user_id: UUID, sort_state: str) -> Select:
         """This statement retrieves the profiles of the users that were former friends of the current user."""
 
         sub_stmt = FriendsQueries.get_total_friends_sub_stmt()
@@ -193,13 +213,19 @@ class FriendsQueries:
                 UserProfile.user_id != current_user_id,
                 Friendship.status == FriendshipStatusEnum.unfriended,
             )
-            .order_by(UserProfile.username.asc())
+            .order_by(
+                (
+                    UserProfile.username.asc()
+                    if sort_state == "ascending"
+                    else UserProfile.username.desc()
+                )
+            )
         )
 
         return stmt
 
     @staticmethod
-    def get_friend_suggestions_stmt(current_user_id: UUID) -> Select:
+    def get_friend_suggestions_stmt(current_user_id: UUID, sort_state: str) -> Select:
         """This statement retrieves the profiles of the users that have no connections to the current user yet"""
 
         sub_stmt = FriendsQueries.get_total_friends_sub_stmt()
@@ -211,7 +237,13 @@ class FriendsQueries:
             select(UserProfile, sub_stmt.label("total_friend_count"))
             .where(UserProfile.user_id != current_user_id)
             .where(~connection_exists_stmt)
-            .order_by(UserProfile.username.asc())
+            .order_by(
+                (
+                    UserProfile.username.asc()
+                    if sort_state == "ascending"
+                    else UserProfile.username.desc()
+                )
+            )
         )
 
         return stmt

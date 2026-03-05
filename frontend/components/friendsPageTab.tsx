@@ -13,9 +13,10 @@ import {
 
 interface FriendsPageTabProps {
   userType: 'friends' | 'pending' | 'requests' | 'formerFriends' | 'addFriend';
+  sortState: 'ascending' | 'descending';
 }
 
-export default function FriendsPageTab({ userType }: FriendsPageTabProps) {
+export default function FriendsPageTab({ userType, sortState }: FriendsPageTabProps) {
   const [loading, setLoading] = useState<boolean>(true);
   const [users, setUsers] = useState<UserInfo[]>([]);
 
@@ -43,11 +44,11 @@ export default function FriendsPageTab({ userType }: FriendsPageTabProps) {
       string,
       () => Promise<{ data: UserInfo[]; error: null } | { data: null; error: unknown }>
     > = {
-      friends: getFriends,
-      pending: getProfilesOfSentRequests,
-      requests: getProfilesOfReceivedRequests,
-      formerFriends: getProfilesOfFormerFriends,
-      addFriend: getSuggestedProfiles,
+      friends: () => getFriends(sortState),
+      pending: () => getProfilesOfSentRequests(sortState),
+      requests: () => getProfilesOfReceivedRequests(sortState),
+      formerFriends: () => getProfilesOfFormerFriends(sortState),
+      addFriend: () => getSuggestedProfiles(sortState),
     };
 
     const fetchFunc = apiMap[userType];
@@ -58,6 +59,7 @@ export default function FriendsPageTab({ userType }: FriendsPageTabProps) {
       setUsers([]);
 
       const result = await fetchFunc();
+      console.log('test');
 
       if (result?.data) {
         setUsers(result.data);
@@ -71,6 +73,7 @@ export default function FriendsPageTab({ userType }: FriendsPageTabProps) {
     }
   }, [
     userType,
+    sortState,
     getFriends,
     getProfilesOfFormerFriends,
     getProfilesOfReceivedRequests,
@@ -80,7 +83,7 @@ export default function FriendsPageTab({ userType }: FriendsPageTabProps) {
 
   useEffect(() => {
     loadData();
-  }, [loadData]);
+  }, [sortState, loadData]);
 
   return (
     <div
