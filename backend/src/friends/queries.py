@@ -13,6 +13,8 @@ from sqlalchemy import (
     Update,
 )
 
+from sqlalchemy.dialects.postgresql import insert, Insert
+
 from .models import Friendship
 from .constants import FriendshipStatusEnum
 
@@ -25,13 +27,14 @@ class FriendsQueries:
 
     @staticmethod
     def get_total_friends_sub_stmt() -> ScalarSelect:
+        """This sub statement links to an outer UserProfile query to count all rows where that specific user is either user_id_a or user_id_b with an accepted status."""
 
         stmt = (
-            select(func.count(Friendship.sender_id))
+            select(func.count())
             .where(
                 or_(
-                    Friendship.sender_id == UserProfile.user_id,
-                    Friendship.receiver_id == UserProfile.user_id,
+                    Friendship.user_id_a == UserProfile.user_id,
+                    Friendship.user_id_b == UserProfile.user_id,
                 ),
                 Friendship.status == FriendshipStatusEnum.accepted,
             )
@@ -42,30 +45,37 @@ class FriendsQueries:
         return stmt
 
     @staticmethod
-    def check_if_connection_exists_for_user_stmt(user_id: UUID) -> Exists:
+    def check_if_connection_exists_for_user_sub_stmt(current_user_id: UUID) -> Exists:
+        """This sub statement receives user_id so it can check if a row exists connecting the current user specifically to whichever UserProfile the database is currently scanning in the suggestions list."""
 
         stmt = exists().where(
             or_(
-                Friendship.sender_id == UserProfile.user_id,
-                Friendship.receiver_id == UserProfile.user_id,
+                Friendship.user_id_a == UserProfile.user_id,
+                Friendship.user_id_b == UserProfile.user_id,
             ),
-            or_(Friendship.sender_id == user_id, Friendship.receiver_id == user_id),
+            or_(
+                Friendship.user_id_a == current_user_id,
+                Friendship.user_id_b == current_user_id,
+            ),
         )
 
         return stmt
 
     @staticmethod
     def check_if_connection_exists_between_two_users_stmt(
-        user_id: UUID, target_id: UUID
+        current_user_id: UUID, target_user_id: UUID
     ) -> Select:
+        """This statement checks whether there has already been a record between two users in the database."""
 
         stmt = select(Friendship).where(
             or_(
                 and_(
-                    Friendship.sender_id == user_id, Friendship.receiver_id == target_id
+                    Friendship.user_id_a == current_user_id,
+                    Friendship.user_id_b == target_user_id,
                 ),
                 and_(
-                    Friendship.sender_id == target_id, Friendship.receiver_id == user_id
+                    Friendship.user_id_a == target_user_id,
+                    Friendship.user_id_b == current_user_id,
                 ),
             )
         )
@@ -73,7 +83,8 @@ class FriendsQueries:
         return stmt
 
     @staticmethod
-    def get_current_friends_stmt(user_id: UUID) -> Select:
+    def get_current_friends_stmt(current_user_id: UUID) -> Select:
+        """This statement retrieves the current friends of the current user."""
 
         sub_stmt = FriendsQueries.get_total_friends_sub_stmt()
 
@@ -82,15 +93,18 @@ class FriendsQueries:
             .join(
                 Friendship,
                 or_(
-                    Friendship.sender_id == UserProfile.user_id,
-                    Friendship.receiver_id == UserProfile.user_id,
+                    Friendship.user_id_a == UserProfile.user_id,
+                    Friendship.user_id_b == UserProfile.user_id,
                 ),
             )
             .where(
-                or_(Friendship.sender_id == user_id, Friendship.receiver_id == user_id)
+                or_(
+                    Friendship.user_id_a == current_user_id,
+                    Friendship.user_id_b == current_user_id,
+                )
             )
             .where(
-                UserProfile.user_id != user_id,
+                UserProfile.user_id != current_user_id,
                 Friendship.status == FriendshipStatusEnum.accepted,
             )
             .order_by(UserProfile.username.asc())
@@ -99,43 +113,8 @@ class FriendsQueries:
         return stmt
 
     @staticmethod
-    def get_sent_requests_profiles_stmt(user_id: UUID) -> Select:
-
-        sub_stmt = FriendsQueries.get_total_friends_sub_stmt()
-
-        stmt = (
-            select(UserProfile, sub_stmt.label("total_friend_count"))
-            .join(Friendship, Friendship.receiver_id == UserProfile.user_id)
-            .where(
-                Friendship.sender_id == user_id,
-                UserProfile.user_id != user_id,
-                Friendship.status == FriendshipStatusEnum.pending,
-            )
-            .order_by(UserProfile.username.asc())
-        )
-
-        return stmt
-
-    @staticmethod
-    def get_received_requests_profiles_stmt(user_id: UUID) -> Select:
-
-        sub_stmt = FriendsQueries.get_total_friends_sub_stmt()
-
-        stmt = (
-            select(UserProfile, sub_stmt.label("total_friend_count"))
-            .join(Friendship, Friendship.sender_id == UserProfile.user_id)
-            .where(
-                Friendship.receiver_id == user_id,
-                UserProfile.user_id != user_id,
-                Friendship.status == FriendshipStatusEnum.pending,
-            )
-            .order_by(UserProfile.username.asc())
-        )
-
-        return stmt
-
-    @staticmethod
-    def get_former_friends_stmt(user_id: UUID) -> Select:
+    def get_sent_requests_profiles_stmt(current_user_id: UUID) -> Select:
+        """This statement retrieves the profiles of the users that the current user sent a friend request to."""
 
         sub_stmt = FriendsQueries.get_total_friends_sub_stmt()
 
@@ -144,15 +123,74 @@ class FriendsQueries:
             .join(
                 Friendship,
                 or_(
-                    Friendship.sender_id == UserProfile.user_id,
-                    Friendship.receiver_id == UserProfile.user_id,
+                    Friendship.user_id_a == UserProfile.user_id,
+                    Friendship.user_id_b == UserProfile.user_id,
                 ),
             )
             .where(
-                or_(Friendship.sender_id == user_id, Friendship.receiver_id == user_id)
+                or_(
+                    Friendship.user_id_a == current_user_id,
+                    Friendship.user_id_b == current_user_id,
+                ),
+                UserProfile.user_id != current_user_id,
+                Friendship.status == FriendshipStatusEnum.pending,
+                Friendship.action_by == current_user_id,
+            )
+            .order_by(UserProfile.username.asc())
+        )
+
+        return stmt
+
+    @staticmethod
+    def get_received_requests_profiles_stmt(current_user_id: UUID) -> Select:
+        """This statement retrieves the profiles of the users sent a friend request to the current user."""
+
+        sub_stmt = FriendsQueries.get_total_friends_sub_stmt()
+
+        stmt = (
+            select(UserProfile, sub_stmt.label("total_friend_count"))
+            .join(
+                Friendship,
+                or_(
+                    Friendship.user_id_a == UserProfile.user_id,
+                    Friendship.user_id_b == UserProfile.user_id,
+                ),
             )
             .where(
-                UserProfile.user_id != user_id,
+                or_(
+                    Friendship.user_id_a == current_user_id,
+                    Friendship.user_id_b == current_user_id,
+                ),
+                UserProfile.user_id != current_user_id,
+                Friendship.status == FriendshipStatusEnum.pending,
+                Friendship.action_by != current_user_id,
+            )
+            .order_by(UserProfile.username.asc())
+        )
+
+        return stmt
+
+    @staticmethod
+    def get_former_friends_stmt(current_user_id: UUID) -> Select:
+        """This statement retrieves the profiles of the users that were former friends of the current user."""
+
+        sub_stmt = FriendsQueries.get_total_friends_sub_stmt()
+
+        stmt = (
+            select(UserProfile, sub_stmt.label("total_friend_count"))
+            .join(
+                Friendship,
+                or_(
+                    Friendship.user_id_a == UserProfile.user_id,
+                    Friendship.user_id_b == UserProfile.user_id,
+                ),
+            )
+            .where(
+                or_(
+                    Friendship.user_id_a == current_user_id,
+                    Friendship.user_id_b == current_user_id,
+                ),
+                UserProfile.user_id != current_user_id,
                 Friendship.status == FriendshipStatusEnum.unfriended,
             )
             .order_by(UserProfile.username.asc())
@@ -161,16 +199,17 @@ class FriendsQueries:
         return stmt
 
     @staticmethod
-    def get_friend_suggestions_stmt(user_id: UUID) -> Select:
+    def get_friend_suggestions_stmt(current_user_id: UUID) -> Select:
+        """This statement retrieves the profiles of the users that have no connections to the current user yet"""
 
         sub_stmt = FriendsQueries.get_total_friends_sub_stmt()
         connection_exists_stmt = (
-            FriendsQueries.check_if_connection_exists_for_user_stmt(user_id)
+            FriendsQueries.check_if_connection_exists_for_user_sub_stmt(current_user_id)
         )
 
         stmt = (
             select(UserProfile, sub_stmt.label("total_friend_count"))
-            .where(UserProfile.user_id != user_id)
+            .where(UserProfile.user_id != current_user_id)
             .where(~connection_exists_stmt)
             .order_by(UserProfile.username.asc())
         )
@@ -178,26 +217,51 @@ class FriendsQueries:
         return stmt
 
     @staticmethod
-    def delete_pending_friendship_stmt(sender_id: UUID, receiver_id: UUID) -> Delete:
-        # Used by both 'cancel request' and 'reject request'
+    def delete_pending_friendship_stmt(
+        current_user_id: UUID, target_user_id: UUID, mode: str
+    ) -> Delete:
+        """This statement removes a pending friend request. Used by both 'cancel request' and 'reject request'."""
+
+        id_a, id_b = (
+            (current_user_id, target_user_id)
+            if current_user_id < target_user_id
+            else (current_user_id, target_user_id)
+        )
+
+        security_rule = (
+            Friendship.action_by == current_user_id
+            if mode == "cancel"
+            else Friendship.action_by != current_user_id
+        )
 
         stmt = delete(Friendship).where(
-            Friendship.sender_id == sender_id,
-            Friendship.receiver_id == receiver_id,
+            Friendship.user_id_a == id_a,
+            Friendship.user_id_b == id_b,
             Friendship.status == FriendshipStatusEnum.pending,
+            security_rule,
         )
 
         return stmt
 
     @staticmethod
-    def accept_friend_request_stmt(sender_id: UUID, receiver_id: UUID) -> Update:
+    def accept_friend_request_stmt(
+        current_user_id: UUID, target_user_id: UUID
+    ) -> Update:
+        """This statement updates a friend request and turns the status to 'accepted'."""
+
+        id_a, id_b = (
+            (current_user_id, target_user_id)
+            if current_user_id < target_user_id
+            else (current_user_id, target_user_id)
+        )
 
         stmt = (
             update(Friendship)
             .where(
-                Friendship.sender_id == sender_id,
-                Friendship.receiver_id == receiver_id,
+                Friendship.user_id_a == id_a,
+                Friendship.user_id_b == id_b,
                 Friendship.status == FriendshipStatusEnum.pending,
+                Friendship.action_by != current_user_id,
             )
             .values(status=FriendshipStatusEnum.accepted, responded_at=func.now())
         )
@@ -205,24 +269,59 @@ class FriendsQueries:
         return stmt
 
     @staticmethod
-    def unfriend_user_stmt(user_id: UUID, other_user_id: UUID) -> Update:
+    def unfriend_user_stmt(current_user_id: UUID, target_user_id: UUID) -> Update:
+        """This statement updates a friend request and turns the status to 'unfriended'."""
+
+        id_a, id_b = (
+            (current_user_id, target_user_id)
+            if current_user_id < target_user_id
+            else (current_user_id, target_user_id)
+        )
 
         stmt = (
             update(Friendship)
             .where(
-                or_(
-                    and_(
-                        Friendship.sender_id == user_id,
-                        Friendship.receiver_id == other_user_id,
-                    ),
-                    and_(
-                        Friendship.sender_id == other_user_id,
-                        Friendship.receiver_id == user_id,
-                    ),
-                ),
+                Friendship.user_id_a == id_a,
+                Friendship.user_id_b == id_b,
                 Friendship.status == FriendshipStatusEnum.accepted,
             )
             .values(status=FriendshipStatusEnum.unfriended, unfriended_at=func.now())
         )
 
+        return stmt
+
+    @staticmethod
+    def send_or_restart_request_stmt(
+        current_user_id: UUID, target_user_id: UUID
+    ) -> Insert:
+        """This statement performs an atomic upsert that either creates a new pending request or resets an existing friendship record."""
+
+        # Insert is used instead of update to avoid race condition in db
+
+        id_a, id_b = (
+            (current_user_id, target_user_id)
+            if current_user_id < target_user_id
+            else (target_user_id, current_user_id)
+        )
+
+        stmt = (
+            insert(Friendship)
+            .values(
+                user_id_a=id_a,
+                user_id_b=id_b,
+                action_by=current_user_id,
+                status="pending",
+                created_at=func.now(),
+            )
+            .on_conflict_do_update(
+                index_elements=["user_id_a", "user_id_b"],
+                set_={
+                    "status": "pending",
+                    "action_by": current_user_id,
+                    "created_at": func.now(),
+                    "responded_at": None,
+                    "unfriended_at": None,
+                },
+            )
+        )
         return stmt

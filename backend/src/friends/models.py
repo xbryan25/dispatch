@@ -12,12 +12,16 @@ from datetime import datetime
 class Friendship(Base):
     __tablename__ = "friendships"
 
-    sender_id: Mapped[uuid.UUID] = mapped_column(
+    user_id_a: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("user_profiles.user_id"), primary_key=True
     )
 
-    receiver_id: Mapped[uuid.UUID] = mapped_column(
+    user_id_b: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("user_profiles.user_id"), primary_key=True
+    )
+
+    action_by: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("user_profiles.user_id")
     )
 
     responded_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
@@ -35,9 +39,9 @@ class Friendship(Base):
     )
 
     sender = relationship(
-        "UserProfile", foreign_keys=[sender_id], back_populates="sent_friendships"
+        "UserProfile", foreign_keys=[user_id_a], back_populates="sent_friendships"
     )
 
     receiver = relationship(
-        "UserProfile", foreign_keys=[receiver_id], back_populates="received_friendships"
+        "UserProfile", foreign_keys=[user_id_b], back_populates="received_friendships"
     )
