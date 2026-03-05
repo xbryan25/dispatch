@@ -10,9 +10,9 @@ from uuid import UUID
 class FriendsService:
 
     @staticmethod
-    async def get_current_friends(db: AsyncSession, user_id: UUID):
+    async def get_current_friends(db: AsyncSession, current_user_id: UUID):
 
-        stmt = FriendsQueries.get_current_friends_stmt(user_id)
+        stmt = FriendsQueries.get_current_friends_stmt(current_user_id)
 
         result = await db.execute(stmt)
 
@@ -37,9 +37,9 @@ class FriendsService:
         return output
 
     @staticmethod
-    async def get_sent_requests_profiles(db: AsyncSession, user_id: UUID):
+    async def get_sent_requests_profiles(db: AsyncSession, current_user_id: UUID):
 
-        stmt = FriendsQueries.get_sent_requests_profiles_stmt(user_id)
+        stmt = FriendsQueries.get_sent_requests_profiles_stmt(current_user_id)
 
         result = await db.execute(stmt)
 
@@ -64,9 +64,9 @@ class FriendsService:
         return output
 
     @staticmethod
-    async def get_received_requests_profiles(db: AsyncSession, user_id: UUID):
+    async def get_received_requests_profiles(db: AsyncSession, current_user_id: UUID):
 
-        stmt = FriendsQueries.get_received_requests_profiles_stmt(user_id)
+        stmt = FriendsQueries.get_received_requests_profiles_stmt(current_user_id)
 
         result = await db.execute(stmt)
 
@@ -91,9 +91,9 @@ class FriendsService:
         return output
 
     @staticmethod
-    async def get_former_friends(db: AsyncSession, user_id: UUID):
+    async def get_former_friends(db: AsyncSession, current_user_id: UUID):
 
-        stmt = FriendsQueries.get_former_friends_stmt(user_id)
+        stmt = FriendsQueries.get_former_friends_stmt(current_user_id)
 
         result = await db.execute(stmt)
 
@@ -118,9 +118,9 @@ class FriendsService:
         return output
 
     @staticmethod
-    async def get_friend_suggestions(db: AsyncSession, user_id: UUID):
+    async def get_friend_suggestions(db: AsyncSession, current_user_id: UUID):
 
-        stmt = FriendsQueries.get_friend_suggestions_stmt(user_id)
+        stmt = FriendsQueries.get_friend_suggestions_stmt(current_user_id)
 
         result = await db.execute(stmt)
 
@@ -146,42 +146,28 @@ class FriendsService:
 
     @staticmethod
     async def create_new_friend_request(
-        db: AsyncSession, user_id: UUID, receiver_id: UUID
+        db: AsyncSession, current_user_id: UUID, target_user_id: UUID
     ):
 
-        stmt = FriendsQueries.check_if_connection_exists_between_two_users_stmt(
-            user_id, receiver_id
-        )
+        stmt = FriendsQueries.send_or_restart_request_stmt(current_user_id, target_user_id)
 
-        existing = await db.execute(stmt)
+        result = await db.execute(stmt)
+        db_message = result.scalar_one_or_none()
 
-        if existing.scalar_one_or_none():
+        if not db_message:
             raise HTTPException(
                 status_code=400, detail="A friendship or request already exists."
             )
 
-        db_message = Friendship(sender_id=user_id, receiver_id=receiver_id)
-
-        db.add(db_message)
         await db.commit()
-        await db.refresh(db_message)
-
         return db_message
 
     @staticmethod
-    async def cancel_friend_request(db: AsyncSession, user_id: UUID, receiver_id: UUID):
+    async def cancel_friend_request(db: AsyncSession, current_user_id: UUID, target_user_id: UUID):
 
-        stmt = FriendsQueries.delete_pending_friendship_stmt(user_id, receiver_id)
-
-        await db.execute(stmt)
-        await db.commit()
-
-        return None
-
-    @staticmethod
-    async def accept_friend_request(db: AsyncSession, user_id: UUID, sender_id: UUID):
-
-        stmt = FriendsQueries.accept_friend_request_stmt(sender_id, user_id)
+        stmt = FriendsQueries.delete_pending_friendship_stmt(
+            current_user_id, target_user_id, "cancel"
+        )
 
         await db.execute(stmt)
         await db.commit()
@@ -189,9 +175,9 @@ class FriendsService:
         return None
 
     @staticmethod
-    async def reject_friend_request(db: AsyncSession, user_id: UUID, sender_id: UUID):
+    async def accept_friend_request(db: AsyncSession, current_user_id: UUID, target_user_id: UUID):
 
-        stmt = FriendsQueries.delete_pending_friendship_stmt(sender_id, user_id)
+        stmt = FriendsQueries.accept_friend_request_stmt(current_user_id, target_user_id)
 
         await db.execute(stmt)
         await db.commit()
@@ -199,9 +185,33 @@ class FriendsService:
         return None
 
     @staticmethod
-    async def unfriend_user(db: AsyncSession, user_id: UUID, other_user_id: UUID):
+    async def reject_friend_request(db: AsyncSession, current_user_id: UUID, target_user_id: UUID):
 
-        stmt = FriendsQueries.unfriend_user_stmt(user_id, other_user_id)
+        stmt = FriendsQueries.delete_pending_friendship_stmt(
+            current_user_id, target_user_id, "reject"
+        )
+
+        await db.execute(stmt)
+        await db.commit()
+
+        return None
+
+    @staticmethod
+    async def unfriend_user(db: AsyncSession, current_user_id: UUID, target_user_id: UUID):
+
+        stmt = FriendsQueries.unfriend_user_stmt(current_user_id, target_user_id)
+
+        await db.execute(stmt)
+        await db.commit()
+
+        return None
+
+    @staticmethod
+    async def reconnect_to_former_friend(
+        db: AsyncSession, current_user_id: UUID, target_user_id: UUID
+    ):
+
+        stmt = FriendsQueries.send_or_restart_request_stmt(current_user_id, target_user_id)
 
         await db.execute(stmt)
         await db.commit()

@@ -46,9 +46,9 @@ class UserProfile(Base):
     )
 
     sent_friendships = relationship(
-        "Friendship", foreign_keys="Friendship.sender_id", back_populates="sender"
+        "Friendship", foreign_keys="Friendship.user_id_a", back_populates="sender"
     )
 
     received_friendships = relationship(
-        "Friendship", foreign_keys="Friendship.sender_id", back_populates="receiver"
+        "Friendship", foreign_keys="Friendship.user_id_b", back_populates="receiver"
     )
