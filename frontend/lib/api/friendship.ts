@@ -58,11 +58,11 @@ export async function getFriendSuggestions() {
   return res.json();
 }
 
-export async function createNewFriendRequest(receiverId: string) {
+export async function createNewFriendRequest(targetUserId: string) {
   const res = await fetch(`${fastapiServerUrl}/api/friends/friend-request`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ receiverId }),
+    body: JSON.stringify({ targetUserId }),
     credentials: 'include',
   });
 
@@ -70,8 +70,8 @@ export async function createNewFriendRequest(receiverId: string) {
   return res.json();
 }
 
-export async function cancelFriendRequest(receiverId: string) {
-  const res = await fetch(`${fastapiServerUrl}/api/friends/friend-request/${receiverId}`, {
+export async function cancelFriendRequest(targetUserId: string) {
+  const res = await fetch(`${fastapiServerUrl}/api/friends/friend-request/${targetUserId}`, {
     method: 'DELETE',
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
@@ -81,11 +81,11 @@ export async function cancelFriendRequest(receiverId: string) {
   return res.json();
 }
 
-export async function acceptFriendRequest(senderId: string) {
+export async function acceptFriendRequest(targetUserId: string) {
   const res = await fetch(`${fastapiServerUrl}/api/friends/friend-request`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ senderId }),
+    body: JSON.stringify({ targetUserId }),
     credentials: 'include',
   });
 
@@ -93,8 +93,8 @@ export async function acceptFriendRequest(senderId: string) {
   return res.json();
 }
 
-export async function rejectFriendRequest(senderId: string) {
-  const res = await fetch(`${fastapiServerUrl}/api/friends/friend-request/reject/${senderId}`, {
+export async function rejectFriendRequest(targetUserId: string) {
+  const res = await fetch(`${fastapiServerUrl}/api/friends/friend-request/reject/${targetUserId}`, {
     method: 'DELETE',
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
@@ -104,14 +104,27 @@ export async function rejectFriendRequest(senderId: string) {
   return res.json();
 }
 
-export async function unfriendUser(otherUserId: string) {
+export async function unfriendUser(targetUserId: string) {
   const res = await fetch(`${fastapiServerUrl}/api/friends/unfriend`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ otherUserId }),
+    body: JSON.stringify({ targetUserId }),
     credentials: 'include',
   });
 
   if (!res.ok) throw new Error('Something went wrong when unfriending a user.');
+  return res.json();
+}
+
+export async function reconnectToUser(targetUserId: string) {
+  const res = await fetch(`${fastapiServerUrl}/api/friends/friend-request/reconnect`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ targetUserId }),
+    credentials: 'include',
+  });
+
+  if (!res.ok)
+    throw new Error('Something went wrong when attempting to resent a friend request to a user.');
   return res.json();
 }
