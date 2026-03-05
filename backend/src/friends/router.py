@@ -124,15 +124,15 @@ async def create_new_friend_request(
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
-@router.delete("/friend-request/{receiver_id}")
+@router.delete("/friend-request/{target_user_id}")
 async def cancel_friend_request(
-    receiver_id: UUID,
+    target_user_id: UUID,
     user_id: Annotated[UUID, Depends(get_current_user_id)],
     db: AsyncSession = Depends(get_db),
 ):
 
     try:
-        await FriendsService.cancel_friend_request(db, user_id, receiver_id)
+        await FriendsService.cancel_friend_request(db, user_id, target_user_id)
 
         return {"status": "success"}
 
@@ -151,7 +151,9 @@ async def accept_friend_request(
     try:
         formatted_target_user_id = uuid.UUID(payload.target_user_id)
 
-        await FriendsService.accept_friend_request(db, user_id, formatted_target_user_id)
+        await FriendsService.accept_friend_request(
+            db, user_id, formatted_target_user_id
+        )
 
         return {"status": "success"}
 
@@ -166,15 +168,15 @@ async def accept_friend_request(
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
-@router.delete("/friend-request/reject/{sender_id}")
+@router.delete("/friend-request/reject/{target_user_id}")
 async def reject_friend_request(
-    sender_id: UUID,
+    target_user_id: UUID,
     user_id: Annotated[UUID, Depends(get_current_user_id)],
     db: AsyncSession = Depends(get_db),
 ):
 
     try:
-        await FriendsService.reject_friend_request(db, user_id, sender_id)
+        await FriendsService.reject_friend_request(db, user_id, target_user_id)
 
         return {"status": "success"}
 

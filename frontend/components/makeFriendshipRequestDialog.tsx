@@ -13,7 +13,7 @@ import {
 
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
-import { useCreateNewFriendRequest } from '@/hooks/useFriendship';
+import { useCreateNewFriendRequest, useReconnectToUser } from '@/hooks/useFriendship';
 
 import { Icon } from '@iconify/react';
 
@@ -32,7 +32,8 @@ export default function MakeFriendshipRequestDialog({
   requestType,
   onSuccess,
 }: MakeFriendshipRequestDialogProps) {
-  const { createFriendRequest, loading } = useCreateNewFriendRequest();
+  const { createFriendRequest, loading: createFriendRequestLoading } = useCreateNewFriendRequest();
+  const { reconnectToFormerFriend, loading: reconnectToUserLoading } = useReconnectToUser();
 
   const createNewFriendRequest = async () => {
     try {
@@ -43,6 +44,26 @@ export default function MakeFriendshipRequestDialog({
       toast.success(`Successfully sent a friend request to ${username}.`);
     } catch {
       toast.success(`Something went wrong when making a friend request.`);
+    }
+  };
+
+  const reconnectToUser = async () => {
+    try {
+      await reconnectToFormerFriend(receiverId);
+
+      onSuccess();
+
+      toast.success(`Successfully sent a friend request to ${username}.`);
+    } catch {
+      toast.success(`Something went wrong when making a friend request.`);
+    }
+  };
+
+  const requestHandler = async () => {
+    if (requestType === 'new') {
+      await createNewFriendRequest();
+    } else {
+      await reconnectToUser();
     }
   };
 
@@ -77,8 +98,8 @@ export default function MakeFriendshipRequestDialog({
           <div className="flex w-full gap-2 pt-2">
             <Button
               className="flex-1 cursor-pointer text-md"
-              onClick={createNewFriendRequest}
-              disabled={loading}
+              onClick={requestHandler}
+              disabled={createFriendRequestLoading || reconnectToUserLoading}
             >
               Make friend request
             </Button>

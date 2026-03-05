@@ -1,5 +1,4 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from fastapi import HTTPException
 
 from .queries import FriendsQueries
 from .models import Friendship
@@ -149,21 +148,21 @@ class FriendsService:
         db: AsyncSession, current_user_id: UUID, target_user_id: UUID
     ):
 
-        stmt = FriendsQueries.send_or_restart_request_stmt(current_user_id, target_user_id)
+        stmt = FriendsQueries.send_or_restart_request_stmt(
+            current_user_id, target_user_id
+        ).returning(Friendship)
 
         result = await db.execute(stmt)
-        db_message = result.scalar_one_or_none()
-
-        if not db_message:
-            raise HTTPException(
-                status_code=400, detail="A friendship or request already exists."
-            )
+        db_friendship = result.scalar_one()
 
         await db.commit()
-        return db_message
+
+        return db_friendship
 
     @staticmethod
-    async def cancel_friend_request(db: AsyncSession, current_user_id: UUID, target_user_id: UUID):
+    async def cancel_friend_request(
+        db: AsyncSession, current_user_id: UUID, target_user_id: UUID
+    ):
 
         stmt = FriendsQueries.delete_pending_friendship_stmt(
             current_user_id, target_user_id, "cancel"
@@ -175,9 +174,13 @@ class FriendsService:
         return None
 
     @staticmethod
-    async def accept_friend_request(db: AsyncSession, current_user_id: UUID, target_user_id: UUID):
+    async def accept_friend_request(
+        db: AsyncSession, current_user_id: UUID, target_user_id: UUID
+    ):
 
-        stmt = FriendsQueries.accept_friend_request_stmt(current_user_id, target_user_id)
+        stmt = FriendsQueries.accept_friend_request_stmt(
+            current_user_id, target_user_id
+        )
 
         await db.execute(stmt)
         await db.commit()
@@ -185,7 +188,9 @@ class FriendsService:
         return None
 
     @staticmethod
-    async def reject_friend_request(db: AsyncSession, current_user_id: UUID, target_user_id: UUID):
+    async def reject_friend_request(
+        db: AsyncSession, current_user_id: UUID, target_user_id: UUID
+    ):
 
         stmt = FriendsQueries.delete_pending_friendship_stmt(
             current_user_id, target_user_id, "reject"
@@ -197,7 +202,9 @@ class FriendsService:
         return None
 
     @staticmethod
-    async def unfriend_user(db: AsyncSession, current_user_id: UUID, target_user_id: UUID):
+    async def unfriend_user(
+        db: AsyncSession, current_user_id: UUID, target_user_id: UUID
+    ):
 
         stmt = FriendsQueries.unfriend_user_stmt(current_user_id, target_user_id)
 
@@ -211,7 +218,9 @@ class FriendsService:
         db: AsyncSession, current_user_id: UUID, target_user_id: UUID
     ):
 
-        stmt = FriendsQueries.send_or_restart_request_stmt(current_user_id, target_user_id)
+        stmt = FriendsQueries.send_or_restart_request_stmt(
+            current_user_id, target_user_id
+        )
 
         await db.execute(stmt)
         await db.commit()

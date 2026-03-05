@@ -304,24 +304,26 @@ class FriendsQueries:
             else (target_user_id, current_user_id)
         )
 
-        stmt = (
-            insert(Friendship)
-            .values(
-                user_id_a=id_a,
-                user_id_b=id_b,
-                action_by=current_user_id,
-                status="pending",
-                created_at=func.now(),
-            )
-            .on_conflict_do_update(
-                index_elements=["user_id_a", "user_id_b"],
-                set_={
-                    "status": "pending",
-                    "action_by": current_user_id,
-                    "created_at": func.now(),
-                    "responded_at": None,
-                    "unfriended_at": None,
-                },
-            )
+        stmt = insert(Friendship).values(
+            user_id_a=id_a,
+            user_id_b=id_b,
+            action_by=current_user_id,
+            status="pending",
+            created_at=func.now(),
+            responded_at=None,
+            unfriended_at=None,
         )
+
+        stmt = stmt.on_conflict_do_update(
+            index_elements=["user_id_a", "user_id_b"],
+            set_={
+                "status": stmt.excluded.status,
+                "action_by": stmt.excluded.action_by,
+                "created_at": stmt.excluded.created_at,
+                "responded_at": None,
+                "unfriended_at": None,
+            },
+            where=(Friendship.status != "accepted"),
+        )
+
         return stmt

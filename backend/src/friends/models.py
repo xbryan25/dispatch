@@ -1,4 +1,4 @@
-from sqlalchemy import DateTime, ForeignKey, text
+from sqlalchemy import DateTime, ForeignKey, text, func
 from sqlalchemy.dialects.postgresql import UUID, ENUM
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -24,9 +24,13 @@ class Friendship(Base):
         UUID(as_uuid=True), ForeignKey("user_profiles.user_id")
     )
 
-    responded_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
 
-    unfriended_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    responded_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+    unfriended_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
     status: Mapped[FriendshipStatusEnum | None] = mapped_column(
         ENUM(
