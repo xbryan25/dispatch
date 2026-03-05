@@ -9,9 +9,11 @@ from uuid import UUID
 class FriendsService:
 
     @staticmethod
-    async def get_current_friends(db: AsyncSession, current_user_id: UUID):
+    async def get_current_friends(
+        db: AsyncSession, current_user_id: UUID, sort_state: str
+    ):
 
-        stmt = FriendsQueries.get_current_friends_stmt(current_user_id)
+        stmt = FriendsQueries.get_current_friends_stmt(current_user_id, sort_state)
 
         result = await db.execute(stmt)
 
@@ -36,9 +38,13 @@ class FriendsService:
         return output
 
     @staticmethod
-    async def get_sent_requests_profiles(db: AsyncSession, current_user_id: UUID):
+    async def get_sent_requests_profiles(
+        db: AsyncSession, current_user_id: UUID, sort_state: str
+    ):
 
-        stmt = FriendsQueries.get_sent_requests_profiles_stmt(current_user_id)
+        stmt = FriendsQueries.get_sent_requests_profiles_stmt(
+            current_user_id, sort_state
+        )
 
         result = await db.execute(stmt)
 
@@ -63,9 +69,13 @@ class FriendsService:
         return output
 
     @staticmethod
-    async def get_received_requests_profiles(db: AsyncSession, current_user_id: UUID):
+    async def get_received_requests_profiles(
+        db: AsyncSession, current_user_id: UUID, sort_state: str
+    ):
 
-        stmt = FriendsQueries.get_received_requests_profiles_stmt(current_user_id)
+        stmt = FriendsQueries.get_received_requests_profiles_stmt(
+            current_user_id, sort_state
+        )
 
         result = await db.execute(stmt)
 
@@ -90,9 +100,11 @@ class FriendsService:
         return output
 
     @staticmethod
-    async def get_former_friends(db: AsyncSession, current_user_id: UUID):
+    async def get_former_friends(
+        db: AsyncSession, current_user_id: UUID, sort_state: str
+    ):
 
-        stmt = FriendsQueries.get_former_friends_stmt(current_user_id)
+        stmt = FriendsQueries.get_former_friends_stmt(current_user_id, sort_state)
 
         result = await db.execute(stmt)
 
@@ -117,9 +129,11 @@ class FriendsService:
         return output
 
     @staticmethod
-    async def get_friend_suggestions(db: AsyncSession, current_user_id: UUID):
+    async def get_friend_suggestions(
+        db: AsyncSession, current_user_id: UUID, sort_state: str
+    ):
 
-        stmt = FriendsQueries.get_friend_suggestions_stmt(current_user_id)
+        stmt = FriendsQueries.get_friend_suggestions_stmt(current_user_id, sort_state)
 
         result = await db.execute(stmt)
 

@@ -27,14 +27,15 @@ router = APIRouter(
 )
 
 
-@router.get("/", response_model=list[BaseFriendResponse])
+@router.get("", response_model=list[BaseFriendResponse])
 async def get_current_friends(
     user_id: Annotated[UUID, Depends(get_current_user_id)],
+    sort_state: str = "ascending",
     db: AsyncSession = Depends(get_db),
 ):
 
     try:
-        return await FriendsService.get_current_friends(db, user_id)
+        return await FriendsService.get_current_friends(db, user_id, sort_state)
 
     except Exception:
         traceback.print_exc()
@@ -44,11 +45,12 @@ async def get_current_friends(
 @router.get("/sent", response_model=list[BaseFriendResponse])
 async def get_sent_requests_profiles(
     user_id: Annotated[UUID, Depends(get_current_user_id)],
+    sort_state: str = "ascending",
     db: AsyncSession = Depends(get_db),
 ):
 
     try:
-        return await FriendsService.get_sent_requests_profiles(db, user_id)
+        return await FriendsService.get_sent_requests_profiles(db, user_id, sort_state)
 
     except Exception:
         traceback.print_exc()
@@ -58,11 +60,14 @@ async def get_sent_requests_profiles(
 @router.get("/received", response_model=list[BaseFriendResponse])
 async def get_received_requests_profiles(
     user_id: Annotated[UUID, Depends(get_current_user_id)],
+    sort_state: str = "ascending",
     db: AsyncSession = Depends(get_db),
 ):
 
     try:
-        return await FriendsService.get_received_requests_profiles(db, user_id)
+        return await FriendsService.get_received_requests_profiles(
+            db, user_id, sort_state
+        )
 
     except Exception:
         traceback.print_exc()
@@ -72,11 +77,12 @@ async def get_received_requests_profiles(
 @router.get("/former", response_model=list[BaseFriendResponse])
 async def get_former_friends(
     user_id: Annotated[UUID, Depends(get_current_user_id)],
+    sort_state: str = "ascending",
     db: AsyncSession = Depends(get_db),
 ):
 
     try:
-        return await FriendsService.get_former_friends(db, user_id)
+        return await FriendsService.get_former_friends(db, user_id, sort_state)
 
     except Exception:
         traceback.print_exc()
@@ -86,11 +92,12 @@ async def get_former_friends(
 @router.get("/suggestions", response_model=list[BaseFriendResponse])
 async def get_friend_suggestions(
     user_id: Annotated[UUID, Depends(get_current_user_id)],
+    sort_state: str = "ascending",
     db: AsyncSession = Depends(get_db),
 ):
 
     try:
-        return await FriendsService.get_friend_suggestions(db, user_id)
+        return await FriendsService.get_friend_suggestions(db, user_id, sort_state)
 
     except Exception:
         traceback.print_exc()

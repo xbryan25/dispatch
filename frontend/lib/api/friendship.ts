@@ -1,7 +1,7 @@
 const fastapiServerUrl = process.env.NEXT_PUBLIC_FASTAPI_SERVER_URL;
 
-export async function getCurrentFriends() {
-  const res = await fetch(`${fastapiServerUrl}/api/friends/`, {
+export async function getCurrentFriends(sortState: string) {
+  const res = await fetch(`${fastapiServerUrl}/api/friends?sort_state=${sortState}`, {
     method: 'GET',
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
@@ -11,8 +11,8 @@ export async function getCurrentFriends() {
   return res.json();
 }
 
-export async function getSentRequestsProfile() {
-  const res = await fetch(`${fastapiServerUrl}/api/friends/sent`, {
+export async function getSentRequestsProfile(sortState: string) {
+  const res = await fetch(`${fastapiServerUrl}/api/friends/sent?sort_state=${sortState}`, {
     method: 'GET',
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
@@ -23,8 +23,8 @@ export async function getSentRequestsProfile() {
   return res.json();
 }
 
-export async function getReceivedRequestsProfile() {
-  const res = await fetch(`${fastapiServerUrl}/api/friends/received`, {
+export async function getReceivedRequestsProfile(sortState: string) {
+  const res = await fetch(`${fastapiServerUrl}/api/friends/received?sort_state=${sortState}`, {
     method: 'GET',
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
@@ -35,8 +35,8 @@ export async function getReceivedRequestsProfile() {
   return res.json();
 }
 
-export async function getFormerFriends() {
-  const res = await fetch(`${fastapiServerUrl}/api/friends/former`, {
+export async function getFormerFriends(sortState: string) {
+  const res = await fetch(`${fastapiServerUrl}/api/friends/former?sort_state=${sortState}`, {
     method: 'GET',
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
@@ -47,8 +47,8 @@ export async function getFormerFriends() {
   return res.json();
 }
 
-export async function getFriendSuggestions() {
-  const res = await fetch(`${fastapiServerUrl}/api/friends/suggestions`, {
+export async function getFriendSuggestions(sortState: string) {
+  const res = await fetch(`${fastapiServerUrl}/api/friends/suggestions?sort_state=${sortState}`, {
     method: 'GET',
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
