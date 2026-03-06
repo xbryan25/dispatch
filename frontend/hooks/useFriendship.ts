@@ -17,12 +17,12 @@ export function useGetCurrentFriends() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const getFriends = useCallback(async (sortState: string) => {
+  const getFriends = useCallback(async (sortState: string, searchQuery: string) => {
     setLoading(true);
     setError(null);
 
     try {
-      const data = await getCurrentFriends(sortState);
+      const data = await getCurrentFriends(sortState, searchQuery);
 
       return { data, error: null };
     } catch (err: unknown) {
@@ -45,12 +45,12 @@ export function useGetSentRequestsProfiles() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const getProfilesOfSentRequests = useCallback(async (sortState: string) => {
+  const getProfilesOfSentRequests = useCallback(async (sortState: string, searchQuery: string) => {
     setLoading(true);
     setError(null);
 
     try {
-      const data = await getSentRequestsProfile(sortState);
+      const data = await getSentRequestsProfile(sortState, searchQuery);
 
       return { data, error: null };
     } catch (err: unknown) {
@@ -73,26 +73,29 @@ export function useGetReceivedRequestsProfiles() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const getProfilesOfReceivedRequests = useCallback(async (sortState: string) => {
-    setLoading(true);
-    setError(null);
+  const getProfilesOfReceivedRequests = useCallback(
+    async (sortState: string, searchQuery: string) => {
+      setLoading(true);
+      setError(null);
 
-    try {
-      const data = await getReceivedRequestsProfile(sortState);
+      try {
+        const data = await getReceivedRequestsProfile(sortState, searchQuery);
 
-      return { data, error: null };
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError('An unexpected error occurred');
+        return { data, error: null };
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+          setError(err.message);
+        } else {
+          setError('An unexpected error occurred');
+        }
+
+        return { data: null, error: err };
+      } finally {
+        setLoading(false);
       }
-
-      return { data: null, error: err };
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+    },
+    []
+  );
 
   return { getProfilesOfReceivedRequests, loading, error };
 }
@@ -101,12 +104,12 @@ export function useGetFormerFriends() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const getProfilesOfFormerFriends = useCallback(async (sortState: string) => {
+  const getProfilesOfFormerFriends = useCallback(async (sortState: string, searchQuery: string) => {
     setLoading(true);
     setError(null);
 
     try {
-      const data = await getFormerFriends(sortState);
+      const data = await getFormerFriends(sortState, searchQuery);
 
       return { data, error: null };
     } catch (err: unknown) {
@@ -129,12 +132,12 @@ export function useGetFriendSuggestions() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const getSuggestedProfiles = useCallback(async (sortState: string) => {
+  const getSuggestedProfiles = useCallback(async (sortState: string, searchQuery: string) => {
     setLoading(true);
     setError(null);
 
     try {
-      const data = await getFriendSuggestions(sortState);
+      const data = await getFriendSuggestions(sortState, searchQuery);
 
       return { data, error: null };
     } catch (err: unknown) {

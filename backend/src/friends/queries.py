@@ -83,7 +83,9 @@ class FriendsQueries:
         return stmt
 
     @staticmethod
-    def get_current_friends_stmt(current_user_id: UUID, sort_state: str) -> Select:
+    def get_current_friends_stmt(
+        current_user_id: UUID, sort_state: str, search_query: str
+    ) -> Select:
         """This statement retrieves the current friends of the current user."""
 
         sub_stmt = FriendsQueries.get_total_friends_sub_stmt()
@@ -116,11 +118,16 @@ class FriendsQueries:
             )
         )
 
+        if search_query.strip():
+            stmt = stmt.filter(
+                func.lower(UserProfile.username).contains(search_query.lower())
+            )
+
         return stmt
 
     @staticmethod
     def get_sent_requests_profiles_stmt(
-        current_user_id: UUID, sort_state: str
+        current_user_id: UUID, sort_state: str, search_query: str
     ) -> Select:
         """This statement retrieves the profiles of the users that the current user sent a friend request to."""
 
@@ -153,11 +160,16 @@ class FriendsQueries:
             )
         )
 
+        if search_query.strip():
+            stmt = stmt.filter(
+                func.lower(UserProfile.username).contains(search_query.lower())
+            )
+
         return stmt
 
     @staticmethod
     def get_received_requests_profiles_stmt(
-        current_user_id: UUID, sort_state: str
+        current_user_id: UUID, sort_state: str, search_query: str
     ) -> Select:
         """This statement retrieves the profiles of the users sent a friend request to the current user."""
 
@@ -188,10 +200,17 @@ class FriendsQueries:
             )
         )
 
+        if search_query.strip():
+            stmt = stmt.filter(
+                func.lower(UserProfile.username).contains(search_query.lower())
+            )
+
         return stmt
 
     @staticmethod
-    def get_former_friends_stmt(current_user_id: UUID, sort_state: str) -> Select:
+    def get_former_friends_stmt(
+        current_user_id: UUID, sort_state: str, search_query: str
+    ) -> Select:
         """This statement retrieves the profiles of the users that were former friends of the current user."""
 
         sub_stmt = FriendsQueries.get_total_friends_sub_stmt()
@@ -222,10 +241,17 @@ class FriendsQueries:
             )
         )
 
+        if search_query.strip():
+            stmt = stmt.filter(
+                func.lower(UserProfile.username).contains(search_query.lower())
+            )
+
         return stmt
 
     @staticmethod
-    def get_friend_suggestions_stmt(current_user_id: UUID, sort_state: str) -> Select:
+    def get_friend_suggestions_stmt(
+        current_user_id: UUID, sort_state: str, search_query: str
+    ) -> Select:
         """This statement retrieves the profiles of the users that have no connections to the current user yet"""
 
         sub_stmt = FriendsQueries.get_total_friends_sub_stmt()
@@ -245,6 +271,11 @@ class FriendsQueries:
                 )
             )
         )
+
+        if search_query.strip():
+            stmt = stmt.filter(
+                func.lower(UserProfile.username).contains(search_query.lower())
+            )
 
         return stmt
 

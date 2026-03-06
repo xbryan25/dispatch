@@ -20,14 +20,27 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from '@/components/ui/pagination';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export default function FriendsPage() {
   const [sortState, setSortState] = useState<'ascending' | 'descending'>('ascending');
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState<string>('');
 
   const changeSort = () => {
     setSortState((prev) => (prev === 'ascending' ? 'descending' : 'ascending'));
   };
+
+  // Debounce after 500 ms
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery.trim());
+    }, 500);
+
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [searchQuery]);
 
   return (
     <div className="flex h-screen items-stretch justify-center gap-6 overflow-hidden bg-zinc-200 dark:bg-stone-800 font-sans  p-4">
@@ -58,7 +71,11 @@ export default function FriendsPage() {
 
             <div className="flex gap-2">
               <InputGroup className="max-w-xl">
-                <InputGroupInput placeholder="Search username..." />
+                <InputGroupInput
+                  placeholder="Search username..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
                 <InputGroupAddon>
                   <Search />
                 </InputGroupAddon>
@@ -79,19 +96,39 @@ export default function FriendsPage() {
           </div>
 
           <TabsContent value="friends">
-            <FriendsPageTab userType="friends" sortState={sortState} />
+            <FriendsPageTab
+              userType="friends"
+              sortState={sortState}
+              searchQuery={debouncedSearchQuery}
+            />
           </TabsContent>
           <TabsContent value="pending">
-            <FriendsPageTab userType="pending" sortState={sortState} />
+            <FriendsPageTab
+              userType="pending"
+              sortState={sortState}
+              searchQuery={debouncedSearchQuery}
+            />
           </TabsContent>
           <TabsContent value="requests">
-            <FriendsPageTab userType="requests" sortState={sortState} />
+            <FriendsPageTab
+              userType="requests"
+              sortState={sortState}
+              searchQuery={debouncedSearchQuery}
+            />
           </TabsContent>
           <TabsContent value="formerFriends">
-            <FriendsPageTab userType="formerFriends" sortState={sortState} />
+            <FriendsPageTab
+              userType="formerFriends"
+              sortState={sortState}
+              searchQuery={debouncedSearchQuery}
+            />
           </TabsContent>
           <TabsContent value="addFriend">
-            <FriendsPageTab userType="addFriend" sortState={sortState} />
+            <FriendsPageTab
+              userType="addFriend"
+              sortState={sortState}
+              searchQuery={debouncedSearchQuery}
+            />
           </TabsContent>
         </Tabs>
 

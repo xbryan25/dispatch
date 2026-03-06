@@ -10,10 +10,12 @@ class FriendsService:
 
     @staticmethod
     async def get_current_friends(
-        db: AsyncSession, current_user_id: UUID, sort_state: str
+        db: AsyncSession, current_user_id: UUID, sort_state: str, search_query: str
     ):
 
-        stmt = FriendsQueries.get_current_friends_stmt(current_user_id, sort_state)
+        stmt = FriendsQueries.get_current_friends_stmt(
+            current_user_id, sort_state, search_query
+        )
 
         result = await db.execute(stmt)
 
@@ -39,11 +41,11 @@ class FriendsService:
 
     @staticmethod
     async def get_sent_requests_profiles(
-        db: AsyncSession, current_user_id: UUID, sort_state: str
+        db: AsyncSession, current_user_id: UUID, sort_state: str, search_query: str
     ):
 
         stmt = FriendsQueries.get_sent_requests_profiles_stmt(
-            current_user_id, sort_state
+            current_user_id, sort_state, search_query
         )
 
         result = await db.execute(stmt)
@@ -70,11 +72,11 @@ class FriendsService:
 
     @staticmethod
     async def get_received_requests_profiles(
-        db: AsyncSession, current_user_id: UUID, sort_state: str
+        db: AsyncSession, current_user_id: UUID, sort_state: str, search_query: str
     ):
 
         stmt = FriendsQueries.get_received_requests_profiles_stmt(
-            current_user_id, sort_state
+            current_user_id, sort_state, search_query
         )
 
         result = await db.execute(stmt)
@@ -101,10 +103,12 @@ class FriendsService:
 
     @staticmethod
     async def get_former_friends(
-        db: AsyncSession, current_user_id: UUID, sort_state: str
+        db: AsyncSession, current_user_id: UUID, sort_state: str, search_query: str
     ):
 
-        stmt = FriendsQueries.get_former_friends_stmt(current_user_id, sort_state)
+        stmt = FriendsQueries.get_former_friends_stmt(
+            current_user_id, sort_state, search_query
+        )
 
         result = await db.execute(stmt)
 
@@ -130,10 +134,12 @@ class FriendsService:
 
     @staticmethod
     async def get_friend_suggestions(
-        db: AsyncSession, current_user_id: UUID, sort_state: str
+        db: AsyncSession, current_user_id: UUID, sort_state: str, search_query: str
     ):
 
-        stmt = FriendsQueries.get_friend_suggestions_stmt(current_user_id, sort_state)
+        stmt = FriendsQueries.get_friend_suggestions_stmt(
+            current_user_id, sort_state, search_query
+        )
 
         result = await db.execute(stmt)
 

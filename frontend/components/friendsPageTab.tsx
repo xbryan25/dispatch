@@ -14,9 +14,10 @@ import {
 interface FriendsPageTabProps {
   userType: 'friends' | 'pending' | 'requests' | 'formerFriends' | 'addFriend';
   sortState: 'ascending' | 'descending';
+  searchQuery: string;
 }
 
-export default function FriendsPageTab({ userType, sortState }: FriendsPageTabProps) {
+export default function FriendsPageTab({ userType, sortState, searchQuery }: FriendsPageTabProps) {
   const [loading, setLoading] = useState<boolean>(true);
   const [users, setUsers] = useState<UserInfo[]>([]);
 
@@ -36,25 +37,27 @@ export default function FriendsPageTab({ userType, sortState }: FriendsPageTabPr
     };
 
     // Fallback to a default message if the type isn't found
-    return messages[userType] || 'No users found.';
+    return searchQuery !== ''
+      ? `We looked everywhere, but we couldn't find a user named '${searchQuery}'.`
+      : messages[userType] || 'No users found.';
   };
 
   const loadData = useCallback(async () => {
+    setLoading(true);
     const apiMap: Record<
       string,
       () => Promise<{ data: UserInfo[]; error: null } | { data: null; error: unknown }>
     > = {
-      friends: () => getFriends(sortState),
-      pending: () => getProfilesOfSentRequests(sortState),
-      requests: () => getProfilesOfReceivedRequests(sortState),
-      formerFriends: () => getProfilesOfFormerFriends(sortState),
-      addFriend: () => getSuggestedProfiles(sortState),
+      friends: () => getFriends(sortState, searchQuery),
+      pending: () => getProfilesOfSentRequests(sortState, searchQuery),
+      requests: () => getProfilesOfReceivedRequests(sortState, searchQuery),
+      formerFriends: () => getProfilesOfFormerFriends(sortState, searchQuery),
+      addFriend: () => getSuggestedProfiles(sortState, searchQuery),
     };
 
     const fetchFunc = apiMap[userType];
     if (!fetchFunc) return;
 
-    setLoading(true);
     try {
       setUsers([]);
 
@@ -74,6 +77,7 @@ export default function FriendsPageTab({ userType, sortState }: FriendsPageTabPr
   }, [
     userType,
     sortState,
+    searchQuery,
     getFriends,
     getProfilesOfFormerFriends,
     getProfilesOfReceivedRequests,
