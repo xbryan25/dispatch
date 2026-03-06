@@ -1,7 +1,6 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect } from 'react';
 import UserCard from './userCard';
 import LoadingSpinner from './loadingSpinner';
-import { UserInfo } from '@/types/auth';
 
 import {
   useGetCurrentFriends,
