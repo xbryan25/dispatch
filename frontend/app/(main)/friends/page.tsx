@@ -11,6 +11,8 @@ import { Icon } from '@iconify/react';
 
 import FriendsPageTab from '@/components/friendsPageTab';
 
+import { useFriendsStore } from '@/store/useFriendsStore';
+
 import {
   Pagination,
   PaginationContent,
@@ -26,6 +28,9 @@ export default function FriendsPage() {
   const [sortState, setSortState] = useState<'ascending' | 'descending'>('ascending');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState<string>('');
+
+  const hasUsers = useFriendsStore((state) => state.users.length > 0);
+  const loading = useFriendsStore((state) => state.loading);
 
   const changeSort = () => {
     setSortState((prev) => (prev === 'ascending' ? 'descending' : 'ascending'));
@@ -132,30 +137,34 @@ export default function FriendsPage() {
           </TabsContent>
         </Tabs>
 
-        <Pagination>
-          <PaginationContent>
-            <PaginationItem>
-              <PaginationPrevious href="#" />
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationLink href="#">1</PaginationLink>
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationLink href="#" isActive>
-                2
-              </PaginationLink>
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationLink href="#">3</PaginationLink>
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationEllipsis />
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationNext href="#" />
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
+        <div className="min-h-12.5 flex items-center justify-center">
+          {!loading && hasUsers && (
+            <Pagination>
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious href="#" />
+                </PaginationItem>
+                <PaginationItem>
+                  <PaginationLink href="#">1</PaginationLink>
+                </PaginationItem>
+                <PaginationItem>
+                  <PaginationLink href="#" isActive>
+                    2
+                  </PaginationLink>
+                </PaginationItem>
+                <PaginationItem>
+                  <PaginationLink href="#">3</PaginationLink>
+                </PaginationItem>
+                <PaginationItem>
+                  <PaginationEllipsis />
+                </PaginationItem>
+                <PaginationItem>
+                  <PaginationNext href="#" />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+          )}
+        </div>
       </div>
     </div>
   );

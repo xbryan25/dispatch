@@ -10,6 +10,7 @@ import {
   useGetFormerFriends,
   useGetFriendSuggestions,
 } from '@/hooks/useFriendship';
+import { useFriendsStore } from '@/store/useFriendsStore';
 
 interface FriendsPageTabProps {
   userType: 'friends' | 'pending' | 'requests' | 'formerFriends' | 'addFriend';
@@ -18,8 +19,8 @@ interface FriendsPageTabProps {
 }
 
 export default function FriendsPageTab({ userType, sortState, searchQuery }: FriendsPageTabProps) {
-  const [loading, setLoading] = useState<boolean>(true);
-  const [users, setUsers] = useState<UserInfo[]>([]);
+  const users = useFriendsStore((state) => state.users);
+  const loading = useFriendsStore((state) => state.loading);
 
   const { getFriends } = useGetCurrentFriends();
   const { getProfilesOfSentRequests } = useGetSentRequestsProfiles();
@@ -43,11 +44,7 @@ export default function FriendsPageTab({ userType, sortState, searchQuery }: Fri
   };
 
   const loadData = useCallback(async () => {
-    setLoading(true);
-    const apiMap: Record<
-      string,
-      () => Promise<{ data: UserInfo[]; error: null } | { data: null; error: unknown }>
-    > = {
+    const apiMap: Record<string, () => Promise<void>> = {
       friends: () => getFriends(sortState, searchQuery),
       pending: () => getProfilesOfSentRequests(sortState, searchQuery),
       requests: () => getProfilesOfReceivedRequests(sortState, searchQuery),
@@ -59,29 +56,18 @@ export default function FriendsPageTab({ userType, sortState, searchQuery }: Fri
     if (!fetchFunc) return;
 
     try {
-      setUsers([]);
-
-      const result = await fetchFunc();
-      console.log('test');
-
-      if (result?.data) {
-        setUsers(result.data);
-      } else if (result?.error) {
-        console.error('Fetch error:', result.error);
-      }
+      await fetchFunc();
     } catch (err) {
       console.error('System error:', err);
-    } finally {
-      setLoading(false);
     }
   }, [
     userType,
     sortState,
     searchQuery,
     getFriends,
-    getProfilesOfFormerFriends,
-    getProfilesOfReceivedRequests,
     getProfilesOfSentRequests,
+    getProfilesOfReceivedRequests,
+    getProfilesOfFormerFriends,
     getSuggestedProfiles,
   ]);
 
@@ -91,7 +77,7 @@ export default function FriendsPageTab({ userType, sortState, searchQuery }: Fri
 
   return (
     <div
-      className={`h-full font-sans p-4 px-30 ${users.length === 0 ? 'flex items-center justify-center' : 'grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] grid-rows-[repeat(auto-fill,minmax(110px,1fr))] gap-3'}`}
+      className={`h-full font-sans p-4 px-30 ${users.length === 0 || loading ? 'flex items-center justify-center' : 'grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] grid-rows-[repeat(auto-fill,minmax(110px,1fr))] gap-3'}`}
     >
       {loading && <LoadingSpinner />}
 
