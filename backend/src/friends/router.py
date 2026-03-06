@@ -31,11 +31,14 @@ router = APIRouter(
 async def get_current_friends(
     user_id: Annotated[UUID, Depends(get_current_user_id)],
     sort_state: str = "ascending",
+    search_query: str = "",
     db: AsyncSession = Depends(get_db),
 ):
 
     try:
-        return await FriendsService.get_current_friends(db, user_id, sort_state)
+        return await FriendsService.get_current_friends(
+            db, user_id, sort_state, search_query
+        )
 
     except Exception:
         traceback.print_exc()
@@ -46,11 +49,14 @@ async def get_current_friends(
 async def get_sent_requests_profiles(
     user_id: Annotated[UUID, Depends(get_current_user_id)],
     sort_state: str = "ascending",
+    search_query: str = "",
     db: AsyncSession = Depends(get_db),
 ):
 
     try:
-        return await FriendsService.get_sent_requests_profiles(db, user_id, sort_state)
+        return await FriendsService.get_sent_requests_profiles(
+            db, user_id, sort_state, search_query
+        )
 
     except Exception:
         traceback.print_exc()
@@ -61,12 +67,13 @@ async def get_sent_requests_profiles(
 async def get_received_requests_profiles(
     user_id: Annotated[UUID, Depends(get_current_user_id)],
     sort_state: str = "ascending",
+    search_query: str = "",
     db: AsyncSession = Depends(get_db),
 ):
 
     try:
         return await FriendsService.get_received_requests_profiles(
-            db, user_id, sort_state
+            db, user_id, sort_state, search_query
         )
 
     except Exception:
@@ -78,11 +85,14 @@ async def get_received_requests_profiles(
 async def get_former_friends(
     user_id: Annotated[UUID, Depends(get_current_user_id)],
     sort_state: str = "ascending",
+    search_query: str = "",
     db: AsyncSession = Depends(get_db),
 ):
 
     try:
-        return await FriendsService.get_former_friends(db, user_id, sort_state)
+        return await FriendsService.get_former_friends(
+            db, user_id, sort_state, search_query
+        )
 
     except Exception:
         traceback.print_exc()
@@ -93,11 +103,14 @@ async def get_former_friends(
 async def get_friend_suggestions(
     user_id: Annotated[UUID, Depends(get_current_user_id)],
     sort_state: str = "ascending",
+    search_query: str = "",
     db: AsyncSession = Depends(get_db),
 ):
 
     try:
-        return await FriendsService.get_friend_suggestions(db, user_id, sort_state)
+        return await FriendsService.get_friend_suggestions(
+            db, user_id, sort_state, search_query
+        )
 
     except Exception:
         traceback.print_exc()

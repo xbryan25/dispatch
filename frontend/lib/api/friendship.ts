@@ -1,58 +1,73 @@
 const fastapiServerUrl = process.env.NEXT_PUBLIC_FASTAPI_SERVER_URL;
 
-export async function getCurrentFriends(sortState: string) {
-  const res = await fetch(`${fastapiServerUrl}/api/friends?sort_state=${sortState}`, {
-    method: 'GET',
-    headers: { 'Content-Type': 'application/json' },
-    credentials: 'include',
-  });
+export async function getCurrentFriends(sortState: string, searchQuery: string) {
+  const res = await fetch(
+    `${fastapiServerUrl}/api/friends?sort_state=${sortState}&search_query=${searchQuery}`,
+    {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+    }
+  );
 
   if (!res.ok) throw new Error('Something went wrong when retrieving your current friends.');
   return res.json();
 }
 
-export async function getSentRequestsProfile(sortState: string) {
-  const res = await fetch(`${fastapiServerUrl}/api/friends/sent?sort_state=${sortState}`, {
-    method: 'GET',
-    headers: { 'Content-Type': 'application/json' },
-    credentials: 'include',
-  });
+export async function getSentRequestsProfile(sortState: string, searchQuery: string) {
+  const res = await fetch(
+    `${fastapiServerUrl}/api/friends/sent?sort_state=${sortState}&search_query=${searchQuery}`,
+    {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+    }
+  );
 
   if (!res.ok)
     throw new Error('Something went wrong when retrieving the profiles of sent requests.');
   return res.json();
 }
 
-export async function getReceivedRequestsProfile(sortState: string) {
-  const res = await fetch(`${fastapiServerUrl}/api/friends/received?sort_state=${sortState}`, {
-    method: 'GET',
-    headers: { 'Content-Type': 'application/json' },
-    credentials: 'include',
-  });
+export async function getReceivedRequestsProfile(sortState: string, searchQuery: string) {
+  const res = await fetch(
+    `${fastapiServerUrl}/api/friends/received?sort_state=${sortState}&search_query=${searchQuery}`,
+    {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+    }
+  );
 
   if (!res.ok)
     throw new Error('Something went wrong when retrieving the profiles of received requests.');
   return res.json();
 }
 
-export async function getFormerFriends(sortState: string) {
-  const res = await fetch(`${fastapiServerUrl}/api/friends/former?sort_state=${sortState}`, {
-    method: 'GET',
-    headers: { 'Content-Type': 'application/json' },
-    credentials: 'include',
-  });
+export async function getFormerFriends(sortState: string, searchQuery: string) {
+  const res = await fetch(
+    `${fastapiServerUrl}/api/friends/former?sort_state=${sortState}&search_query=${searchQuery}`,
+    {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+    }
+  );
 
   if (!res.ok)
     throw new Error('Something went wrong when retrieving the profiles of former friends.');
   return res.json();
 }
 
-export async function getFriendSuggestions(sortState: string) {
-  const res = await fetch(`${fastapiServerUrl}/api/friends/suggestions?sort_state=${sortState}`, {
-    method: 'GET',
-    headers: { 'Content-Type': 'application/json' },
-    credentials: 'include',
-  });
+export async function getFriendSuggestions(sortState: string, searchQuery: string) {
+  const res = await fetch(
+    `${fastapiServerUrl}/api/friends/suggestions?sort_state=${sortState}&search_query=${searchQuery}`,
+    {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+    }
+  );
 
   if (!res.ok) throw new Error('Something went wrong when retrieving the profiles other users.');
   return res.json();
