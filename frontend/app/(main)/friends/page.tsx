@@ -1,51 +1,13 @@
 'use client';
 
-import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group';
-
-import { Search } from 'lucide-react';
-
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Button } from '@/components/ui/button';
-
-import { Icon } from '@iconify/react';
-
-import FriendsPageTab from '@/components/friendsPageTab';
-
 import { useFriendsStore } from '@/store/useFriendsStore';
 
-import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from '@/components/ui/pagination';
-import { useEffect, useState } from 'react';
+import PaginationButtons from '@/components/paginationButtons';
+import FriendsPageTabGroup from '@/components/friendsPageTabGroup';
 
 export default function FriendsPage() {
-  const [sortState, setSortState] = useState<'ascending' | 'descending'>('ascending');
-  const [searchQuery, setSearchQuery] = useState<string>('');
-  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState<string>('');
-
   const hasUsers = useFriendsStore((state) => state.users.length > 0);
   const loading = useFriendsStore((state) => state.loading);
-
-  const changeSort = () => {
-    setSortState((prev) => (prev === 'ascending' ? 'descending' : 'ascending'));
-  };
-
-  // Debounce after 500 ms
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearchQuery(searchQuery.trim());
-    }, 500);
-
-    return () => {
-      clearTimeout(timer);
-    };
-  }, [searchQuery]);
 
   return (
     <div className="flex h-screen items-stretch justify-center gap-6 overflow-hidden bg-zinc-200 dark:bg-stone-800 font-sans  p-4">
@@ -54,116 +16,10 @@ export default function FriendsPage() {
           <h2 className="font-bold text-2xl">My Friends</h2>
         </div>
 
-        <Tabs defaultValue="friends" className="flex-1 w-full">
-          <div className="flex gap-5 justify-between">
-            <TabsList>
-              <TabsTrigger value="friends" className="cursor-pointer">
-                Friends
-              </TabsTrigger>
-              <TabsTrigger value="pending" className="cursor-pointer">
-                Pending
-              </TabsTrigger>
-              <TabsTrigger value="requests" className="cursor-pointer">
-                Requests
-              </TabsTrigger>
-              <TabsTrigger value="formerFriends" className="cursor-pointer">
-                Former Friends
-              </TabsTrigger>
-              <TabsTrigger value="addFriend" className="cursor-pointer">
-                Add Friend
-              </TabsTrigger>
-            </TabsList>
-
-            <div className="flex gap-2">
-              <InputGroup className="max-w-xl">
-                <InputGroupInput
-                  placeholder="Search username..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-                <InputGroupAddon>
-                  <Search />
-                </InputGroupAddon>
-              </InputGroup>
-
-              <Button className="cursor-pointer min-w-35" onClick={changeSort}>
-                <div className="flex items-center">
-                  <Icon
-                    icon="material-symbols:keyboard-arrow-up"
-                    className={`size-6 transition-transform duration-200 ${
-                      sortState === 'descending' ? 'rotate-180' : 'rotate-0'
-                    }`}
-                  />
-                  <span className="capitalize">{sortState}</span>
-                </div>
-              </Button>
-            </div>
-          </div>
-
-          <TabsContent value="friends">
-            <FriendsPageTab
-              userType="friends"
-              sortState={sortState}
-              searchQuery={debouncedSearchQuery}
-            />
-          </TabsContent>
-          <TabsContent value="pending">
-            <FriendsPageTab
-              userType="pending"
-              sortState={sortState}
-              searchQuery={debouncedSearchQuery}
-            />
-          </TabsContent>
-          <TabsContent value="requests">
-            <FriendsPageTab
-              userType="requests"
-              sortState={sortState}
-              searchQuery={debouncedSearchQuery}
-            />
-          </TabsContent>
-          <TabsContent value="formerFriends">
-            <FriendsPageTab
-              userType="formerFriends"
-              sortState={sortState}
-              searchQuery={debouncedSearchQuery}
-            />
-          </TabsContent>
-          <TabsContent value="addFriend">
-            <FriendsPageTab
-              userType="addFriend"
-              sortState={sortState}
-              searchQuery={debouncedSearchQuery}
-            />
-          </TabsContent>
-        </Tabs>
+        <FriendsPageTabGroup />
 
         <div className="min-h-12.5 flex items-center justify-center">
-          {!loading && hasUsers && (
-            <Pagination>
-              <PaginationContent>
-                <PaginationItem>
-                  <PaginationPrevious href="#" />
-                </PaginationItem>
-                <PaginationItem>
-                  <PaginationLink href="#">1</PaginationLink>
-                </PaginationItem>
-                <PaginationItem>
-                  <PaginationLink href="#" isActive>
-                    2
-                  </PaginationLink>
-                </PaginationItem>
-                <PaginationItem>
-                  <PaginationLink href="#">3</PaginationLink>
-                </PaginationItem>
-                <PaginationItem>
-                  <PaginationEllipsis />
-                </PaginationItem>
-                <PaginationItem>
-                  <PaginationNext href="#" />
-                </PaginationItem>
-              </PaginationContent>
-            </Pagination>
-          )}
+          {!loading && hasUsers && <PaginationButtons />}
         </div>
       </div>
     </div>
