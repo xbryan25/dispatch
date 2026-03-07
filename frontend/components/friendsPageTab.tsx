@@ -1,34 +1,20 @@
-import { useCallback, useEffect } from 'react';
+import { useEffect } from 'react';
 import UserCard from './userCard';
 import LoadingSpinner from './loadingSpinner';
 
-import {
-  useGetCurrentFriends,
-  useGetSentRequestsProfiles,
-  useGetReceivedRequestsProfiles,
-  useGetFormerFriends,
-  useGetFriendSuggestions,
-} from '@/hooks/useFriendship';
 import { useFriendsStore } from '@/store/useFriendsStore';
 
-interface FriendsPageTabProps {
-  userType: 'friends' | 'pending' | 'requests' | 'formerFriends' | 'addFriend';
-  sortState: 'ascending' | 'descending';
-  searchQuery: string;
-}
-
-export default function FriendsPageTab({ userType, sortState, searchQuery }: FriendsPageTabProps) {
+export default function FriendsPageTab() {
   const users = useFriendsStore((state) => state.users);
   const loading = useFriendsStore((state) => state.loading);
+  const currentPage = useFriendsStore((state) => state.currentPage);
+  const sortState = useFriendsStore((state) => state.sortState);
+  const userType = useFriendsStore((state) => state.userType);
+  const searchQuery = useFriendsStore((state) => state.searchQuery);
+  const loadUsersData = useFriendsStore((state) => state.loadUsersData);
 
   const pageSize = 24;
   const emptySlots = pageSize - users.length;
-
-  const { getFriends } = useGetCurrentFriends();
-  const { getProfilesOfSentRequests } = useGetSentRequestsProfiles();
-  const { getProfilesOfReceivedRequests } = useGetReceivedRequestsProfiles();
-  const { getProfilesOfFormerFriends } = useGetFormerFriends();
-  const { getSuggestedProfiles } = useGetFriendSuggestions();
 
   const getNoUsersPlaceholderMessage = () => {
     const messages = {
@@ -45,37 +31,9 @@ export default function FriendsPageTab({ userType, sortState, searchQuery }: Fri
       : messages[userType] || 'No users found.';
   };
 
-  const loadData = useCallback(async () => {
-    const apiMap: Record<string, () => Promise<void>> = {
-      friends: () => getFriends(sortState, searchQuery),
-      pending: () => getProfilesOfSentRequests(sortState, searchQuery),
-      requests: () => getProfilesOfReceivedRequests(sortState, searchQuery),
-      formerFriends: () => getProfilesOfFormerFriends(sortState, searchQuery),
-      addFriend: () => getSuggestedProfiles(sortState, searchQuery),
-    };
-
-    const fetchFunc = apiMap[userType];
-    if (!fetchFunc) return;
-
-    try {
-      await fetchFunc();
-    } catch (err) {
-      console.error('System error:', err);
-    }
-  }, [
-    userType,
-    sortState,
-    searchQuery,
-    getFriends,
-    getProfilesOfSentRequests,
-    getProfilesOfReceivedRequests,
-    getProfilesOfFormerFriends,
-    getSuggestedProfiles,
-  ]);
-
   useEffect(() => {
-    loadData();
-  }, [sortState, loadData]);
+    loadUsersData();
+  }, [sortState, searchQuery, currentPage, userType, loadUsersData]);
 
   return (
     <div
@@ -91,14 +49,7 @@ export default function FriendsPageTab({ userType, sortState, searchQuery }: Fri
 
       {!loading &&
         users.length > 0 &&
-        users.map((userInfo) => (
-          <UserCard
-            key={userInfo.userId}
-            userInfo={userInfo}
-            userType={userType}
-            refreshList={loadData}
-          />
-        ))}
+        users.map((userInfo) => <UserCard key={userInfo.userId} userInfo={userInfo} />)}
 
       {!loading &&
         users.length > 0 &&

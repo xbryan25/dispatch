@@ -19,27 +19,29 @@ import { Icon } from '@iconify/react';
 
 import { toast } from 'sonner';
 
+import { useFriendsStore } from '@/store/useFriendsStore';
+
 interface MakeFriendshipRequestDialogProps {
   username: string;
   receiverId: string;
   requestType: 'new' | 'reconnect';
-  onSuccess: () => void;
 }
 
 export default function MakeFriendshipRequestDialog({
   username,
   receiverId,
   requestType,
-  onSuccess,
 }: MakeFriendshipRequestDialogProps) {
   const { createFriendRequest, loading: createFriendRequestLoading } = useCreateNewFriendRequest();
   const { reconnectToFormerFriend, loading: reconnectToUserLoading } = useReconnectToUser();
+
+  const loadUsersData = useFriendsStore((state) => state.loadUsersData);
 
   const createNewFriendRequest = async () => {
     try {
       await createFriendRequest(receiverId);
 
-      onSuccess();
+      loadUsersData();
 
       toast.success(`Successfully sent a friend request to ${username}.`);
     } catch {
@@ -51,7 +53,7 @@ export default function MakeFriendshipRequestDialog({
     try {
       await reconnectToFormerFriend(receiverId);
 
-      onSuccess();
+      loadUsersData();
 
       toast.success(`Successfully sent a friend request to ${username}.`);
     } catch {

@@ -21,24 +21,26 @@ import { useRejectFriendRequest } from '@/hooks/useFriendship';
 
 import { toast } from 'sonner';
 
+import { useFriendsStore } from '@/store/useFriendsStore';
+
 interface RejectFriendshipDialogProps {
   username: string;
   senderId: string;
-  onSuccess: () => void;
 }
 
 export default function RejectFriendshipDialog({
   username,
   senderId,
-  onSuccess,
 }: RejectFriendshipDialogProps) {
   const { rejectReceivedFriendRequest, loading } = useRejectFriendRequest();
+
+  const loadUsersData = useFriendsStore((state) => state.loadUsersData);
 
   const rejectFriendRequest = async () => {
     try {
       await rejectReceivedFriendRequest(senderId);
 
-      onSuccess();
+      loadUsersData();
 
       toast.success(`You have rejected the friend request of ${username}.`);
     } catch {

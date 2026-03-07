@@ -11,13 +11,14 @@ import RejectFriendshipDialog from './rejectFriendshipDialog';
 
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
+import { useFriendsStore } from '@/store/useFriendsStore';
+
 interface UserCardProps {
   userInfo: UserInfo;
-  userType: 'friends' | 'pending' | 'requests' | 'formerFriends' | 'addFriend';
-  refreshList: () => void;
 }
 
-export default function UserCard({ userInfo, userType, refreshList }: UserCardProps) {
+export default function UserCard({ userInfo }: UserCardProps) {
+  const userType = useFriendsStore((state) => state.userType);
   return (
     <div className="md:w-full w-80 flex items-center bg-stone-200 dark:bg-stone-700 rounded-lg transition-transform duration-500 hover:scale-102 px-2 gap-2 h-27">
       <div className="relative w-22 h-22 shrink-0 overflow-hidden rounded-full ">
@@ -54,11 +55,7 @@ export default function UserCard({ userInfo, userType, refreshList }: UserCardPr
             </TooltipContent>
           </Tooltip>
 
-          <UnfriendDialog
-            username={userInfo.username}
-            otherUserId={userInfo.userId}
-            onSuccess={refreshList}
-          />
+          <UnfriendDialog username={userInfo.username} otherUserId={userInfo.userId} />
         </div>
       )}
 
@@ -67,23 +64,14 @@ export default function UserCard({ userInfo, userType, refreshList }: UserCardPr
           <CancelFriendshipRequestDialog
             username={userInfo.username}
             receiverId={userInfo.userId}
-            onSuccess={refreshList}
           />
         </div>
       )}
 
       {userType === 'requests' && (
         <div className="flex flex-col items-start justify-start gap-4">
-          <AcceptFriendshipDialog
-            username={userInfo.username}
-            receiverId={userInfo.userId}
-            onSuccess={refreshList}
-          />
-          <RejectFriendshipDialog
-            username={userInfo.username}
-            senderId={userInfo.userId}
-            onSuccess={refreshList}
-          />
+          <AcceptFriendshipDialog username={userInfo.username} receiverId={userInfo.userId} />
+          <RejectFriendshipDialog username={userInfo.username} senderId={userInfo.userId} />
         </div>
       )}
 
@@ -93,7 +81,6 @@ export default function UserCard({ userInfo, userType, refreshList }: UserCardPr
             username={userInfo.username}
             receiverId={userInfo.userId}
             requestType="reconnect"
-            onSuccess={refreshList}
           />
         </div>
       )}
@@ -104,7 +91,6 @@ export default function UserCard({ userInfo, userType, refreshList }: UserCardPr
             username={userInfo.username}
             receiverId={userInfo.userId}
             requestType="new"
-            onSuccess={refreshList}
           />
         </div>
       )}

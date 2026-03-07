@@ -19,20 +19,23 @@ import { useUnfriendUser } from '@/hooks/useFriendship';
 
 import { Icon } from '@iconify/react';
 
+import { useFriendsStore } from '@/store/useFriendsStore';
+
 interface UnfriendDialogProps {
   username: string;
   otherUserId: string;
-  onSuccess: () => void;
 }
 
-export default function UnfriendDialog({ username, otherUserId, onSuccess }: UnfriendDialogProps) {
+export default function UnfriendDialog({ username, otherUserId }: UnfriendDialogProps) {
   const { unfriendSelectedUser, loading } = useUnfriendUser();
+
+  const loadUsersData = useFriendsStore((state) => state.loadUsersData);
 
   const unfriendUser = async () => {
     try {
       await unfriendSelectedUser(otherUserId);
 
-      onSuccess();
+      loadUsersData();
 
       toast.success(`You have rejected the friend request of ${username}.`);
     } catch {
