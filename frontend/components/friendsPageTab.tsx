@@ -7,11 +7,8 @@ import { useFriendsStore } from '@/store/useFriendsStore';
 export default function FriendsPageTab() {
   const users = useFriendsStore((state) => state.users);
   const loading = useFriendsStore((state) => state.loading);
-  const currentPage = useFriendsStore((state) => state.currentPage);
-  const sortState = useFriendsStore((state) => state.sortState);
   const userType = useFriendsStore((state) => state.userType);
   const searchQuery = useFriendsStore((state) => state.searchQuery);
-  const loadUsersData = useFriendsStore((state) => state.loadUsersData);
 
   const pageSize = 24;
   const emptySlots = pageSize - users.length;
@@ -30,10 +27,6 @@ export default function FriendsPageTab() {
       ? `We looked everywhere, but we couldn't find a user named '${searchQuery}'.`
       : messages[userType] || 'No users found.';
   };
-
-  useEffect(() => {
-    loadUsersData();
-  }, [sortState, searchQuery, currentPage, userType, loadUsersData]);
 
   return (
     <div

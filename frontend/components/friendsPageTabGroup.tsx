@@ -8,7 +8,7 @@ import { Search } from 'lucide-react';
 
 import { useFriendsStore } from '@/store/useFriendsStore';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 import FriendsPageTab from './friendsPageTab';
 
@@ -17,8 +17,13 @@ import { UserCategory } from '@/types/friends';
 export default function FriendsPageTabGroup() {
   const sortState = useFriendsStore((state) => state.sortState);
   const setSortState = useFriendsStore((state) => state.setSortState);
+
+  const searchQuery = useFriendsStore((state) => state.searchQuery);
   const setSearchQuery = useFriendsStore((state) => state.setSearchQuery);
+
   const setUserType = useFriendsStore((state) => state.setUserType);
+
+  const loadUsersData = useFriendsStore((state) => state.loadUsersData);
 
   const [preDebouncedSearchQuery, setPreDebouncedSearchQuery] = useState<string>('');
 
@@ -50,6 +55,8 @@ export default function FriendsPageTabGroup() {
 
   // Debounce after 500 ms
   useEffect(() => {
+    if (preDebouncedSearchQuery === '' && searchQuery === '') return;
+
     const timer = setTimeout(() => {
       setSearchQuery(preDebouncedSearchQuery.trim());
     }, 500);
@@ -57,7 +64,11 @@ export default function FriendsPageTabGroup() {
     return () => {
       clearTimeout(timer);
     };
-  }, [preDebouncedSearchQuery, setSearchQuery]);
+  }, [preDebouncedSearchQuery, searchQuery, setSearchQuery]);
+
+  useEffect(() => {
+    loadUsersData();
+  }, []);
 
   return (
     <Tabs defaultValue="friends" className="flex-1 w-full">
@@ -68,7 +79,10 @@ export default function FriendsPageTabGroup() {
               key={userType}
               value={userType}
               className="cursor-pointer"
-              onClick={() => setUserType(userType)}
+              onClick={() => {
+                setUserType(userType);
+                setPreDebouncedSearchQuery('');
+              }}
             >
               {formatUserType(userType)}
             </TabsTrigger>
