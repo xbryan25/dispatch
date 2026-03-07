@@ -58,7 +58,7 @@ interface FriendsState {
   ) => Promise<void>;
   getSuggestedProfiles: (sortState: string, searchQuery: string, page: number) => Promise<void>;
 
-  loadUsersData: (newPage?: number) => void;
+  loadUsersData: (newPage?: number) => Promise<void>;
 }
 
 export const useFriendsStore = create<FriendsState>()((set, get) => ({
@@ -80,9 +80,21 @@ export const useFriendsStore = create<FriendsState>()((set, get) => ({
   setLoading: (state) => set({ loading: state }),
   setError: (state) => set({ error: state }),
 
-  setSortState: (newSortState) => set({ sortState: newSortState }),
-  setSearchQuery: (newSearchQuery) => set({ searchQuery: newSearchQuery }),
-  setUserType: (newUserType) => set({ userType: newUserType }),
+  setSortState: async (newSortState) => {
+    set({ sortState: newSortState });
+
+    await get().loadUsersData(1);
+  },
+  setSearchQuery: async (newSearchQuery) => {
+    set({ searchQuery: newSearchQuery });
+
+    await get().loadUsersData(1);
+  },
+  setUserType: async (newUserType) => {
+    set({ userType: newUserType, searchQuery: '' });
+
+    await get().loadUsersData(1);
+  },
 
   setTotalUsers: (newTotalUsers) => set({ totalUsers: newTotalUsers }),
   setTotalPages: (newTotalPages) => set({ totalPages: newTotalPages }),
