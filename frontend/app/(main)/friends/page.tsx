@@ -19,9 +19,7 @@ export default function FriendsPage() {
         <FriendsPageTabGroup />
 
         <div className="min-h-12.5 flex items-center justify-center">
-          {/* {hasUsers && <PaginationButtons />} */}
-
-          <PaginationButtons />
+          {hasUsers && <PaginationButtons />}
         </div>
       </div>
     </div>

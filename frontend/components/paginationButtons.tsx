@@ -10,18 +10,14 @@ import {
   PaginationPrevious,
 } from '@/components/ui/pagination';
 
-import { useState } from 'react';
-
 import { useFriendsStore } from '@/store/useFriendsStore';
 
 export default function PaginationButtons() {
-  //   const totalPages = useFriendsStore((state) => state.totalPages);
+  const totalPages = useFriendsStore((state) => state.totalPages);
   const currentPage = useFriendsStore((state) => state.currentPage);
   const loading = useFriendsStore((state) => state.loading);
 
   const loadUsersData = useFriendsStore((state) => state.loadUsersData);
-
-  const totalPages = 12;
 
   const getPageNumbers = () => {
     const pages = [];
