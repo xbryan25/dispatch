@@ -12,19 +12,33 @@ import { useState, useEffect } from 'react';
 
 import FriendsPageTab from './friendsPageTab';
 
-export default function FriendsPageTabGroup() {
-  const [sortState, setSortState] = useState<'ascending' | 'descending'>('ascending');
-  const [searchQuery, setSearchQuery] = useState<string>('');
-  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState<string>('');
+import { UserCategory } from '@/types/friends';
 
-  type UserType = 'friends' | 'pending' | 'requests' | 'formerFriends' | 'addFriend';
-  const userTypes: UserType[] = ['friends', 'pending', 'requests', 'formerFriends', 'addFriend'];
+export default function FriendsPageTabGroup() {
+  const sortState = useFriendsStore((state) => state.sortState);
+  const setSortState = useFriendsStore((state) => state.setSortState);
+  const setSearchQuery = useFriendsStore((state) => state.setSearchQuery);
+  const setUserType = useFriendsStore((state) => state.setUserType);
+
+  const [preDebouncedSearchQuery, setPreDebouncedSearchQuery] = useState<string>('');
+
+  const userTypes: UserCategory[] = [
+    'friends',
+    'pending',
+    'requests',
+    'formerFriends',
+    'addFriend',
+  ];
 
   const hasUsers = useFriendsStore((state) => state.users.length > 0);
   const loading = useFriendsStore((state) => state.loading);
 
   const changeSort = () => {
-    setSortState((prev) => (prev === 'ascending' ? 'descending' : 'ascending'));
+    if (sortState === 'ascending') {
+      setSortState('descending');
+    } else {
+      setSortState('ascending');
+    }
   };
 
   const formatUserType = (text: string): string => {
@@ -37,20 +51,25 @@ export default function FriendsPageTabGroup() {
   // Debounce after 500 ms
   useEffect(() => {
     const timer = setTimeout(() => {
-      setDebouncedSearchQuery(searchQuery.trim());
+      setSearchQuery(preDebouncedSearchQuery.trim());
     }, 500);
 
     return () => {
       clearTimeout(timer);
     };
-  }, [searchQuery]);
+  }, [preDebouncedSearchQuery, setSearchQuery]);
 
   return (
     <Tabs defaultValue="friends" className="flex-1 w-full">
       <div className="flex gap-5 justify-between">
         <TabsList>
-          {userTypes.map((userType: UserType) => (
-            <TabsTrigger key={userType} value={userType} className="cursor-pointer">
+          {userTypes.map((userType: UserCategory) => (
+            <TabsTrigger
+              key={userType}
+              value={userType}
+              className="cursor-pointer"
+              onClick={() => setUserType(userType)}
+            >
               {formatUserType(userType)}
             </TabsTrigger>
           ))}
@@ -60,8 +79,8 @@ export default function FriendsPageTabGroup() {
           <InputGroup className="max-w-xl">
             <InputGroupInput
               placeholder="Search username..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              value={preDebouncedSearchQuery}
+              onChange={(e) => setPreDebouncedSearchQuery(e.target.value)}
               disabled={loading || !hasUsers}
             />
             <InputGroupAddon>
@@ -87,13 +106,9 @@ export default function FriendsPageTabGroup() {
         </div>
       </div>
 
-      {userTypes.map((userType: UserType) => (
+      {userTypes.map((userType: UserCategory) => (
         <TabsContent key={userType} value={userType}>
-          <FriendsPageTab
-            userType={userType}
-            sortState={sortState}
-            searchQuery={debouncedSearchQuery}
-          />
+          <FriendsPageTab />
         </TabsContent>
       ))}
     </Tabs>

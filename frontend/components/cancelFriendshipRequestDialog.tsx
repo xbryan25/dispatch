@@ -23,24 +23,26 @@ import { useCancelFriendRequest } from '@/hooks/useFriendship';
 
 import { toast } from 'sonner';
 
+import { useFriendsStore } from '@/store/useFriendsStore';
+
 interface CancelFriendshipRequestDialogProps {
   username: string;
   receiverId: string;
-  onSuccess: () => void;
 }
 
 export default function CancelFriendshipRequestDialog({
   username,
   receiverId,
-  onSuccess,
 }: CancelFriendshipRequestDialogProps) {
   const { cancelSentFriendRequest, loading } = useCancelFriendRequest();
+
+  const loadUsersData = useFriendsStore((state) => state.loadUsersData);
 
   const cancelFriendRequest = async () => {
     try {
       await cancelSentFriendRequest(receiverId);
 
-      onSuccess();
+      loadUsersData();
 
       toast.success(`Cancelled the sent friend request to ${username}.`);
     } catch {

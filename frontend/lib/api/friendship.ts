@@ -1,8 +1,8 @@
 const fastapiServerUrl = process.env.NEXT_PUBLIC_FASTAPI_SERVER_URL;
 
-export async function getCurrentFriends(sortState: string, searchQuery: string) {
+export async function getCurrentFriends(sortState: string, searchQuery: string, page: number) {
   const res = await fetch(
-    `${fastapiServerUrl}/api/friends?sort_state=${sortState}&search_query=${searchQuery}`,
+    `${fastapiServerUrl}/api/friends?sort_state=${sortState}&search_query=${searchQuery}&page=${page}`,
     {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
@@ -14,9 +14,9 @@ export async function getCurrentFriends(sortState: string, searchQuery: string) 
   return res.json();
 }
 
-export async function getSentRequestsProfile(sortState: string, searchQuery: string) {
+export async function getSentRequestsProfile(sortState: string, searchQuery: string, page: number) {
   const res = await fetch(
-    `${fastapiServerUrl}/api/friends/sent?sort_state=${sortState}&search_query=${searchQuery}`,
+    `${fastapiServerUrl}/api/friends/sent?sort_state=${sortState}&search_query=${searchQuery}&page=${page}`,
     {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
@@ -29,9 +29,13 @@ export async function getSentRequestsProfile(sortState: string, searchQuery: str
   return res.json();
 }
 
-export async function getReceivedRequestsProfile(sortState: string, searchQuery: string) {
+export async function getReceivedRequestsProfile(
+  sortState: string,
+  searchQuery: string,
+  page: number
+) {
   const res = await fetch(
-    `${fastapiServerUrl}/api/friends/received?sort_state=${sortState}&search_query=${searchQuery}`,
+    `${fastapiServerUrl}/api/friends/received?sort_state=${sortState}&search_query=${searchQuery}&page=${page}`,
     {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
@@ -44,9 +48,9 @@ export async function getReceivedRequestsProfile(sortState: string, searchQuery:
   return res.json();
 }
 
-export async function getFormerFriends(sortState: string, searchQuery: string) {
+export async function getFormerFriends(sortState: string, searchQuery: string, page: number) {
   const res = await fetch(
-    `${fastapiServerUrl}/api/friends/former?sort_state=${sortState}&search_query=${searchQuery}`,
+    `${fastapiServerUrl}/api/friends/former?sort_state=${sortState}&search_query=${searchQuery}&page=${page}`,
     {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
@@ -59,9 +63,9 @@ export async function getFormerFriends(sortState: string, searchQuery: string) {
   return res.json();
 }
 
-export async function getFriendSuggestions(sortState: string, searchQuery: string) {
+export async function getFriendSuggestions(sortState: string, searchQuery: string, page: number) {
   const res = await fetch(
-    `${fastapiServerUrl}/api/friends/suggestions?sort_state=${sortState}&search_query=${searchQuery}`,
+    `${fastapiServerUrl}/api/friends/suggestions?sort_state=${sortState}&search_query=${searchQuery}&page=${page}`,
     {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },

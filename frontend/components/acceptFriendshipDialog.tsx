@@ -21,24 +21,26 @@ import { useAcceptFriendRequest } from '@/hooks/useFriendship';
 
 import { toast } from 'sonner';
 
+import { useFriendsStore } from '@/store/useFriendsStore';
+
 interface AcceptFriendshipRequestDialogProps {
   username: string;
   receiverId: string;
-  onSuccess: () => void;
 }
 
 export default function AcceptFriendshipDialog({
   username,
   receiverId,
-  onSuccess,
 }: AcceptFriendshipRequestDialogProps) {
   const { acceptReceivedFriendRequest, loading } = useAcceptFriendRequest();
+
+  const loadUsersData = useFriendsStore((state) => state.loadUsersData);
 
   const acceptFriendRequest = async () => {
     try {
       await acceptReceivedFriendRequest(receiverId);
 
-      onSuccess();
+      loadUsersData();
 
       toast.success(`${username} is officially your friend. Start chatting!`);
     } catch {
