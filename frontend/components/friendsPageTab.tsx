@@ -21,6 +21,9 @@ export default function FriendsPageTab({ userType, sortState, searchQuery }: Fri
   const users = useFriendsStore((state) => state.users);
   const loading = useFriendsStore((state) => state.loading);
 
+  const pageSize = 24;
+  const emptySlots = pageSize - users.length;
+
   const { getFriends } = useGetCurrentFriends();
   const { getProfilesOfSentRequests } = useGetSentRequestsProfiles();
   const { getProfilesOfReceivedRequests } = useGetReceivedRequestsProfiles();
@@ -76,7 +79,7 @@ export default function FriendsPageTab({ userType, sortState, searchQuery }: Fri
 
   return (
     <div
-      className={`h-full font-sans p-4 px-30 ${users.length === 0 || loading ? 'flex items-center justify-center' : 'grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] grid-rows-[repeat(auto-fill,minmax(110px,1fr))] gap-3'}`}
+      className={`h-full font-sans p-4 px-30 ${users.length === 0 || loading ? 'flex items-center justify-center' : 'grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-3'}`}
     >
       {loading && <LoadingSpinner />}
 
@@ -95,6 +98,12 @@ export default function FriendsPageTab({ userType, sortState, searchQuery }: Fri
             userType={userType}
             refreshList={loadData}
           />
+        ))}
+
+      {!loading &&
+        users.length > 0 &&
+        Array.from({ length: emptySlots }).map((_, index) => (
+          <div key={`placeholder-${index}`} className=" w-80 md:w-full h-27 opacity-50"></div>
         ))}
     </div>
   );

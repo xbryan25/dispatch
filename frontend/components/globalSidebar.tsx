@@ -9,7 +9,7 @@ import Link from 'next/link';
 
 export default function GlobalSidebar() {
   return (
-    <div className="flex flex-col justify-between bg-whiterounded-xl pl-5 pt-5 pb-5 h-full max-w-125 min-w-0">
+    <div className="flex flex-col justify-between bg-whiterounded-xl pl-5 pt-5 pb-5 min-h-screen max-w-125 min-w-0">
       <div className="flex flex-col gap-2">
         <Link href="/messages">
           <Button className="cursor-pointer">
