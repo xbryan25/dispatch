@@ -1,4 +1,5 @@
 from sqlalchemy import (
+    literal_column,
     select,
     or_,
     func,
@@ -390,3 +391,26 @@ class FriendsQueries:
         )
 
         return stmt
+
+    @staticmethod
+    def get_total_count_of_users(stmt: Select):
+        """
+        Wraps a SQLAlchemy Select statement to return a count of total records.
+
+        Optimizes performance by stripping expensive correlated subqueries,
+        extra columns, and ordering, replacing them with a constant '1'
+        to trigger an index-only scan where possible.
+        """
+
+        optimized_stmt = stmt.with_only_columns(literal_column("1")).order_by(None)
+        inner_query = optimized_stmt.subquery()
+
+        return select(func.count()).select_from(inner_query)
+
+    @staticmethod
+    def add_pagination_details_in_select_stmts(stmt: Select, page: int, limit: int):
+        """
+        Adds limit and offset to Select statements.
+        """
+
+        return stmt.limit(limit).offset((page - 1) * limit)
