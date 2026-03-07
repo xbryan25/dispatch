@@ -9,7 +9,8 @@ from src.auth.dependencies import get_current_user_id
 
 from .services import FriendsService
 
-from src.auth.schemas import BaseFriendResponse, TargetUserId
+from src.auth.schemas import TargetUserId
+from .schemas import UsersWithPaginationDetails
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
@@ -20,6 +21,8 @@ import uuid
 import traceback
 from typing import Annotated
 
+import math
+
 router = APIRouter(
     prefix="/api/friends",
     tags=["Friends"],
@@ -27,90 +30,160 @@ router = APIRouter(
 )
 
 
-@router.get("", response_model=list[BaseFriendResponse])
+@router.get("", response_model=UsersWithPaginationDetails)
 async def get_current_friends(
     user_id: Annotated[UUID, Depends(get_current_user_id)],
     sort_state: str = "ascending",
     search_query: str = "",
+    page: int = 1,
+    limit: int = 24,
     db: AsyncSession = Depends(get_db),
 ):
 
     try:
-        return await FriendsService.get_current_friends(
-            db, user_id, sort_state, search_query
+        result = await FriendsService.get_current_friends(
+            db, user_id, sort_state, search_query, page, limit
         )
+
+        total_users = result[1] if result[1] else 0
+        total_pages = math.ceil(total_users / limit)
+
+        pagination_details = {
+            "total_users": total_users,
+            "total_pages": total_pages,
+            "current_page": page,
+            "page_size": limit,
+        }
+
+        return {"users": result[0], "pagination": pagination_details}
 
     except Exception:
         traceback.print_exc()
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
-@router.get("/sent", response_model=list[BaseFriendResponse])
+@router.get("/sent", response_model=UsersWithPaginationDetails)
 async def get_sent_requests_profiles(
     user_id: Annotated[UUID, Depends(get_current_user_id)],
     sort_state: str = "ascending",
     search_query: str = "",
+    page: int = 1,
+    limit: int = 24,
     db: AsyncSession = Depends(get_db),
 ):
 
     try:
-        return await FriendsService.get_sent_requests_profiles(
-            db, user_id, sort_state, search_query
+        result = await FriendsService.get_sent_requests_profiles(
+            db, user_id, sort_state, search_query, page, limit
         )
+
+        total_users = result[1] if result[1] else 0
+        total_pages = math.ceil(total_users / limit)
+
+        pagination_details = {
+            "total_users": total_users,
+            "total_pages": total_pages,
+            "current_page": page,
+            "page_size": limit,
+        }
+
+        return {"users": result[0], "pagination": pagination_details}
 
     except Exception:
         traceback.print_exc()
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
-@router.get("/received", response_model=list[BaseFriendResponse])
+@router.get("/received", response_model=UsersWithPaginationDetails)
 async def get_received_requests_profiles(
     user_id: Annotated[UUID, Depends(get_current_user_id)],
     sort_state: str = "ascending",
     search_query: str = "",
+    page: int = 1,
+    limit: int = 24,
     db: AsyncSession = Depends(get_db),
 ):
 
     try:
-        return await FriendsService.get_received_requests_profiles(
-            db, user_id, sort_state, search_query
+        result = await FriendsService.get_received_requests_profiles(
+            db, user_id, sort_state, search_query, page, limit
         )
+
+        total_users = result[1] if result[1] else 0
+        total_pages = math.ceil(total_users / limit)
+
+        pagination_details = {
+            "total_users": total_users,
+            "total_pages": total_pages,
+            "current_page": page,
+            "page_size": limit,
+        }
+
+        return {"users": result[0], "pagination": pagination_details}
 
     except Exception:
         traceback.print_exc()
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
-@router.get("/former", response_model=list[BaseFriendResponse])
+@router.get("/former", response_model=UsersWithPaginationDetails)
 async def get_former_friends(
     user_id: Annotated[UUID, Depends(get_current_user_id)],
     sort_state: str = "ascending",
     search_query: str = "",
+    page: int = 1,
+    limit: int = 24,
     db: AsyncSession = Depends(get_db),
 ):
 
     try:
-        return await FriendsService.get_former_friends(
-            db, user_id, sort_state, search_query
+        result = await FriendsService.get_former_friends(
+            db, user_id, sort_state, search_query, page, limit
         )
+
+        total_users = result[1] if result[1] else 0
+        total_pages = math.ceil(total_users / limit)
+
+        pagination_details = {
+            "total_users": total_users,
+            "total_pages": total_pages,
+            "current_page": page,
+            "page_size": limit,
+        }
+
+        return {"users": result[0], "pagination": pagination_details}
 
     except Exception:
         traceback.print_exc()
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
-@router.get("/suggestions", response_model=list[BaseFriendResponse])
+@router.get("/suggestions", response_model=UsersWithPaginationDetails)
 async def get_friend_suggestions(
     user_id: Annotated[UUID, Depends(get_current_user_id)],
     sort_state: str = "ascending",
     search_query: str = "",
+    page: int = 1,
+    limit: int = 24,
     db: AsyncSession = Depends(get_db),
 ):
 
     try:
-        return await FriendsService.get_friend_suggestions(
-            db, user_id, sort_state, search_query
+        result = await FriendsService.get_friend_suggestions(
+            db, user_id, sort_state, search_query, page, limit
         )
+
+        total_users = result[1] if result[1] else 0
+        total_pages = math.ceil(total_users / limit)
+
+        pagination_details = {
+            "total_users": total_users,
+            "total_pages": total_pages,
+            "current_page": page,
+            "page_size": limit,
+        }
+
+        return {"users": result[0], "pagination": pagination_details}
 
     except Exception:
         traceback.print_exc()
