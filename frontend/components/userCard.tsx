@@ -19,7 +19,7 @@ interface UserCardProps {
 
 export default function UserCard({ userInfo, userType, refreshList }: UserCardProps) {
   return (
-    <div className="w-full flex items-center bg-stone-200 dark:bg-stone-700 rounded-lg transition-transform duration-500 hover:scale-102 px-2 gap-2">
+    <div className="md:w-full w-80 flex items-center bg-stone-200 dark:bg-stone-700 rounded-lg transition-transform duration-500 hover:scale-102 px-2 gap-2 h-27">
       <div className="relative w-22 h-22 shrink-0 overflow-hidden rounded-full ">
         <Image
           src={userInfo?.profileImageUrl ? userInfo.profileImageUrl : '/blank_picture.png'}
