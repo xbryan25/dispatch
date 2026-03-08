@@ -24,9 +24,11 @@ interface ChatState {
   setIsGettingOtherParticipant: (newVal: boolean) => void;
   setSocket: (socket: WebSocket | null) => void;
   clearChat: () => void;
+
+  resetConversation: () => void;
 }
 
-export const useChatStore = create<ChatState>((set) => ({
+export const useChatStore = create<ChatState>((set, get) => ({
   messages: [],
   otherParticipantDetails: null,
   socket: null,
@@ -64,13 +66,12 @@ export const useChatStore = create<ChatState>((set) => ({
 
   setMessages: (msgs) => set({ messages: msgs }),
 
-  setActiveConversationId: (conversationId) =>
+  setActiveConversationId: (conversationId) => {
+    if (get().activeConversationId === conversationId) return;
     set({
       activeConversationId: conversationId,
-      messages: [],
-      hasMorePastMessages: true,
-      isInitialLoad: true,
-    }),
+    });
+  },
 
   setOtherParticipantDetails: (newParticipantDetails) =>
     set({
@@ -88,4 +89,12 @@ export const useChatStore = create<ChatState>((set) => ({
   setSocket: (socket) => set({ socket }),
 
   clearChat: () => set({ messages: [], socket: null, activeConversationId: null }),
+
+  resetConversation: () =>
+    set({
+      activeConversationId: null,
+      messages: [],
+      hasMorePastMessages: true,
+      isInitialLoad: true,
+    }),
 }));

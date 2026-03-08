@@ -48,8 +48,6 @@ export default function MessageThread() {
         top: container.scrollHeight,
         behavior: 'smooth',
       });
-
-      console.log('something happened!');
     }
   }, [activeConversationId]);
 
@@ -77,8 +75,6 @@ export default function MessageThread() {
 
     const observer = new IntersectionObserver(
       (entries) => {
-        console.log(`isInitialLoad: ${isInitialLoad}`);
-
         if (entries[0].isIntersecting && activeConversationId && !isInitialLoad) {
           previousHeightRef.current = container.scrollHeight;
           getPastMessages();
@@ -111,9 +107,6 @@ export default function MessageThread() {
     }
   }, [messages.length, isGetting]);
 
-  useEffect(() => {
-    console.log('UI RENDER - isGetting is:', isGetting);
-  }, [isGetting]);
   return (
     <div ref={containerRef} className="flex-1 flex flex-col py-2 px-2 gap-3 overflow-y-auto">
       {!hasMorePastMessages && messages.length > 0 && (

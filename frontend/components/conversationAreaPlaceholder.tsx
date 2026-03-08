@@ -1,3 +1,5 @@
+'use client';
+
 import { useSidebarStore } from '@/store/useSidebarStore';
 
 export default function ConversationAreaPlaceholder() {

@@ -93,8 +93,6 @@ export function useGetOtherParticipantFromConversation() {
       if (latestActiveConversationId) {
         const data = await getOtherParticipantFromConversation(latestActiveConversationId);
 
-        console.log(data);
-
         setOtherParticipantDetails(data);
       } else {
         throw Error('No conversation ID');
