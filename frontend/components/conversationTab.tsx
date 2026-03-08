@@ -14,19 +14,17 @@ import {
 
 import { useEffect, useState } from 'react';
 
+import { useRouter } from 'next/navigation';
+
 interface ConversationTabProps {
   conversationSnippet: ConversationSnippet;
 }
 
 export default function ConversationTab({ conversationSnippet }: ConversationTabProps) {
-  const {
-    activeConversationId: currentSelectedConversationId,
-    setActiveConversationId: setSelectedConversationId,
-  } = useChatStore();
+  const currentSelectedConversationId = useChatStore((state) => state.activeConversationId);
+  const resetConversation = useChatStore((state) => state.resetConversation);
 
-  const { getOtherParticipant } = useGetOtherParticipantFromConversation();
-
-  const { getPastMessages } = useGetPastMessagesFromConversation();
+  const router = useRouter();
 
   const [formattedTime, setFormattedTime] = useState('');
   const timestamp = conversationSnippet.latestMessageTime;
@@ -72,11 +70,10 @@ export default function ConversationTab({ conversationSnippet }: ConversationTab
 
   return (
     <div
-      className={`flex items-center justify-center gap-2 rounded-md p-2 w-full cursor-pointer min-w-0 ${isActive ? 'bg-stone-200 dark:bg-stone-700' : 'bg-white dark:bg-stone-900'}`}
+      className={`flex items-center justify-center gap-2 rounded-md p-2 w-full cursor-pointer min-w-0 ${isActive ? 'bg-stone-200 dark:bg-stone-700 pointer-events-none' : 'bg-white dark:bg-stone-900'}`}
       onClick={() => {
-        setSelectedConversationId(conversationSnippet.conversationId);
-        getPastMessages();
-        getOtherParticipant();
+        resetConversation();
+        router.push(`/messages/${conversationSnippet.conversationId}`);
       }}
     >
       <div className="relative w-12 h-12 shrink-0 overflow-hidden rounded-full">

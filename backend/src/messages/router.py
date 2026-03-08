@@ -6,7 +6,7 @@ from fastapi import (
     HTTPException,
     Query,
 )
-from src.core import manager, get_db, AsyncSessionLocal
+from src.core import manager, get_db
 
 from src.auth.dependencies import get_current_user_id
 
@@ -133,13 +133,11 @@ async def get_conversation_message_history(
 ):
 
     try:
-        async with AsyncSessionLocal() as db:
-            conversation = await MessagesService.get_conversation_by_id(
-                db, conversation_id
-            )
 
-            if not conversation:
-                raise InvalidConversationID("Conversation ID does not exist.")
+        conversation = await MessagesService.get_conversation_by_id(db, conversation_id)
+
+        if not conversation:
+            raise InvalidConversationID("Conversation ID does not exist.")
 
         past_messages = await MessagesService.get_conversation_message_history(
             db, conversation_id, filter_params.limit, filter_params.before_datetime
@@ -160,13 +158,10 @@ async def get_other_conversation_participant(
 ):
 
     try:
-        async with AsyncSessionLocal() as db:
-            conversation = await MessagesService.get_conversation_by_id(
-                db, conversation_id
-            )
+        conversation = await MessagesService.get_conversation_by_id(db, conversation_id)
 
-            if not conversation:
-                raise InvalidConversationID("Conversation ID does not exist.")
+        if not conversation:
+            raise InvalidConversationID("Conversation ID does not exist.")
 
         conversation_participants = []
 

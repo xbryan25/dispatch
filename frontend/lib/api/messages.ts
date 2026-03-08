@@ -1,5 +1,7 @@
 const fastapiServerUrl = process.env.NEXT_PUBLIC_FASTAPI_SERVER_URL;
 
+let controller: AbortController | null = null;
+
 export async function getUserConversationsList() {
   const res = await fetch(`${fastapiServerUrl}/api/messages/conversations`, {
     method: 'GET',
@@ -24,14 +26,22 @@ export async function sendMessage(content: string, activeConversationId: string 
 }
 
 export async function getPastMessagesFromConversation(query: string) {
-  const res = await fetch(`${fastapiServerUrl}/api/messages/${query}`, {
-    method: 'GET',
-    headers: { 'Content-Type': 'application/json' },
-    credentials: 'include',
-  });
+  if (controller) controller.abort();
+  controller = new AbortController();
 
-  if (!res.ok) throw new Error('Something went wrong when retrieving past messages.');
-  return res.json();
+  try {
+    const res = await fetch(`${fastapiServerUrl}/api/messages/${query}`, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+    });
+
+    if (!res.ok) throw new Error('Something went wrong when retrieving past messages.');
+    return res.json();
+  } catch (err: unknown) {
+    if (err == 'AbortError') return; // Silently ignore cancellations
+    throw err;
+  }
 }
 
 export async function getOtherParticipantFromConversation(conversationId: string) {

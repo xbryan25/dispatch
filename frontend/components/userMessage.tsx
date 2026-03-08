@@ -25,7 +25,13 @@ export default function UserMessage({
     >
       {messageType === 'others' && breakMessage && (
         <div className="relative w-9 h-9 shrink-0 overflow-hidden rounded-full ">
-          <Image src="/testdp.jpg" alt="User avatar" fill sizes="96px" className="object-cover" />
+          <Image
+            src="/blank_picture.png"
+            alt="User avatar"
+            fill
+            sizes="96px"
+            className="object-cover"
+          />
         </div>
       )}
       <div
