@@ -21,5 +21,6 @@ export interface UserInfo {
   username: string;
   fullName: string;
   totalFriendCount: number;
+  conversationId: string | null;
   profileImageUrl: string;
 }
