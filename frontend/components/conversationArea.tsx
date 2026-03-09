@@ -23,6 +23,8 @@ export default function ConversationArea({ onToggle }: ChatListProps) {
   const { send } = useSendMessage();
   const { otherParticipantDetails } = useChatStore();
 
+  if (!otherParticipantDetails) return null;
+
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();

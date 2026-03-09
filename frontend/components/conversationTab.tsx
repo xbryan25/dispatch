@@ -72,7 +72,6 @@ export default function ConversationTab({ conversationSnippet }: ConversationTab
     <div
       className={`flex items-center justify-center gap-2 rounded-md p-2 w-full cursor-pointer min-w-0 ${isActive ? 'bg-stone-200 dark:bg-stone-700 pointer-events-none' : 'bg-white dark:bg-stone-900'}`}
       onClick={() => {
-        resetConversation();
         router.push(`/messages/${conversationSnippet.conversationId}`);
       }}
     >
