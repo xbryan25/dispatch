@@ -9,8 +9,11 @@ import { useGetPastMessagesFromConversation } from '@/hooks/useChat';
 import LoadingSpinner from './loadingSpinner';
 
 export default function MessageThread() {
-  const { messages, hasMorePastMessages, activeConversationId, isInitialLoad, isGetting } =
-    useChatStore();
+  const messages = useChatStore((state) => state.messages);
+  const hasMorePastMessages = useChatStore((state) => state.hasMorePastMessages);
+  const activeConversationId = useChatStore((state) => state.activeConversationId);
+  const isInitialLoad = useChatStore((state) => state.isInitialLoad);
+  const isGetting = useChatStore((state) => state.isGetting);
 
   const { getPastMessages } = useGetPastMessagesFromConversation();
 

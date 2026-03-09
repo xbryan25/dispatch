@@ -25,7 +25,7 @@ interface ChatState {
   setSocket: (socket: WebSocket | null) => void;
   clearChat: () => void;
 
-  resetConversation: () => void;
+  resetConversation: (conversationId?: string) => void;
 }
 
 export const useChatStore = create<ChatState>((set, get) => ({
@@ -90,11 +90,12 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
   clearChat: () => set({ messages: [], socket: null, activeConversationId: null }),
 
-  resetConversation: () =>
+  resetConversation: (conversationId?: string) =>
     set({
-      activeConversationId: null,
+      activeConversationId: conversationId ?? null,
       messages: [],
       hasMorePastMessages: true,
       isInitialLoad: true,
+      isGettingOtherParticipant: true,
     }),
 }));

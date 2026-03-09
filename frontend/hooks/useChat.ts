@@ -37,6 +37,7 @@ export function useSendMessage() {
 }
 
 export function useGetPastMessagesFromConversation() {
+  const [localIsInitialLoad, setLocalIsInitialLoad] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -69,10 +70,14 @@ export function useGetPastMessagesFromConversation() {
     } finally {
       setIsGetting(false);
       setLoading(false);
+
+      if (!localIsInitialLoad) {
+        setLocalIsInitialLoad(true);
+      }
     }
   };
 
-  return { getPastMessages, loading, error };
+  return { getPastMessages, localIsInitialLoad, loading, error };
 }
 
 export function useGetOtherParticipantFromConversation() {
