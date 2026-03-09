@@ -44,7 +44,7 @@ export default function UserCard({ userInfo }: UserCardProps) {
         <div className="flex flex-col items-start justify-start gap-4">
           <Tooltip>
             <TooltipTrigger asChild>
-              <Link href="/messages">
+              <Link href={`/messages/${userInfo.conversationId}`}>
                 <Button size="icon" className="h-9 w-9 shrink-0 cursor-pointer">
                   <Icon icon="material-symbols:chat" className="size-5" />
                 </Button>

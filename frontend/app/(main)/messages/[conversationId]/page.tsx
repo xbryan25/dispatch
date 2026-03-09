@@ -31,6 +31,8 @@ export default function SpecificConversationPage() {
   useEffect(() => {
     if (!conversationId || fetchedIdRef.current === conversationId) return;
 
+    console.log(`conversationId: ${conversationId}`);
+
     fetchedIdRef.current = conversationId;
 
     async function fetchData() {

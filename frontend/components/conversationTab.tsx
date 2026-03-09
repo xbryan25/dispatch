@@ -12,6 +12,8 @@ import {
   useGetOtherParticipantFromConversation,
 } from '@/hooks/useChat';
 
+import { useParams } from 'next/navigation';
+
 import { useEffect, useState } from 'react';
 
 import { useRouter } from 'next/navigation';
@@ -21,15 +23,13 @@ interface ConversationTabProps {
 }
 
 export default function ConversationTab({ conversationSnippet }: ConversationTabProps) {
-  const currentSelectedConversationId = useChatStore((state) => state.activeConversationId);
-  const resetConversation = useChatStore((state) => state.resetConversation);
+  const params = useParams();
+  const isActive = params.conversationId === conversationSnippet.conversationId;
 
   const router = useRouter();
 
   const [formattedTime, setFormattedTime] = useState('');
   const timestamp = conversationSnippet.latestMessageTime;
-
-  const isActive = currentSelectedConversationId === conversationSnippet.conversationId;
 
   const formatRelativeTime = (dateString: string) => {
     const start = new Date(dateString).getTime();
