@@ -17,13 +17,16 @@ from .schemas import (
     ConversationList,
     HistoryFilter,
     PastMessagesList,
+    NewConversationId,
 )
 
-from src.auth.schemas import UserMinimal
+from src.auth.schemas import UserMinimal, TargetUserId
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from uuid import UUID
+import uuid
+
 import traceback
 from typing import Annotated
 
@@ -94,6 +97,7 @@ async def send_message(
             await manager.send_to_user(conversation_participant, event_data)
 
         return msg_dict
+
     except InvalidConversationID:
         traceback.print_exc()
         raise HTTPException(status_code=400, detail="Conversation ID does not exist.")
@@ -113,9 +117,10 @@ async def get_conversation_list(
     """
 
     try:
+        print(f"\n\n{user_id}\n\n")
         formatted_conversations = await MessagesService.get_conversations(db, user_id)
 
-        return {"conversations": formatted_conversations}
+        return {"conversations": formatted_conversations or []}
     except InvalidConversationID:
         traceback.print_exc()
         raise HTTPException(status_code=400, detail="Conversation ID does not exist.")
@@ -181,6 +186,36 @@ async def get_other_conversation_participant(
             raise HTTPException(status_code=404, detail="User not found")
 
         return other_participant
+
+    except Exception:
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+
+@router.post("/new-direct-message", response_model=NewConversationId)
+async def create_direct_message(
+    payload: TargetUserId,
+    user_id: Annotated[UUID, Depends(get_current_user_id)],
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Creates a new conversation, and assigns the current user_id and the target_user_id as conversation participants. Returns conversation_id.
+    """
+
+    try:
+
+        formatted_target_user_id = uuid.UUID(payload.target_user_id)
+
+        conversation_id = await MessagesService.create_new_conversation(db)
+
+        if not conversation_id or not formatted_target_user_id:
+            raise Exception
+
+        await MessagesService.add_direct_message_participants(
+            db, conversation_id, user_id, formatted_target_user_id
+        )
+
+        return {"conversation_id": conversation_id}
 
     except Exception:
         traceback.print_exc()

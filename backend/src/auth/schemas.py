@@ -43,4 +43,4 @@ class UserResponse(UserMinimal):
 class BaseFriendResponse(UserMinimal):
     full_name: Optional[str]
     total_friend_count: int
-    conversation_id: UUID
+    conversation_id: Optional[UUID] = None

@@ -54,3 +54,15 @@ export async function getOtherParticipantFromConversation(conversationId: string
   if (!res.ok) throw new Error('Something went wrong when retrieving past messages.');
   return res.json();
 }
+
+export async function createDirectMessage(targetUserId: string) {
+  const res = await fetch(`${fastapiServerUrl}/api/messages/new-direct-message`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ targetUserId }),
+    credentials: 'include',
+  });
+
+  if (!res.ok) throw new Error('Something went wrong when retrieving past messages.');
+  return res.json();
+}

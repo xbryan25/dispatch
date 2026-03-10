@@ -354,11 +354,7 @@ class FriendsQueries:
     ) -> Update:
         """This statement updates a friend request and turns the status to 'accepted'."""
 
-        id_a, id_b = (
-            (current_user_id, target_user_id)
-            if current_user_id < target_user_id
-            else (current_user_id, target_user_id)
-        )
+        id_a, id_b = sorted([current_user_id, target_user_id])
 
         stmt = (
             update(Friendship)

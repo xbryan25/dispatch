@@ -7,6 +7,7 @@ import {
   sendMessage,
   getPastMessagesFromConversation,
   getOtherParticipantFromConversation,
+  createDirectMessage,
 } from '@/lib/api/messages';
 
 const fastapiWebsocketUrl = process.env.NEXT_PUBLIC_FASTAPI_WEBSOCKET_URL;
@@ -115,6 +116,34 @@ export function useGetOtherParticipantFromConversation() {
   };
 
   return { getOtherParticipant, loading, error };
+}
+
+export function useCreateDirectMessage() {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const createNewDirectMessage = async (targetUserId: string) => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const data: { conversationId: string } = await createDirectMessage(targetUserId);
+
+      return { data, error: null };
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('An unexpected error occurred');
+      }
+
+      return { data: null, error: err };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return { createNewDirectMessage, loading, error };
 }
 
 export const useInitializeWebsocket = () => {

@@ -50,6 +50,23 @@ export default function SpecificConversationPage() {
     resetConversation,
   ]);
 
+  useEffect(() => {
+    console.log('effect ran, conversationId:', conversationId);
+    console.log('fetchedIdRef:', fetchedIdRef.current);
+
+    async function fetchData() {
+      console.log('fetchData started');
+      resetConversation(conversationId);
+      await getPastMessages();
+      console.log('getPastMessages done');
+      await getOtherParticipant();
+      console.log('getOtherParticipant done');
+      setIsReady(true);
+      console.log('isReady set to true');
+    }
+    fetchData();
+  }, []);
+
   return (
     <>
       {isReady ? (
@@ -58,7 +75,7 @@ export default function SpecificConversationPage() {
           {showConversationDetails && <ConversationDetails />}
         </>
       ) : (
-        <div className="flex-3 flex justify-center items-center bg-white dark:bg-stone-900 rounded-xl">
+        <div className="flex-3 flex justify-center items-center bg-white dark:bg-stone-900 rounded-xl h-full">
           <LoadingSpinner />
         </div>
       )}
