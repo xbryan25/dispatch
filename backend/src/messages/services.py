@@ -14,7 +14,7 @@ from typing import Optional
 
 import traceback
 
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 class MessagesService:
@@ -90,13 +90,15 @@ class MessagesService:
     @staticmethod
     async def get_conversations(db: AsyncSession, user_id: UUID):
 
+        # TODO: improve selectinload, find a better way to make it scalable
+
         try:
             query = (
                 select(Conversation)
                 .join(ConversationParticipant)
                 .where(ConversationParticipant.user_id == user_id)
                 .options(
-                    selectinload(Conversation.latest_message),
+                    selectinload(Conversation.messages),
                     selectinload(Conversation.participants).joinedload(
                         ConversationParticipant.user
                     ),
@@ -118,7 +120,16 @@ class MessagesService:
                 profile_image_url = getattr(
                     other_person, "profile_image_url", "Invalid URL"
                 )
-                latest_message = getattr(conv.latest_message, "content", None)
+
+                latest_message_obj = max(
+                    conv.messages, key=lambda m: m.created_at, default=None
+                )
+                latest_message = (
+                    latest_message_obj.content if latest_message_obj else None
+                )
+                latest_message_time = (
+                    latest_message_obj.created_at if latest_message_obj else None
+                )
 
                 formatted_conversations.append(
                     {
@@ -126,13 +137,17 @@ class MessagesService:
                         "other_user_name": full_name,
                         "other_user_avatar": profile_image_url,
                         "latest_message": latest_message,
-                        "latest_message_time": conv.latest_message_time,
+                        "latest_message_time": latest_message_time,
                     }
                 )
 
-            formatted_conversations.sort(
-                key=lambda x: x["latest_message_time"], reverse=True
-            )
+            if formatted_conversations:
+
+                formatted_conversations.sort(
+                    key=lambda x: x["latest_message_time"]
+                    or datetime.min.replace(tzinfo=timezone.utc),
+                    reverse=True,
+                )
 
             return formatted_conversations
         except Exception:
@@ -157,3 +172,36 @@ class MessagesService:
         messages = (await db.execute(query)).scalars().all()
 
         return messages[::-1]
+
+    @staticmethod
+    async def create_new_conversation(db: AsyncSession):
+        try:
+            conversation = Conversation()
+
+            db.add(conversation)
+            await db.commit()
+            await db.refresh(conversation)
+
+            return conversation.conversation_id
+        except Exception:
+            traceback.print_exc()
+
+    @staticmethod
+    async def add_direct_message_participants(
+        db: AsyncSession, conversation_id: UUID, user_id: UUID, target_user_id: UUID
+    ):
+        try:
+            db.add_all(
+                [
+                    ConversationParticipant(
+                        conversation_id=conversation_id, user_id=user_id
+                    ),
+                    ConversationParticipant(
+                        conversation_id=conversation_id, user_id=target_user_id
+                    ),
+                ]
+            )
+
+            await db.commit()
+        except Exception:
+            traceback.print_exc()

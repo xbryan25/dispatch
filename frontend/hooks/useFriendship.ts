@@ -18,6 +18,7 @@ export function useCreateNewFriendRequest() {
 
     try {
       const data = await createNewFriendRequest(targetUserId);
+      console.log('reach here');
 
       return { data, error: null };
     } catch (err: unknown) {
@@ -39,6 +40,7 @@ export function useCreateNewFriendRequest() {
 export function useCancelFriendRequest() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  console.log('reach here');
 
   const cancelSentFriendRequest = async (targetUserId: string) => {
     setLoading(true);
@@ -74,6 +76,8 @@ export function useAcceptFriendRequest() {
 
     try {
       const data = await acceptFriendRequest(targetUserId);
+
+      console.log('reach here');
 
       return { data, error: null };
     } catch (err: unknown) {

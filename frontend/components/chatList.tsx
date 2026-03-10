@@ -6,6 +6,7 @@ import { useConversationTabs } from '@/hooks/useConversationTabs';
 
 import { useInitializeWebsocket } from '@/hooks/useChat';
 import LoadingSpinner from './loadingSpinner';
+import { useChatStore } from '@/store/useChatStore';
 
 export default function ChatList() {
   const { conversationSnippets, isLoading } = useConversationTabs();

@@ -12,6 +12,7 @@ import RejectFriendshipDialog from './rejectFriendshipDialog';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 import { useFriendsStore } from '@/store/useFriendsStore';
+import CreateNewConversationDialog from './createNewConversationDialog';
 
 interface UserCardProps {
   userInfo: UserInfo;
@@ -33,7 +34,7 @@ export default function UserCard({ userInfo }: UserCardProps) {
 
       <div className="flex-1 flex flex-col items-center justify-center gap-1">
         <h2 className="font-semibold">{userInfo.username}</h2>
-        <h3 className="text-xs">{userInfo.fullName}</h3>
+        <h3 className="text-xs">{userInfo.fullName ?? '-'}</h3>
         <h3 className="text-xs">
           {userInfo.totalFriendCount} {userInfo.totalFriendCount == 1 ? 'friend' : 'friends'}
         </h3>
@@ -42,18 +43,25 @@ export default function UserCard({ userInfo }: UserCardProps) {
 
       {userType === 'friends' && (
         <div className="flex flex-col items-start justify-start gap-4">
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Link href={`/messages/${userInfo.conversationId}`}>
-                <Button size="icon" className="h-9 w-9 shrink-0 cursor-pointer">
-                  <Icon icon="material-symbols:chat" className="size-5" />
-                </Button>
-              </Link>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p className="font-medium font-sans">Chat with {userInfo.username}?</p>
-            </TooltipContent>
-          </Tooltip>
+          {userInfo.conversationId ? (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Link href={`/messages/${userInfo.conversationId}`}>
+                  <Button size="icon" className="h-9 w-9 shrink-0 cursor-pointer">
+                    <Icon icon="material-symbols:chat" className="size-5" />
+                  </Button>
+                </Link>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p className="font-medium font-sans">Chat with {userInfo.username}?</p>
+              </TooltipContent>
+            </Tooltip>
+          ) : (
+            <CreateNewConversationDialog
+              username={userInfo.username}
+              otherUserId={userInfo.userId}
+            />
+          )}
 
           <UnfriendDialog username={userInfo.username} otherUserId={userInfo.userId} />
         </div>

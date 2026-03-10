@@ -92,13 +92,19 @@ export default function ConversationTab({ conversationSnippet }: ConversationTab
       <div className="flex-1 flex flex-col min-w-0">
         <div className="flex justify-between">
           <h3 className="font-semibold">{conversationSnippet.otherUserName}</h3>
-          <p className="shrink-0">{formatRelativeTime(conversationSnippet.latestMessageTime)}</p>
+          <p className="shrink-0">
+            {conversationSnippet.latestMessageTime != null
+              ? formatRelativeTime(conversationSnippet.latestMessageTime)
+              : '-'}
+          </p>
         </div>
         <div className="flex justify-between items-center gap-4">
           <p className="truncate ">
             {conversationSnippet.latestMessage != null
               ? conversationSnippet.latestMessage
-              : `Start chatting with ${conversationSnippet.otherUserName.trim().split(/\s+/)[0]}!`}
+              : conversationSnippet.otherUserName != null
+                ? `Start chatting with ${conversationSnippet.otherUserName.trim().split(/\s+/)[0]}!`
+                : '-'}
           </p>
 
           {conversationSnippet.latestMessage && (

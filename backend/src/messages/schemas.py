@@ -37,9 +37,13 @@ class ConversationSnippet(BaseSchema):
 
 
 class ConversationList(BaseSchema):
-    conversations: list[ConversationSnippet]
+    conversations: list[ConversationSnippet] = []
 
 
 class HistoryFilter(BaseSchema):
     limit: int = Field(default=20, ge=1, le=100)
     before_datetime: datetime | None = None
+
+
+class NewConversationId(BaseSchema):
+    conversation_id: UUID
