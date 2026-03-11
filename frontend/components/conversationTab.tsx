@@ -93,9 +93,7 @@ export default function ConversationTab({ conversationSnippet }: ConversationTab
         <div className="flex justify-between">
           <h3 className="font-semibold">{conversationSnippet.otherUserName}</h3>
           <p className="shrink-0">
-            {conversationSnippet.latestMessageTime != null
-              ? formatRelativeTime(conversationSnippet.latestMessageTime)
-              : '-'}
+            {conversationSnippet.latestMessageTime != null ? formattedTime : '-'}
           </p>
         </div>
         <div className="flex justify-between items-center gap-4">
