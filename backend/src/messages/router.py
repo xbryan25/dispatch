@@ -147,6 +147,8 @@ async def get_conversation_message_history(
             db, conversation_id, filter_params.limit, filter_params.before_datetime
         )
 
+        print(past_messages)
+
         return {"past_messages": past_messages}
 
     except Exception:

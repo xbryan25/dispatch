@@ -183,6 +183,7 @@ export default function MessageThread() {
             content={message.content}
             createdAt={message.createdAt}
             dateFormatters={dateFormatters}
+            username={message.username}
           />
         );
       })}

@@ -61,6 +61,8 @@ export function useGetPastMessagesFromConversation() {
         setIsInitialLoad(false);
       }
 
+      console.log(data.pastMessagse);
+
       prependPastMessages(data.pastMessages);
     } catch (err: unknown) {
       if (err instanceof Error) {

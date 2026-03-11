@@ -19,6 +19,7 @@ class MessageRead(BaseSchema):
     message_id: UUID
     sender_id: UUID
     conversation_id: UUID
+    username: str
     content: str
     created_at: datetime
     status: MessageStatusEnum
