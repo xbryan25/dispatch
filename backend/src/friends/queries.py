@@ -26,6 +26,8 @@ from src.messages.models import Conversation, ConversationParticipant
 
 from uuid import UUID
 
+from src.messages.queries import MessagesQueries
+
 
 class FriendsQueries:
 
@@ -41,37 +43,6 @@ class FriendsQueries:
                     Friendship.user_id_b == UserProfile.user_id,
                 ),
                 Friendship.status == FriendshipStatusEnum.accepted,
-            )
-            .correlate(UserProfile)
-            .scalar_subquery()
-        )
-
-        return stmt
-
-    @staticmethod
-    def get_direct_message_conversation_id_sub_stmt(
-        current_user_id: UUID,
-    ) -> ScalarSelect:
-        """This sub statement retrieves the conversation_id of the direct message conversation shared between
-        the current user and another user (correlated from the outer query via UserProfile)..
-        """
-
-        cp_profile = aliased(ConversationParticipant)
-        cp_current = aliased(ConversationParticipant)
-
-        stmt = (
-            select(Conversation.conversation_id)
-            .join(
-                cp_profile,
-                Conversation.conversation_id == cp_profile.conversation_id,
-            )
-            .join(
-                cp_current,
-                Conversation.conversation_id == cp_current.conversation_id,
-            )
-            .where(
-                cp_profile.user_id == UserProfile.user_id,
-                cp_current.user_id == current_user_id,
             )
             .correlate(UserProfile)
             .scalar_subquery()
@@ -124,7 +95,7 @@ class FriendsQueries:
         """This statement retrieves the current friends of the current user."""
 
         sub_stmt_a = FriendsQueries.get_total_friends_sub_stmt()
-        sub_stmt_b = FriendsQueries.get_direct_message_conversation_id_sub_stmt(
+        sub_stmt_b = MessagesQueries.get_direct_message_conversation_id_sub_stmt(
             current_user_id
         )
 
@@ -376,8 +347,10 @@ class FriendsQueries:
         id_a, id_b = (
             (current_user_id, target_user_id)
             if current_user_id < target_user_id
-            else (current_user_id, target_user_id)
+            else (target_user_id, current_user_id)
         )
+
+        print(f"\n\nid_a: {id_a} id_b:{id_b}\n\n")
 
         stmt = (
             update(Friendship)
