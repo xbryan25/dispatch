@@ -78,7 +78,13 @@ export default function MessageThread() {
 
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && activeConversationId && !isInitialLoad) {
+        if (
+          entries[0].isIntersecting &&
+          activeConversationId &&
+          !isInitialLoad &&
+          hasMorePastMessages &&
+          container.scrollHeight > container.clientHeight
+        ) {
           previousHeightRef.current = container.scrollHeight;
           getPastMessages();
         }
@@ -91,7 +97,14 @@ export default function MessageThread() {
     }
 
     return () => observer.disconnect();
-  }, [hasMorePastMessages, isGetting, activeConversationId, getPastMessages, isInitialLoad]);
+  }, [
+    hasMorePastMessages,
+    isGetting,
+    activeConversationId,
+    getPastMessages,
+    isInitialLoad,
+    messages,
+  ]);
 
   useEffect(() => {
     // This useEffect readjusts the position of the container when old messages are added
@@ -109,6 +122,14 @@ export default function MessageThread() {
       previousHeightRef.current = 0;
     }
   }, [messages.length, isGetting]);
+
+  if (messages.length == 0) {
+    return (
+      <div className="flex-1 flex items-center justify-center">
+        <h1 className="font-semibold text-2xl">No messages yet. Say hello! 👋</h1>
+      </div>
+    );
+  }
 
   return (
     <div ref={containerRef} className="flex-1 flex flex-col py-2 px-2 gap-3 overflow-y-auto">
