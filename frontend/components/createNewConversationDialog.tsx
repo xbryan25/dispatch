@@ -45,6 +45,11 @@ export default function CreateNewConversationDialog({
 
       if (result.data) {
         const conversationId = result.data.conversationId;
+        const conversationIdType = result.data.conversationIdType;
+
+        if (conversationIdType === 'existing') {
+          toast.info(`There is already an existing conversation between you and ${username}.`);
+        }
 
         router.push(`/messages/${conversationId}`);
       } else {
