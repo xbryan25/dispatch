@@ -20,3 +20,5 @@ export interface OtherParticipantDetails {
   username: string;
   profileImageUrl: string;
 }
+
+export type DateFormatters = 'currentDay' | 'currentWeek' | 'later';

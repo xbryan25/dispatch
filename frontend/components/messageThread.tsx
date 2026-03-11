@@ -8,6 +8,8 @@ import { useChatStore } from '@/store/useChatStore';
 import { useGetPastMessagesFromConversation } from '@/hooks/useChat';
 import LoadingSpinner from './loadingSpinner';
 
+import { DateFormatters } from '@/types/chat';
+
 export default function MessageThread() {
   const messages = useChatStore((state) => state.messages);
   const hasMorePastMessages = useChatStore((state) => state.hasMorePastMessages);
@@ -25,18 +27,35 @@ export default function MessageThread() {
 
   const previousHeightRef = useRef(0);
 
+  const dateFormatters: Record<DateFormatters, Intl.DateTimeFormat> = {
+    currentDay: new Intl.DateTimeFormat('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+    }),
+    currentWeek: new Intl.DateTimeFormat('en-US', {
+      weekday: 'long',
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+    }),
+    later: new Intl.DateTimeFormat('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+    }),
+  };
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
   const formatDate = (dateStr: string): string => {
-    const formattedDate = new Date(dateStr).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: 'numeric',
-      minute: 'numeric',
-    });
+    const startDate = new Date(dateStr).getTime();
+    const formattedDate = dateFormatters['later'].format(startDate);
 
     return formattedDate;
   };
@@ -162,6 +181,8 @@ export default function MessageThread() {
             messageType={isMe ? 'sender' : 'others'}
             breakMessage={isLastInCluster ? true : false}
             content={message.content}
+            createdAt={message.createdAt}
+            dateFormatters={dateFormatters}
           />
         );
       })}
