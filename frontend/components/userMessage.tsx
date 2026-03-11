@@ -15,6 +15,7 @@ interface UserMessageProps {
   breakMessage?: boolean;
   content: string;
   createdAt: string;
+  username: string;
   dateFormatters: Record<DateFormatters, Intl.DateTimeFormat>;
 }
 
@@ -23,23 +24,24 @@ export default function UserMessage({
   breakMessage = false,
   content,
   createdAt,
+  username,
   dateFormatters,
 }: UserMessageProps) {
   const [formattedTime, setFormattedTime] = useState('');
 
-  const formatMessageTime = (dateString: string) => {
-    const start = new Date(dateString).getTime();
-    const now = Date.now();
-
-    const diffInSeconds = Math.floor((now - start) / 1000);
-
-    if (diffInSeconds >= 604800) return dateFormatters.later.format(start);
-    else if (diffInSeconds >= 86400) return dateFormatters.currentWeek.format(start);
-
-    return dateFormatters.currentDay.format(start);
-  };
-
   useEffect(() => {
+    const formatMessageTime = (dateString: string) => {
+      const start = new Date(dateString).getTime();
+      const now = Date.now();
+
+      const diffInSeconds = Math.floor((now - start) / 1000);
+
+      if (diffInSeconds >= 604800) return dateFormatters.later.format(start);
+      else if (diffInSeconds >= 86400) return dateFormatters.currentWeek.format(start);
+
+      return dateFormatters.currentDay.format(start);
+    };
+
     const update = () => {
       const timeStr = formatMessageTime(createdAt);
       setFormattedTime(timeStr || '');
@@ -61,15 +63,22 @@ export default function UserMessage({
       )}
     >
       {messageType === 'others' && breakMessage && (
-        <div className="relative w-9 h-9 shrink-0 overflow-hidden rounded-full ">
-          <Image
-            src="/blank_picture.png"
-            alt="User avatar"
-            fill
-            sizes="96px"
-            className="object-cover"
-          />
-        </div>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div className="relative w-9 h-9 shrink-0 overflow-hidden rounded-full ">
+              <Image
+                src="/blank_picture.png"
+                alt="User avatar"
+                fill
+                sizes="96px"
+                className="object-cover"
+              />
+            </div>
+          </TooltipTrigger>
+          <TooltipContent side={'left'}>
+            <p className="font-medium font-sans">{username}</p>
+          </TooltipContent>
+        </Tooltip>
       )}
 
       <Tooltip>
@@ -85,7 +94,7 @@ export default function UserMessage({
             <p>{content}</p>
           </div>
         </TooltipTrigger>
-        <TooltipContent>
+        <TooltipContent side={'left'}>
           <p className="font-medium font-sans">{createdAt != null ? formattedTime : '-'}</p>
         </TooltipContent>
       </Tooltip>

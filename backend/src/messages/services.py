@@ -160,8 +160,12 @@ class MessagesService:
         limit: int,
         before_datetime: datetime | None,
     ):
-        query = select(Message).where(
-            Message.conversation_id == conversation_id,
+        query = (
+            select(Message, UserProfile.username)
+            .join(UserProfile, UserProfile.user_id == Message.sender_id)
+            .where(
+                Message.conversation_id == conversation_id,
+            )
         )
 
         if before_datetime:
@@ -169,9 +173,26 @@ class MessagesService:
 
         query = query.order_by(Message.created_at.desc()).limit(limit)
 
-        messages = (await db.execute(query)).scalars().all()
+        messages = (await db.execute(query)).mappings().all()
 
-        return messages[::-1]
+        print()
+        print(messages)
+        print()
+
+        formatted_messages = [
+            {
+                "message_id": row["Message"].message_id,
+                "content": row["Message"].content,
+                "created_at": row["Message"].created_at,
+                "sender_id": row["Message"].sender_id,
+                "conversation_id": row["Message"].conversation_id,
+                "status": row["Message"].status,
+                "username": row["username"],
+            }
+            for row in messages
+        ]
+
+        return formatted_messages[::-1]
 
     @staticmethod
     async def create_new_conversation(db: AsyncSession):
