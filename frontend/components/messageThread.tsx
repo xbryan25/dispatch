@@ -105,7 +105,7 @@ export default function MessageThread() {
           container.scrollHeight > container.clientHeight
         ) {
           previousHeightRef.current = container.scrollHeight;
-          getPastMessages();
+          getPastMessages(activeConversationId);
         }
       },
       { threshold: 0.5 }

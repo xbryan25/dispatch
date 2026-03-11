@@ -11,7 +11,7 @@ import MessageThread from './messageThread';
 import { useSendMessage } from '@/hooks/useChat';
 import { useChatStore } from '@/store/useChatStore';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface ChatListProps {
   onToggle: () => void; // This is a function prop
@@ -21,9 +21,7 @@ export default function ConversationArea({ onToggle }: ChatListProps) {
   const [newMessage, setNewMessage] = useState<string>('');
 
   const { send } = useSendMessage();
-  const { otherParticipantDetails } = useChatStore();
-
-  if (!otherParticipantDetails) return null;
+  const otherParticipantDetails = useChatStore((state) => state.otherParticipantDetails);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {

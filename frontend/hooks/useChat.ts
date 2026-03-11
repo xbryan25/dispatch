@@ -44,24 +44,22 @@ export function useGetPastMessagesFromConversation() {
 
   const { setIsGetting, setIsInitialLoad, prependPastMessages } = useChatStore();
 
-  const getPastMessages = async () => {
+  const getPastMessages = async (conversationId: string) => {
     // put this here??
-    const { activeConversationId, messages, isInitialLoad } = useChatStore.getState();
+    const { messages, isInitialLoad } = useChatStore.getState();
 
     setIsGetting(true);
 
     setLoading(true);
     setError(null);
     try {
-      const query = `${activeConversationId}${messages[0]?.createdAt ? `?beforeDatetime=${messages[0].createdAt}` : ''}`;
+      const query = `${conversationId}${messages[0]?.createdAt ? `?beforeDatetime=${messages[0].createdAt}` : ''}`;
 
       const data = await getPastMessagesFromConversation(query);
 
       if (isInitialLoad) {
         setIsInitialLoad(false);
       }
-
-      console.log(data.pastMessagse);
 
       prependPastMessages(data.pastMessages);
     } catch (err: unknown) {
@@ -89,17 +87,18 @@ export function useGetOtherParticipantFromConversation() {
 
   const { setIsGettingOtherParticipant, setOtherParticipantDetails } = useChatStore();
 
-  const getOtherParticipant = async () => {
+  const getOtherParticipant = async (conversationId: string) => {
     // put this here??
     setIsGettingOtherParticipant(true);
 
     setLoading(true);
     setError(null);
 
-    const latestActiveConversationId = useChatStore.getState().activeConversationId;
     try {
-      if (latestActiveConversationId) {
-        const data = await getOtherParticipantFromConversation(latestActiveConversationId);
+      if (conversationId) {
+        console.log(`here ${conversationId}`);
+        const data = await getOtherParticipantFromConversation(conversationId);
+        console.log(data);
 
         setOtherParticipantDetails(data);
       } else {

@@ -16,12 +16,13 @@ export default function SpecificConversationPage() {
   const params = useParams();
   const conversationId: string = params.conversationId as string;
 
-  const setActiveConversationId = useChatStore((state) => state.setActiveConversationId);
   const resetConversation = useChatStore((state) => state.resetConversation);
 
   const { getOtherParticipant } = useGetOtherParticipantFromConversation();
 
   const { getPastMessages } = useGetPastMessagesFromConversation();
+
+  const otherParticipantDetails = useChatStore((state) => state.otherParticipantDetails);
 
   const [showConversationDetails, setShowConversationDetails] = useState<boolean>(false);
   const [isReady, setIsReady] = useState<boolean>(false);
@@ -35,33 +36,21 @@ export default function SpecificConversationPage() {
 
     async function fetchData() {
       resetConversation(conversationId);
-      await getPastMessages();
-      await getOtherParticipant();
+      await getPastMessages(conversationId);
+      await getOtherParticipant(conversationId);
       setIsReady(true);
     }
     fetchData();
-  }, [
-    conversationId,
-    setActiveConversationId,
-    getPastMessages,
-    getOtherParticipant,
-    resetConversation,
-  ]);
 
-  useEffect(() => {
-    async function fetchData() {
-      resetConversation(conversationId);
-      await getPastMessages();
-
-      await getOtherParticipant();
-      setIsReady(true);
-    }
-    fetchData();
-  }, []);
+    return () => {
+      fetchedIdRef.current = null; // ← reset on unmount
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [conversationId]);
 
   return (
     <>
-      {isReady ? (
+      {isReady && otherParticipantDetails ? (
         <>
           <ConversationArea onToggle={() => setShowConversationDetails(!showConversationDetails)} />
           {showConversationDetails && <ConversationDetails />}
