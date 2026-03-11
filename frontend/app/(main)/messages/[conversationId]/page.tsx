@@ -31,8 +31,6 @@ export default function SpecificConversationPage() {
   useEffect(() => {
     if (!conversationId || fetchedIdRef.current === conversationId) return;
 
-    console.log(`conversationId: ${conversationId}`);
-
     fetchedIdRef.current = conversationId;
 
     async function fetchData() {
@@ -51,18 +49,12 @@ export default function SpecificConversationPage() {
   ]);
 
   useEffect(() => {
-    console.log('effect ran, conversationId:', conversationId);
-    console.log('fetchedIdRef:', fetchedIdRef.current);
-
     async function fetchData() {
-      console.log('fetchData started');
       resetConversation(conversationId);
       await getPastMessages();
-      console.log('getPastMessages done');
+
       await getOtherParticipant();
-      console.log('getOtherParticipant done');
       setIsReady(true);
-      console.log('isReady set to true');
     }
     fetchData();
   }, []);
