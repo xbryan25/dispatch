@@ -3,8 +3,8 @@ from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
 from .schemas import MessageCreate
-
 from .models import Message, ConversationParticipant, Conversation
+from .queries import MessagesQueries
 
 from src.auth.models import UserProfile
 
@@ -203,5 +203,21 @@ class MessagesService:
             )
 
             await db.commit()
+        except Exception:
+            traceback.print_exc()
+
+    @staticmethod
+    async def check_if_in_existing_direct_message_conversation(
+        db: AsyncSession, user_id: UUID, target_user_id: UUID
+    ):
+        try:
+            stmt = MessagesQueries.get_conversation_id_between_two_users(
+                user_id, target_user_id
+            )
+
+            conversation_id = (await db.execute(stmt)).scalar_one_or_none()
+
+            return conversation_id
+
         except Exception:
             traceback.print_exc()

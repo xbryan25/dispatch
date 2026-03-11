@@ -127,7 +127,8 @@ export function useCreateDirectMessage() {
     setError(null);
 
     try {
-      const data: { conversationId: string } = await createDirectMessage(targetUserId);
+      const data: { conversationId: string; conversationIdType: 'existing' | 'new' } =
+        await createDirectMessage(targetUserId);
 
       return { data, error: null };
     } catch (err: unknown) {

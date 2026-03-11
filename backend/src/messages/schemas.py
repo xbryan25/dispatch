@@ -45,5 +45,6 @@ class HistoryFilter(BaseSchema):
     before_datetime: datetime | None = None
 
 
-class NewConversationId(BaseSchema):
+class ConversationIdWithType(BaseSchema):
+    conversation_id_type: str
     conversation_id: UUID
