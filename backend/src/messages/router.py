@@ -20,7 +20,7 @@ from .schemas import (
     ConversationIdWithType,
 )
 
-from src.auth.schemas import UserMinimal, TargetUserId
+from src.auth.schemas import UserMinimalWithFriendshipStatus, TargetUserId
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -154,7 +154,10 @@ async def get_conversation_message_history(
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
-@router.get("/{conversation_id}/other-participant", response_model=UserMinimal)
+@router.get(
+    "/{conversation_id}/other-participant",
+    response_model=UserMinimalWithFriendshipStatus,
+)
 async def get_other_conversation_participant(
     user_id: Annotated[UUID, Depends(get_current_user_id)],
     conversation_id: UUID,
@@ -170,9 +173,8 @@ async def get_other_conversation_participant(
         conversation_participants = []
 
         conversation_participants = (
-            await MessagesService.get_participants_details_in_conversation(
-                db,
-                conversation_id,
+            await MessagesService.get_other_participants_details_in_conversation(
+                db, conversation_id, user_id
             )
             or []
         )

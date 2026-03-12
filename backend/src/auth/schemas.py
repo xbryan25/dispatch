@@ -44,3 +44,7 @@ class BaseFriendResponse(UserMinimal):
     full_name: Optional[str]
     total_friend_count: int
     conversation_id: Optional[UUID] = None
+
+
+class UserMinimalWithFriendshipStatus(UserMinimal):
+    friendship_status: str
