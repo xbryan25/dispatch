@@ -170,6 +170,7 @@ class FriendsService:
         for row in former_friends_with_counts:
             user_obj = row.UserProfile
             count = row.total_friend_count
+            conversation_id = row.conversation_id
 
             output.append(
                 {
@@ -178,6 +179,7 @@ class FriendsService:
                     "full_name": user_obj.full_name,
                     "profile_image_url": user_obj.profile_image_url,
                     "total_friend_count": count,
+                    "conversation_id": conversation_id,
                 }
             )
 
