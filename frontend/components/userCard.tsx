@@ -85,6 +85,21 @@ export default function UserCard({ userInfo }: UserCardProps) {
 
       {userType === 'formerFriends' && (
         <div className="flex flex-col items-start justify-start gap-4">
+          {userInfo.conversationId != null && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Link href={`/messages/${userInfo.conversationId}`}>
+                  <Button size="icon" className="h-9 w-9 shrink-0 cursor-pointer">
+                    <Icon icon="material-symbols:chat" className="size-5" />
+                  </Button>
+                </Link>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p className="font-medium font-sans">View conversation with {userInfo.username}?</p>
+              </TooltipContent>
+            </Tooltip>
+          )}
+
           <MakeFriendshipRequestDialog
             username={userInfo.username}
             receiverId={userInfo.userId}

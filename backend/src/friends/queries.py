@@ -114,9 +114,7 @@ class FriendsQueries:
                 or_(
                     Friendship.user_id_a == current_user_id,
                     Friendship.user_id_b == current_user_id,
-                )
-            )
-            .where(
+                ),
                 UserProfile.user_id != current_user_id,
                 Friendship.status == FriendshipStatusEnum.accepted,
             )
@@ -224,10 +222,17 @@ class FriendsQueries:
     ) -> Select:
         """This statement retrieves the profiles of the users that were former friends of the current user."""
 
-        sub_stmt = FriendsQueries.get_total_friends_sub_stmt()
+        sub_stmt_a = FriendsQueries.get_total_friends_sub_stmt()
+        sub_stmt_b = MessagesQueries.get_direct_message_conversation_id_sub_stmt(
+            current_user_id
+        )
 
         stmt = (
-            select(UserProfile, sub_stmt.label("total_friend_count"))
+            select(
+                UserProfile,
+                sub_stmt_a.label("total_friend_count"),
+                sub_stmt_b.label("conversation_id"),
+            )
             .join(
                 Friendship,
                 or_(
