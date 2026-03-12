@@ -22,6 +22,9 @@ export default function ConversationArea({ onToggle }: ChatListProps) {
 
   const { send } = useSendMessage();
   const otherParticipantDetails = useChatStore((state) => state.otherParticipantDetails);
+  const otherParticipantFriendshipStatus = useChatStore(
+    (state) => state.otherParticipantFriendshipStatus
+  );
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -33,6 +36,11 @@ export default function ConversationArea({ onToggle }: ChatListProps) {
       }
     }
   };
+
+  useEffect(
+    () => console.log(otherParticipantFriendshipStatus),
+    [otherParticipantFriendshipStatus]
+  );
 
   return (
     <div className="flex-3 flex flex-col justify-start gap-2 bg-white dark:bg-stone-900 rounded-xl">
@@ -72,24 +80,22 @@ export default function ConversationArea({ onToggle }: ChatListProps) {
         <InputGroup className="flex-1 shrink-0">
           <InputGroupTextarea
             placeholder={
-              otherParticipantDetails?.friendshipStatus == 'unfriended'
-                ? `You aren't friends with ${otherParticipantDetails.username} anymore. This conversation is read-only.`
+              otherParticipantFriendshipStatus !== 'accepted'
+                ? `You aren't friends with ${otherParticipantDetails?.username} anymore. This conversation is read-only.`
                 : 'Type your message...'
             }
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             onKeyDown={handleKeyDown}
             className="min-h-8.5 max-h-40 overflow-y-auto py-2 px-3"
-            disabled={otherParticipantDetails?.friendshipStatus == 'unfriended'}
+            disabled={otherParticipantFriendshipStatus !== 'accepted'}
           />
         </InputGroup>
 
         <Button
           className="cursor-pointer h-9.5"
           onClick={() => (send(newMessage.trim()), setNewMessage(''))}
-          disabled={
-            newMessage.trim() === '' || otherParticipantDetails?.friendshipStatus == 'unfriended'
-          }
+          disabled={newMessage.trim() === '' || otherParticipantFriendshipStatus !== 'accepted'}
         >
           Send
         </Button>

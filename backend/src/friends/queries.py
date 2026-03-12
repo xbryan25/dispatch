@@ -301,11 +301,7 @@ class FriendsQueries:
     ) -> Delete:
         """This statement removes a pending friend request. Used by both 'cancel request' and 'reject request'."""
 
-        id_a, id_b = (
-            (current_user_id, target_user_id)
-            if current_user_id < target_user_id
-            else (current_user_id, target_user_id)
-        )
+        id_a, id_b = sorted([current_user_id, target_user_id])
 
         security_rule = (
             Friendship.action_by == current_user_id
@@ -347,11 +343,7 @@ class FriendsQueries:
     def unfriend_user_stmt(current_user_id: UUID, target_user_id: UUID) -> Update:
         """This statement updates a friend request and turns the status to 'unfriended'."""
 
-        id_a, id_b = (
-            (current_user_id, target_user_id)
-            if current_user_id < target_user_id
-            else (target_user_id, current_user_id)
-        )
+        id_a, id_b = sorted([current_user_id, target_user_id])
 
         print(f"\n\nid_a: {id_a} id_b:{id_b}\n\n")
 
@@ -375,11 +367,7 @@ class FriendsQueries:
 
         # Insert is used instead of update to avoid race condition in db
 
-        id_a, id_b = (
-            (current_user_id, target_user_id)
-            if current_user_id < target_user_id
-            else (target_user_id, current_user_id)
-        )
+        id_a, id_b = sorted([current_user_id, target_user_id])
 
         stmt = insert(Friendship).values(
             user_id_a=id_a,

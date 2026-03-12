@@ -11,6 +11,7 @@ interface ChatState {
   isGetting: boolean;
   isSending: boolean;
   isGettingOtherParticipant: boolean;
+  otherParticipantFriendshipStatus: string | null;
 
   // Actions
   addMessage: (msg: Message) => void;
@@ -22,6 +23,8 @@ interface ChatState {
   setIsGetting: (newVal: boolean) => void;
   setIsSending: (newVal: boolean) => void;
   setIsGettingOtherParticipant: (newVal: boolean) => void;
+  setOtherParticipantFriendshipStatus: (newVal: string) => void;
+
   setSocket: (socket: WebSocket | null) => void;
   clearChat: () => void;
 
@@ -38,6 +41,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
   isGetting: false,
   isSending: false,
   isGettingOtherParticipant: false,
+  otherParticipantFriendshipStatus: null,
 
   addMessage: (newMessage) =>
     set((state) => {
@@ -73,10 +77,14 @@ export const useChatStore = create<ChatState>((set, get) => ({
     });
   },
 
-  setOtherParticipantDetails: (newParticipantDetails) =>
+  setOtherParticipantDetails: (newParticipantDetails) => {
     set({
       otherParticipantDetails: newParticipantDetails,
-    }),
+    });
+    set({
+      otherParticipantFriendshipStatus: newParticipantDetails?.friendshipStatus,
+    });
+  },
 
   setIsInitialLoad: (newVal: boolean) => set({ isInitialLoad: newVal }),
 
@@ -85,6 +93,9 @@ export const useChatStore = create<ChatState>((set, get) => ({
   setIsSending: (newVal: boolean) => set({ isSending: newVal }),
 
   setIsGettingOtherParticipant: (newVal: boolean) => set({ isSending: newVal }),
+
+  setOtherParticipantFriendshipStatus: (newVal: string) =>
+    set({ otherParticipantFriendshipStatus: newVal }),
 
   setSocket: (socket) => set({ socket }),
 
