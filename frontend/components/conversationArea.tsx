@@ -71,18 +71,25 @@ export default function ConversationArea({ onToggle }: ChatListProps) {
       <div className="flex gap-2 px-2 my-2 items-end">
         <InputGroup className="flex-1 shrink-0">
           <InputGroupTextarea
-            placeholder="Type your message..."
+            placeholder={
+              otherParticipantDetails?.friendshipStatus == 'unfriended'
+                ? `You aren't friends with ${otherParticipantDetails.username} anymore. This conversation is read-only.`
+                : 'Type your message...'
+            }
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             onKeyDown={handleKeyDown}
             className="min-h-8.5 max-h-40 overflow-y-auto py-2 px-3"
+            disabled={otherParticipantDetails?.friendshipStatus == 'unfriended'}
           />
         </InputGroup>
 
         <Button
           className="cursor-pointer h-9.5"
           onClick={() => (send(newMessage.trim()), setNewMessage(''))}
-          disabled={newMessage.trim() === ''}
+          disabled={
+            newMessage.trim() === '' || otherParticipantDetails?.friendshipStatus == 'unfriended'
+          }
         >
           Send
         </Button>

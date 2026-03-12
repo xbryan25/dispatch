@@ -1,5 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, and_, func
 from sqlalchemy.orm import selectinload
 
 from .schemas import MessageCreate
@@ -7,6 +7,7 @@ from .models import Message, ConversationParticipant, Conversation
 from .queries import MessagesQueries
 
 from src.auth.models import UserProfile
+from src.friends.models import Friendship
 
 from uuid import UUID
 
@@ -54,6 +55,44 @@ class MessagesService:
                 )
                 .where(
                     ConversationParticipant.conversation_id == conversation_id,
+                )
+            )
+            result = await db.execute(query)
+            return result.mappings().all()
+        except Exception:
+            traceback.print_exc()
+
+    @staticmethod
+    async def get_other_participants_details_in_conversation(
+        db: AsyncSession, conversation_id: UUID, current_user_id: UUID
+    ):
+
+        try:
+            query = (
+                select(
+                    ConversationParticipant.user_id,
+                    UserProfile.username,
+                    UserProfile.profile_image_url,
+                    Friendship.status.label("friendship_status"),
+                )
+                .join(
+                    UserProfile, ConversationParticipant.user_id == UserProfile.user_id
+                )
+                .join(
+                    Friendship,
+                    and_(
+                        Friendship.user_id_a
+                        == func.least(ConversationParticipant.user_id, current_user_id),
+                        Friendship.user_id_b
+                        == func.greatest(
+                            ConversationParticipant.user_id, current_user_id
+                        ),
+                    ),
+                    isouter=True,  # LEFT JOIN
+                )
+                .where(
+                    ConversationParticipant.conversation_id == conversation_id,
+                    ConversationParticipant.user_id != current_user_id,
                 )
             )
             result = await db.execute(query)

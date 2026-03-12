@@ -20,6 +20,7 @@ export interface OtherParticipantDetails {
   userId: string;
   username: string;
   profileImageUrl: string;
+  friendshipStatus: string;
 }
 
 export type DateFormatters = 'currentDay' | 'currentWeek' | 'later';

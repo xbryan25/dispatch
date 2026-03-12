@@ -14,7 +14,6 @@ from sqlalchemy import (
     Update,
 )
 
-from sqlalchemy.orm import aliased
 
 from sqlalchemy.dialects.postgresql import insert, Insert
 
@@ -22,7 +21,6 @@ from .models import Friendship
 from .constants import FriendshipStatusEnum
 
 from src.auth.models import UserProfile
-from src.messages.models import Conversation, ConversationParticipant
 
 from uuid import UUID
 
