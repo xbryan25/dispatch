@@ -37,7 +37,7 @@ export default function UnfriendDialog({ username, otherUserId }: UnfriendDialog
 
       loadUsersData();
 
-      toast.success(`You have rejected the friend request of ${username}.`);
+      toast.success(`You have unfriended ${username}.`);
     } catch {
       toast.success(`Something went wrong when making a friend request.`);
     }

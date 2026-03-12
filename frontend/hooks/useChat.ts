@@ -3,6 +3,8 @@ import { useChatStore } from '@/store/useChatStore';
 import { useSidebarStore } from '@/store/useSidebarStore';
 import { useAuthStore } from '@/store/useAuthStore';
 
+import { toast } from 'sonner';
+
 import {
   sendMessage,
   getPastMessagesFromConversation,
@@ -149,11 +151,19 @@ export function useCreateDirectMessage() {
 }
 
 export const useInitializeWebsocket = () => {
-  const { setSocket, addMessage, clearChat } = useChatStore();
+  const clearChat = useChatStore((state) => state.clearChat);
 
-  const { currentUserId } = useAuthStore();
+  const addMessage = useChatStore((state) => state.addMessage);
 
-  const { upsertSnippet } = useSidebarStore();
+  const setSocket = useChatStore((state) => state.setSocket);
+
+  const setOtherParticipantFriendshipStatus = useChatStore(
+    (state) => state.setOtherParticipantFriendshipStatus
+  );
+
+  const currentUserId = useAuthStore((state) => state.currentUserId);
+
+  const upsertSnippet = useSidebarStore((state) => state.upsertSnippet);
 
   useEffect(() => {
     if (!currentUserId) return;
@@ -168,6 +178,7 @@ export const useInitializeWebsocket = () => {
     ws.onmessage = (event) => {
       const eventData = JSON.parse(event.data);
 
+      // getState() is used because onmessage is a callback function
       const latestActiveConversationId = useChatStore.getState().activeConversationId;
 
       if (eventData.type === 'NEW_MESSAGE') {
@@ -175,6 +186,22 @@ export const useInitializeWebsocket = () => {
           addMessage(eventData.data);
         }
         upsertSnippet(eventData.data);
+      } else if (eventData.type === 'UPDATE_CONVERSATION') {
+        setOtherParticipantFriendshipStatus(eventData.data.friendshipStatus);
+
+        const isViewingConversations = useChatStore.getState().activeConversationId != null;
+
+        console.log(eventData.data);
+
+        if (eventData.data.friendshipStatus === 'accepted') {
+          toast.success(
+            `You are now friends with ${eventData.data.otherParticipantUsername} again. ${isViewingConversations ? 'You can now send messages to each other.' : ''}`
+          );
+        } else {
+          toast.info(
+            `${eventData.data.otherParticipantUsername} has unfriended you. ${isViewingConversations ? 'Your conversation with them is set to read-only.' : ''}`
+          );
+        }
       }
     };
 
@@ -190,5 +217,12 @@ export const useInitializeWebsocket = () => {
         ws.close();
       }
     };
-  }, [currentUserId, setSocket, addMessage, clearChat, upsertSnippet]);
+  }, [
+    currentUserId,
+    setSocket,
+    addMessage,
+    clearChat,
+    upsertSnippet,
+    setOtherParticipantFriendshipStatus,
+  ]);
 };

@@ -3,7 +3,7 @@ from fastapi import (
     Depends,
     HTTPException,
 )
-from src.core import get_db
+from src.core import manager, get_db
 
 from src.auth.dependencies import get_current_user_id
 
@@ -11,6 +11,8 @@ from .services import FriendsService
 
 from src.auth.schemas import TargetUserId
 from .schemas import UsersWithPaginationDetails
+
+from src.auth.services import AuthService
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
@@ -248,6 +250,18 @@ async def accept_friend_request(
             db, user_id, formatted_target_user_id
         )
 
+        target_user_details = await AuthService.get_user_details(db, user_id)
+
+        if target_user_details:
+            friendship_status_dict = {
+                "friendshipStatus": "accepted",
+                "otherParticipantUsername": target_user_details.username,
+            }
+
+            event_data = {"type": "UPDATE_CONVERSATION", "data": friendship_status_dict}
+
+            await manager.send_to_user(formatted_target_user_id, event_data)
+
         return {"status": "success"}
 
     except IntegrityError:
@@ -289,6 +303,18 @@ async def unfriend_user(
         formatted_target_user_id = uuid.UUID(payload.target_user_id)
 
         await FriendsService.unfriend_user(db, user_id, formatted_target_user_id)
+
+        target_user_details = await AuthService.get_user_details(db, user_id)
+
+        if target_user_details:
+            friendship_status_dict = {
+                "friendshipStatus": "unfriended",
+                "otherParticipantUsername": target_user_details.username,
+            }
+
+            event_data = {"type": "UPDATE_CONVERSATION", "data": friendship_status_dict}
+
+            await manager.send_to_user(formatted_target_user_id, event_data)
 
         return {"status": "success"}
 
