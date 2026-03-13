@@ -12,6 +12,9 @@ interface ChatState {
   isSending: boolean;
   isGettingOtherParticipant: boolean;
   otherParticipantFriendshipStatus: string | null;
+  conversationTheme: string;
+  conversationThemeChangedAt: Date | null;
+  conversationThemeChangedBy: string | null;
 
   // Actions
   addMessage: (msg: Message) => void;
@@ -24,6 +27,9 @@ interface ChatState {
   setIsSending: (newVal: boolean) => void;
   setIsGettingOtherParticipant: (newVal: boolean) => void;
   setOtherParticipantFriendshipStatus: (newVal: string) => void;
+  setConversationTheme: (newVal: string) => void;
+  setConversationThemeChangedAt: (newVal: Date | null) => void;
+  setConversationThemeChangedBy: (newVal: string | null) => void;
 
   setSocket: (socket: WebSocket | null) => void;
   clearChat: () => void;
@@ -42,6 +48,9 @@ export const useChatStore = create<ChatState>((set, get) => ({
   isSending: false,
   isGettingOtherParticipant: false,
   otherParticipantFriendshipStatus: null,
+  conversationTheme: 'default',
+  conversationThemeChangedAt: null,
+  conversationThemeChangedBy: null,
 
   addMessage: (newMessage) =>
     set((state) => {
@@ -96,6 +105,14 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
   setOtherParticipantFriendshipStatus: (newVal: string) =>
     set({ otherParticipantFriendshipStatus: newVal }),
+
+  setConversationTheme: (newVal: string) => set({ conversationTheme: newVal }),
+
+  setConversationThemeChangedAt: (newVal: Date | null) =>
+    set({ conversationThemeChangedAt: newVal }),
+
+  setConversationThemeChangedBy: (newVal: string | null) =>
+    set({ conversationThemeChangedBy: newVal }),
 
   setSocket: (socket) => set({ socket }),
 

@@ -17,6 +17,7 @@ interface UserMessageProps {
   createdAt: string;
   username: string;
   dateFormatters: Record<DateFormatters, Intl.DateTimeFormat>;
+  activeConversationTheme: Record<string, string>;
 }
 
 export default function UserMessage({
@@ -26,6 +27,7 @@ export default function UserMessage({
   createdAt,
   username,
   dateFormatters,
+  activeConversationTheme,
 }: UserMessageProps) {
   const [formattedTime, setFormattedTime] = useState('');
 
@@ -87,8 +89,8 @@ export default function UserMessage({
             className={cn(
               'flex rounded-2xl items-center py-2 px-3 whitespace-pre-wrap wrap-break-word',
               messageType === 'sender'
-                ? 'bg-orange-300 dark:bg-orange-500'
-                : 'bg-amber-300 dark:bg-amber-500'
+                ? `${activeConversationTheme.sender}`
+                : `${activeConversationTheme.receiver}`
             )}
           >
             <p>{content}</p>

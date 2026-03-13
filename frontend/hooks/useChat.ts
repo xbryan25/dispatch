@@ -10,6 +10,8 @@ import {
   getPastMessagesFromConversation,
   getOtherParticipantFromConversation,
   createDirectMessage,
+  updateConversationTheme,
+  getConversationTheme,
 } from '@/lib/api/messages';
 
 const fastapiWebsocketUrl = process.env.NEXT_PUBLIC_FASTAPI_WEBSOCKET_URL;
@@ -148,6 +150,80 @@ export function useCreateDirectMessage() {
   };
 
   return { createNewDirectMessage, loading, error };
+}
+
+export function useGetConversationTheme() {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const setConversationTheme = useChatStore((state) => state.setConversationTheme);
+  const setConversationThemeChangedAt = useChatStore(
+    (state) => state.setConversationThemeChangedAt
+  );
+  const setConversationThemeChangedBy = useChatStore(
+    (state) => state.setConversationThemeChangedBy
+  );
+
+  const getActiveConversationTheme = async (conversationId: string) => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const data: { theme: string; changedBy: string; changedAt: Date } =
+        await getConversationTheme(conversationId);
+
+      setConversationTheme(data.theme);
+      setConversationThemeChangedAt(new Date(data.changedAt));
+      setConversationThemeChangedBy(data.changedBy);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('An unexpected error occurred');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return { getActiveConversationTheme, loading, error };
+}
+
+export function useUpdateConversationTheme() {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const setConversationTheme = useChatStore((state) => state.setConversationTheme);
+  const setConversationThemeChangedAt = useChatStore(
+    (state) => state.setConversationThemeChangedAt
+  );
+  const setConversationThemeChangedBy = useChatStore(
+    (state) => state.setConversationThemeChangedBy
+  );
+
+  const changeConversationTheme = async (conversationId: string, theme: string) => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const data: { theme: string; changedBy: string; changedAt: Date } =
+        await updateConversationTheme(conversationId, theme);
+
+      setConversationTheme(data.theme);
+      setConversationThemeChangedAt(new Date(data.changedAt));
+      setConversationThemeChangedBy(data.changedBy);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('An unexpected error occurred');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return { changeConversationTheme, loading, error };
 }
 
 export const useInitializeWebsocket = () => {

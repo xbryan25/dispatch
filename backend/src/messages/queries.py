@@ -1,5 +1,7 @@
 from sqlalchemy import select, Select, ScalarSelect, update, Update, func
 
+from sqlalchemy.orm import joinedload
+
 from sqlalchemy.orm import aliased
 
 
@@ -72,6 +74,18 @@ class MessagesQueries:
         return stmt
 
     @staticmethod
+    def get_conversation_by_id(conversation_id: UUID) -> Select:
+        """This statement gets the current theme of a conversation."""
+
+        stmt = (
+            select(Conversation)
+            .where(Conversation.conversation_id == conversation_id)
+            .options(joinedload(Conversation.theme_changed_by_user))
+        )
+
+        return stmt
+
+    @staticmethod
     def update_conversation_theme_stmt(
         conversation_id: UUID, theme: str, user_id: UUID
     ) -> Update:
@@ -81,6 +95,7 @@ class MessagesQueries:
             update(Conversation)
             .where(Conversation.conversation_id == conversation_id)
             .values(theme=theme, theme_changed_by=user_id, theme_changed_at=func.now())
+            .options(joinedload(Conversation.theme_changed_by_user))
         )
 
         return stmt

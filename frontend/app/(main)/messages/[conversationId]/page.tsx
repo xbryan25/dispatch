@@ -9,7 +9,7 @@ import { useChatStore } from '@/store/useChatStore';
 import { useEffect, useState, useRef } from 'react';
 import LoadingSpinner from '@/components/loadingSpinner';
 
-import { useGetOtherParticipantFromConversation } from '@/hooks/useChat';
+import { useGetConversationTheme, useGetOtherParticipantFromConversation } from '@/hooks/useChat';
 import { useGetPastMessagesFromConversation } from '@/hooks/useChat';
 
 export default function SpecificConversationPage() {
@@ -21,6 +21,8 @@ export default function SpecificConversationPage() {
   const { getOtherParticipant } = useGetOtherParticipantFromConversation();
 
   const { getPastMessages } = useGetPastMessagesFromConversation();
+
+  const { getActiveConversationTheme } = useGetConversationTheme();
 
   const otherParticipantDetails = useChatStore((state) => state.otherParticipantDetails);
 
@@ -38,12 +40,13 @@ export default function SpecificConversationPage() {
       resetConversation(conversationId);
       await getPastMessages(conversationId);
       await getOtherParticipant(conversationId);
+      await getActiveConversationTheme(conversationId);
       setIsReady(true);
     }
     fetchData();
 
     return () => {
-      fetchedIdRef.current = null; // ← reset on unmount
+      fetchedIdRef.current = null;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [conversationId]);

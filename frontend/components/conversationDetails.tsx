@@ -5,9 +5,12 @@ import { Icon } from '@iconify/react';
 
 import { useChatStore } from '@/store/useChatStore';
 import ChangeThemeDialog from './changeThemeDialog';
+import { useState } from 'react';
 
 export default function ConversationDetails() {
   const otherParticipantDetails = useChatStore((state) => state.otherParticipantDetails);
+
+  const [openChangeThemeDialog, setOpenChangeThemeDialog] = useState(false);
 
   return (
     <div className="flex-1 flex flex-col items-teo justify-start gap-10 bg-white dark:bg-stone-900  rounded-xl p-5">
@@ -34,7 +37,18 @@ export default function ConversationDetails() {
       <div className="flex flex-col gap-2">
         <h2 className="font-bold text-xl">Conversation Settings</h2>
 
-        <ChangeThemeDialog />
+        <button
+          className="flex items-center gap-1 bg-white dark:bg-stone-900 hover:bg-stone-200 dark:hover:bg-stone-700 cursor-pointer rounded-md p-2 font-medium"
+          onClick={() => setOpenChangeThemeDialog(true)}
+        >
+          <Icon icon="material-symbols:palette" className="size-7" />
+          Change theme
+        </button>
+
+        <ChangeThemeDialog
+          open={openChangeThemeDialog}
+          onClose={() => setOpenChangeThemeDialog(false)}
+        />
 
         <button className="flex items-center gap-1 bg-white dark:bg-stone-900 hover:bg-stone-200 dark:hover:bg-stone-700 cursor-pointer rounded-md p-2 font-medium">
           <Icon icon="ic:baseline-notifications-off" className="size-7" />

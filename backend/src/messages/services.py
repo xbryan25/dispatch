@@ -214,10 +214,6 @@ class MessagesService:
 
         messages = (await db.execute(query)).mappings().all()
 
-        print()
-        print(messages)
-        print()
-
         formatted_messages = [
             {
                 "message_id": row["Message"].message_id,
@@ -281,6 +277,29 @@ class MessagesService:
 
         except Exception:
             traceback.print_exc()
+
+    @staticmethod
+    async def get_conversation_theme(db: AsyncSession, conversation_id: UUID):
+
+        stmt = MessagesQueries.get_conversation_by_id(conversation_id)
+
+        result = await db.execute(stmt)
+        conversation: Conversation | None = result.scalar_one_or_none()
+
+        if not conversation:
+            return None
+
+        changed_by = (
+            conversation.theme_changed_by_user.username
+            if conversation.theme_changed_by_user
+            else None
+        )
+
+        return {
+            "theme": conversation.theme,
+            "changed_by": changed_by,
+            "changed_at": conversation.theme_changed_at,
+        }
 
     @staticmethod
     async def update_conversation_theme(
