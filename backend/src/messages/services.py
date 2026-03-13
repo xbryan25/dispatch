@@ -281,3 +281,17 @@ class MessagesService:
 
         except Exception:
             traceback.print_exc()
+
+    @staticmethod
+    async def update_conversation_theme(
+        db: AsyncSession, conversation_id: UUID, theme: str, user_id: UUID
+    ):
+
+        stmt = MessagesQueries.update_conversation_theme_stmt(
+            conversation_id, theme, user_id
+        )
+
+        await db.execute(stmt)
+        await db.commit()
+
+        return None

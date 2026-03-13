@@ -62,6 +62,16 @@ class Conversation(Base):
         String, unique=False, nullable=True
     )
 
+    theme: Mapped[str] = mapped_column(String, unique=False)
+
+    theme_changed_by: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("user_profiles.user_id"), nullable=True
+    )
+
+    theme_changed_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+
     messages = relationship(
         "Message", back_populates="conversation", cascade="all, delete-orphan"
     )
@@ -78,6 +88,7 @@ class Conversation(Base):
     def latest_message_time(self):
         return self.latest_message.created_at if self.latest_message else None
 
+    theme_changed_by_user = relationship("UserProfile")
     participants = relationship(
         "ConversationParticipant", back_populates="conversation"
     )

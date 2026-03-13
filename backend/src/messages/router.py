@@ -18,6 +18,7 @@ from .schemas import (
     HistoryFilter,
     PastMessagesList,
     ConversationIdWithType,
+    ConversationIdWithTheme,
 )
 
 from src.auth.schemas import UserMinimalWithFriendshipStatus, TargetUserId
@@ -227,6 +228,28 @@ async def create_direct_message(
             return {"conversation_id": conversation_id, "conversation_id_type": "new"}
 
         return {"conversation_id": conversation_id, "conversation_id_type": "existing"}
+
+    except Exception:
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+
+@router.patch("/update-theme")
+async def update_conversation_theme(
+    payload: ConversationIdWithTheme,
+    user_id: Annotated[UUID, Depends(get_current_user_id)],
+    db: AsyncSession = Depends(get_db),
+):
+
+    try:
+        conversation_id = payload.conversation_id
+        new_theme = payload.theme
+
+        await MessagesService.update_conversation_theme(
+            db, conversation_id, new_theme, user_id
+        )
+
+        return {"status": "success", "new_theme": new_theme}
 
     except Exception:
         traceback.print_exc()

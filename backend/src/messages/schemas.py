@@ -10,15 +10,17 @@ from src.core import BaseSchema
 from pydantic import Field
 
 
-class MessageCreate(BaseSchema):
+class ConversationId(BaseSchema):
     conversation_id: UUID
+
+
+class MessageCreate(ConversationId):
     content: str
 
 
-class MessageRead(BaseSchema):
+class MessageRead(ConversationId):
     message_id: UUID
     sender_id: UUID
-    conversation_id: UUID
     username: str
     content: str
     created_at: datetime
@@ -29,8 +31,7 @@ class PastMessagesList(BaseSchema):
     past_messages: list[MessageRead]
 
 
-class ConversationSnippet(BaseSchema):
-    conversation_id: UUID
+class ConversationSnippet(ConversationId):
     other_user_name: Optional[str] = None
     other_user_avatar: Optional[str] = None
     latest_message: Optional[str] = None
@@ -46,6 +47,9 @@ class HistoryFilter(BaseSchema):
     before_datetime: datetime | None = None
 
 
-class ConversationIdWithType(BaseSchema):
+class ConversationIdWithType(ConversationId):
     conversation_id_type: str
-    conversation_id: UUID
+
+
+class ConversationIdWithTheme(ConversationId):
+    theme: str
