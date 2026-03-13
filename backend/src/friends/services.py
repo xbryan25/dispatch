@@ -262,7 +262,6 @@ class FriendsService:
     async def accept_friend_request(
         db: AsyncSession, current_user_id: UUID, target_user_id: UUID
     ):
-        print(f"\n\nuser_a: {current_user_id} | user_b: {target_user_id}\n\n")
 
         stmt = FriendsQueries.accept_friend_request_stmt(
             current_user_id, target_user_id

@@ -1,8 +1,4 @@
-from sqlalchemy import (
-    select,
-    Select,
-    ScalarSelect,
-)
+from sqlalchemy import select, Select, ScalarSelect, update, Update, func
 
 from sqlalchemy.orm import aliased
 
@@ -71,6 +67,20 @@ class MessagesQueries:
                 cp_target.user_id == target_user_id,
                 cp_current.user_id == current_user_id,
             )
+        )
+
+        return stmt
+
+    @staticmethod
+    def update_conversation_theme_stmt(
+        conversation_id: UUID, theme: str, user_id: UUID
+    ) -> Update:
+        """This statement updates a the theme of a conversation."""
+
+        stmt = (
+            update(Conversation)
+            .where(Conversation.conversation_id == conversation_id)
+            .values(theme=theme, theme_changed_by=user_id, theme_changed_at=func.now())
         )
 
         return stmt
