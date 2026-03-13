@@ -10,12 +10,18 @@ import LoadingSpinner from './loadingSpinner';
 
 import { DateFormatters } from '@/types/chat';
 
+import { themes } from '@/lib/themes';
+
 export default function MessageThread() {
   const messages = useChatStore((state) => state.messages);
   const hasMorePastMessages = useChatStore((state) => state.hasMorePastMessages);
   const activeConversationId = useChatStore((state) => state.activeConversationId);
   const isInitialLoad = useChatStore((state) => state.isInitialLoad);
   const isGetting = useChatStore((state) => state.isGetting);
+
+  const activeConversationThemeId = useChatStore((state) => state.conversationTheme);
+  const activeConversationTheme =
+    themes.find((theme) => theme.id == activeConversationThemeId) ?? themes[0];
 
   const { getPastMessages } = useGetPastMessagesFromConversation();
 
@@ -184,6 +190,7 @@ export default function MessageThread() {
             createdAt={message.createdAt}
             dateFormatters={dateFormatters}
             username={message.username}
+            activeConversationTheme={activeConversationTheme}
           />
         );
       })}

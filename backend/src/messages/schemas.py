@@ -53,3 +53,9 @@ class ConversationIdWithType(ConversationId):
 
 class ConversationIdWithTheme(ConversationId):
     theme: str
+
+
+class ConversationTheme(BaseSchema):
+    theme: str
+    changed_at: datetime | None
+    changed_by: str | None

@@ -63,6 +63,32 @@ export async function createDirectMessage(targetUserId: string) {
     credentials: 'include',
   });
 
-  if (!res.ok) throw new Error('Something went wrong when retrieving past messages.');
+  if (!res.ok) throw new Error('Something went wrong when creating a new conversation.');
+  return res.json();
+}
+
+export async function getConversationTheme(conversationId: string) {
+  const res = await fetch(
+    `${fastapiServerUrl}/api/messages/theme?conversation_id=${conversationId}`,
+    {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+    }
+  );
+
+  if (!res.ok) throw new Error('Something went wrong when retrieving the conversation theme.');
+  return res.json();
+}
+
+export async function updateConversationTheme(conversationId: string, theme: string) {
+  const res = await fetch(`${fastapiServerUrl}/api/messages/update-theme`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ conversationId, theme }),
+    credentials: 'include',
+  });
+
+  if (!res.ok) throw new Error('Something went wrong when updating the conversation theme.');
   return res.json();
 }

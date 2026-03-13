@@ -19,6 +19,7 @@ from .schemas import (
     PastMessagesList,
     ConversationIdWithType,
     ConversationIdWithTheme,
+    ConversationTheme,
 )
 
 from src.auth.schemas import UserMinimalWithFriendshipStatus, TargetUserId
@@ -130,31 +131,6 @@ async def get_conversation_list(
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
-@router.get("/{conversation_id}", response_model=PastMessagesList)
-async def get_conversation_message_history(
-    conversation_id: UUID,
-    filter_params: Annotated[HistoryFilter, Query()],
-    db: AsyncSession = Depends(get_db),
-):
-
-    try:
-
-        conversation = await MessagesService.get_conversation_by_id(db, conversation_id)
-
-        if not conversation:
-            raise InvalidConversationID("Conversation ID does not exist.")
-
-        past_messages = await MessagesService.get_conversation_message_history(
-            db, conversation_id, filter_params.limit, filter_params.before_datetime
-        )
-
-        return {"past_messages": past_messages}
-
-    except Exception:
-        traceback.print_exc()
-        raise HTTPException(status_code=500, detail="Internal Server Error")
-
-
 @router.get(
     "/{conversation_id}/other-participant",
     response_model=UserMinimalWithFriendshipStatus,
@@ -234,7 +210,25 @@ async def create_direct_message(
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
-@router.patch("/update-theme")
+@router.get("/theme", response_model=ConversationTheme)
+async def get_conversation_theme(
+    conversation_id: UUID,
+    db: AsyncSession = Depends(get_db),
+):
+
+    try:
+        theme_details = await MessagesService.get_conversation_theme(
+            db, conversation_id
+        )
+
+        return theme_details
+
+    except Exception:
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+
+@router.patch("/update-theme", response_model=ConversationTheme)
 async def update_conversation_theme(
     payload: ConversationIdWithTheme,
     user_id: Annotated[UUID, Depends(get_current_user_id)],
@@ -249,7 +243,36 @@ async def update_conversation_theme(
             db, conversation_id, new_theme, user_id
         )
 
-        return {"status": "success", "new_theme": new_theme}
+        theme_details = await MessagesService.get_conversation_theme(
+            db, conversation_id
+        )
+
+        return theme_details
+
+    except Exception:
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+
+@router.get("/{conversation_id}", response_model=PastMessagesList)
+async def get_conversation_message_history(
+    conversation_id: UUID,
+    filter_params: Annotated[HistoryFilter, Query()],
+    db: AsyncSession = Depends(get_db),
+):
+
+    try:
+
+        conversation = await MessagesService.get_conversation_by_id(db, conversation_id)
+
+        if not conversation:
+            raise InvalidConversationID("Conversation ID does not exist.")
+
+        past_messages = await MessagesService.get_conversation_message_history(
+            db, conversation_id, filter_params.limit, filter_params.before_datetime
+        )
+
+        return {"past_messages": past_messages}
 
     except Exception:
         traceback.print_exc()
