@@ -5,6 +5,8 @@ import { useAuthStore } from '@/store/useAuthStore';
 
 import { toast } from 'sonner';
 
+import { themes } from '@/lib/themes';
+
 import {
   sendMessage,
   getPastMessagesFromConversation,
@@ -237,6 +239,16 @@ export const useInitializeWebsocket = () => {
     (state) => state.setOtherParticipantFriendshipStatus
   );
 
+  const setConversationTheme = useChatStore((state) => state.setConversationTheme);
+
+  const setConversationThemeChangedBy = useChatStore(
+    (state) => state.setConversationThemeChangedBy
+  );
+
+  const setConversationThemeChangedAt = useChatStore(
+    (state) => state.setConversationThemeChangedAt
+  );
+
   const currentUserId = useAuthStore((state) => state.currentUserId);
 
   const upsertSnippet = useSidebarStore((state) => state.upsertSnippet);
@@ -267,8 +279,6 @@ export const useInitializeWebsocket = () => {
 
         const isViewingConversations = useChatStore.getState().activeConversationId != null;
 
-        console.log(eventData.data);
-
         if (eventData.data.friendshipStatus === 'accepted') {
           toast.success(
             `You are now friends with ${eventData.data.otherParticipantUsername} again. ${isViewingConversations ? 'You can now send messages to each other.' : ''}`
@@ -278,6 +288,16 @@ export const useInitializeWebsocket = () => {
             `${eventData.data.otherParticipantUsername} has unfriended you. ${isViewingConversations ? 'Your conversation with them is set to read-only.' : ''}`
           );
         }
+      } else if (eventData.type == 'NEW_THEME') {
+        setConversationTheme(eventData.data.theme);
+        setConversationThemeChangedBy(eventData.data.changedBy);
+        setConversationThemeChangedAt(new Date(eventData.data.changedAt));
+
+        const selectedTheme = themes.find((theme) => theme.id == eventData.data.theme);
+
+        toast.success(
+          `The theme for this conversation has recently been set to ${selectedTheme?.label} by ${eventData.data.changedBy}.`
+        );
       }
     };
 
@@ -300,5 +320,8 @@ export const useInitializeWebsocket = () => {
     clearChat,
     upsertSnippet,
     setOtherParticipantFriendshipStatus,
+    setConversationTheme,
+    setConversationThemeChangedAt,
+    setConversationThemeChangedBy,
   ]);
 };
