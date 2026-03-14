@@ -45,18 +45,7 @@ export default function ChangeThemeDialog({
       await changeConversationTheme(conversationId, selectedThemeId);
       onClose();
 
-      toast.success(
-        <p>
-          The theme for this conversation has been set to{' '}
-          {
-            <span className={`${selectedTheme?.sender} px-1 rounded-sm text-white`}>
-              {' '}
-              {selectedTheme?.label}
-            </span>
-          }
-          .
-        </p>
-      );
+      toast.success(`The theme for this conversation has been set to ${selectedTheme?.label}.`);
     }
   };
 

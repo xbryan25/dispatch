@@ -247,6 +247,30 @@ async def update_conversation_theme(
             db, conversation_id
         )
 
+        conversation_participants = (
+            await MessagesService.get_participant_ids_in_conversation(
+                db, conversation_id
+            )
+            or []
+        )
+
+        if theme_details:
+            event_data = {
+                "type": "NEW_THEME",
+                "data": {
+                    "theme": theme_details["theme"],
+                    "changedBy": theme_details["changed_by"],
+                    "changedAt": (
+                        theme_details["changed_at"].isoformat()
+                        if theme_details["changed_at"]
+                        else None
+                    ),
+                },
+            }
+
+            for conversation_participant in conversation_participants:
+                await manager.send_to_user(conversation_participant, event_data)
+
         return theme_details
 
     except Exception:
