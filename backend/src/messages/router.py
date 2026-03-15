@@ -275,7 +275,8 @@ async def update_conversation_theme(
             }
 
             for conversation_participant in conversation_participants:
-                await manager.send_to_user(conversation_participant, event_data)
+                if conversation_participant != user_id:
+                    await manager.send_to_user(conversation_participant, event_data)
 
         return theme_details
 

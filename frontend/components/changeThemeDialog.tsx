@@ -13,7 +13,7 @@ import {
 
 import { toast } from 'sonner';
 import ThemeOption from './themeOption';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 import { themes } from '@/lib/themes';
 import { useChatStore } from '@/store/useChatStore';
@@ -28,6 +28,7 @@ export default function ChangeThemeDialog({
   onClose: () => void;
 }) {
   const [selectedThemeId, setSelectedThemeId] = useState('default');
+  const [localLoading, setLocalLoading] = useState<boolean>(false);
 
   const conversationId = useChatStore((state) => state.activeConversationId);
   const changedAt = useChatStore((state) => state.conversationThemeChangedAt);
@@ -38,14 +39,21 @@ export default function ChangeThemeDialog({
 
   const selectedTheme = themes.find((theme) => theme.id == selectedThemeId);
 
-  const { changeConversationTheme, loading } = useUpdateConversationTheme();
+  const { changeConversationTheme, error } = useUpdateConversationTheme();
 
   const updateConversationTheme = async () => {
+    setLocalLoading(true);
     if (conversationId) {
       await changeConversationTheme(conversationId, selectedThemeId);
-      onClose();
 
-      toast.success(`The theme for this conversation has been set to ${selectedTheme?.label}.`);
+      if (error == null) {
+        onClose();
+
+        toast.success(`The theme for this conversation has been set to ${selectedTheme?.label}.`);
+      } else {
+        toast.error(`Something went wrong when changing the theme to ${selectedTheme?.label}.`);
+        setLocalLoading(false);
+      }
     }
   };
 
@@ -60,12 +68,20 @@ export default function ChangeThemeDialog({
     });
   };
 
+  useEffect(() => {
+    const updateLocalLoading = () => setLocalLoading(false);
+
+    if (open) {
+      updateLocalLoading();
+    }
+  }, [open]);
+
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="flex flex-col h-125 min-w-175 overflow-hidden">
         <DialogHeader>
           <DialogTitle className="flex w-full justify-center">Change theme</DialogTitle>
-          {changedBy != null && changedAt != null && (
+          {changedBy != null && changedAt != null && !localLoading && (
             <DialogDescription className="font-semibold text-sm">
               {changedBy} previously changed the theme to{' '}
               {
@@ -79,7 +95,7 @@ export default function ChangeThemeDialog({
           )}
         </DialogHeader>
 
-        {loading ? (
+        {localLoading ? (
           <div className="flex-1 flex w-full min-h-0 items-center justify-center">
             <LoadingSpinner />
           </div>
@@ -122,7 +138,7 @@ export default function ChangeThemeDialog({
 
         <div className="flex w-full gap-2 ">
           <DialogClose asChild>
-            <Button className="flex-1 cursor-pointer text-md" disabled={loading}>
+            <Button className="flex-1 cursor-pointer text-md" disabled={localLoading}>
               Cancel
             </Button>
           </DialogClose>
@@ -132,7 +148,7 @@ export default function ChangeThemeDialog({
             onClick={() => {
               updateConversationTheme();
             }}
-            disabled={loading}
+            disabled={localLoading}
           >
             Select
           </Button>
