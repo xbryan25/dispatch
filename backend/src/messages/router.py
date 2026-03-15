@@ -23,6 +23,7 @@ from .schemas import (
 )
 
 from src.auth.schemas import UserMinimalWithFriendshipStatus, TargetUserId
+from src.auth.services import AuthService
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -89,14 +90,19 @@ async def send_message(
             or []
         )
 
+        user_details = await AuthService.get_user_details(db, user_id)
+
         msg_dict = MessageRead.model_validate(new_message).model_dump(
             mode="json", by_alias=True
         )
 
-        event_data = {"type": "NEW_MESSAGE", "data": msg_dict}
+        if user_details:
+            msg_dict.update({"username": user_details.username})
 
-        for conversation_participant in conversation_participants:
-            await manager.send_to_user(conversation_participant, event_data)
+            event_data = {"type": "NEW_MESSAGE", "data": msg_dict}
+
+            for conversation_participant in conversation_participants:
+                await manager.send_to_user(conversation_participant, event_data)
 
         return msg_dict
 
