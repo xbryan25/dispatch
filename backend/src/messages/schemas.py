@@ -21,7 +21,7 @@ class MessageCreate(ConversationId):
 class MessageRead(ConversationId):
     message_id: UUID
     sender_id: UUID
-    username: str
+    username: str | None = None
     content: str
     created_at: datetime
     status: MessageStatusEnum
