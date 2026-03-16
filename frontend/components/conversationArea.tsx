@@ -13,11 +13,11 @@ import { useChatStore } from '@/store/useChatStore';
 
 import { useState, useEffect } from 'react';
 
-interface ChatListProps {
-  onToggle: () => void; // This is a function prop
+interface ConversationAreaProps {
+  onToggle: (newVal?: boolean) => void; // This is a function prop
 }
 
-export default function ConversationArea({ onToggle }: ChatListProps) {
+export default function ConversationArea({ onToggle }: ConversationAreaProps) {
   const [newMessage, setNewMessage] = useState<string>('');
 
   const { send } = useSendMessage();
@@ -37,10 +37,11 @@ export default function ConversationArea({ onToggle }: ChatListProps) {
     }
   };
 
-  useEffect(
-    () => console.log(otherParticipantFriendshipStatus),
-    [otherParticipantFriendshipStatus]
-  );
+  useEffect(() => {
+    if (otherParticipantFriendshipStatus !== 'accepted') {
+      onToggle(false);
+    }
+  }, [otherParticipantFriendshipStatus, onToggle]);
 
   return (
     <div className="flex-3 flex flex-col justify-start gap-2 bg-white dark:bg-stone-900 rounded-xl">
@@ -69,9 +70,11 @@ export default function ConversationArea({ onToggle }: ChatListProps) {
           </div>
         </div>
 
-        <Button className="cursor-pointer" onClick={onToggle}>
-          <Icon icon="bi:three-dots" />
-        </Button>
+        {otherParticipantFriendshipStatus === 'accepted' && (
+          <Button className="cursor-pointer" onClick={() => onToggle()}>
+            <Icon icon="bi:three-dots" />
+          </Button>
+        )}
       </div>
 
       <MessageThread />
