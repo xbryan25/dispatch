@@ -7,7 +7,6 @@ import FriendsPageTabGroup from '@/components/friendsPageTabGroup';
 
 export default function FriendsPage() {
   const hasUsers = useFriendsStore((state) => state.users.length > 0);
-  const loading = useFriendsStore((state) => state.loading);
 
   return (
     <div className="flex min-h-screen gap-6 bg-zinc-200 dark:bg-stone-800 font-sans p-4">
