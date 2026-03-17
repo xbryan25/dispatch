@@ -125,5 +125,6 @@ export const useChatStore = create<ChatState>((set, get) => ({
       hasMorePastMessages: true,
       isInitialLoad: true,
       isGettingOtherParticipant: true,
+      otherParticipantFriendshipStatus: null,
     }),
 }));

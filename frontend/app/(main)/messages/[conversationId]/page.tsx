@@ -68,7 +68,13 @@ export default function SpecificConversationPage() {
               setShowConversationDetails(newVal ?? !showConversationDetails);
             }}
           />
-          {showConversationDetails && <ConversationDetails />}
+          {showConversationDetails && (
+            <ConversationDetails
+              onToggle={(newVal?: boolean) => {
+                setShowConversationDetails(newVal ?? !showConversationDetails);
+              }}
+            />
+          )}
         </>
       ) : (
         <div className="flex-3 flex justify-center items-center bg-white dark:bg-stone-900 rounded-xl h-full">

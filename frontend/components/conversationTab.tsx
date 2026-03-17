@@ -5,13 +5,6 @@ import Image from 'next/image';
 
 import { ConversationSnippet } from '@/types/chat';
 
-import { useChatStore } from '@/store/useChatStore';
-
-import {
-  useGetPastMessagesFromConversation,
-  useGetOtherParticipantFromConversation,
-} from '@/hooks/useChat';
-
 import { useParams } from 'next/navigation';
 
 import { useEffect, useState } from 'react';

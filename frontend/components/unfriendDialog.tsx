@@ -10,23 +10,29 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui/dialog';
-
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 import { useUnfriendUser } from '@/hooks/useFriendship';
 
-import { Icon } from '@iconify/react';
+import { useChatStore } from '@/store/useChatStore';
 
 import { useFriendsStore } from '@/store/useFriendsStore';
 
 interface UnfriendDialogProps {
   username: string;
   otherUserId: string;
+  open: boolean;
+  onClose: () => void;
+  onSuccess?: () => void;
 }
 
-export default function UnfriendDialog({ username, otherUserId }: UnfriendDialogProps) {
+export default function UnfriendDialog({
+  username,
+  otherUserId,
+  open,
+  onClose,
+  onSuccess,
+}: UnfriendDialogProps) {
   const { unfriendSelectedUser, loading } = useUnfriendUser();
 
   const loadUsersData = useFriendsStore((state) => state.loadUsersData);
@@ -37,26 +43,24 @@ export default function UnfriendDialog({ username, otherUserId }: UnfriendDialog
 
       loadUsersData();
 
-      toast.success(`You have unfriended ${username}.`);
+      const isViewingConversations = useChatStore.getState().activeConversationId != null;
+
+      toast.info(
+        `You have unfriended ${username}. ${isViewingConversations ? 'Your conversation with them is set to read-only.' : ''}`
+      );
+
+      onClose();
+
+      if (onSuccess) {
+        onSuccess();
+      }
     } catch {
       toast.success(`Something went wrong when making a friend request.`);
     }
   };
 
   return (
-    <Dialog>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <DialogTrigger asChild>
-            <Button size="icon" className="h-9 w-9 shrink-0 cursor-pointer">
-              <Icon icon="material-symbols:person-remove" className="size-6" />
-            </Button>
-          </DialogTrigger>
-        </TooltipTrigger>
-        <TooltipContent>
-          <p className="font-medium font-sans">Unfriend {username}?</p>
-        </TooltipContent>
-      </Tooltip>
+    <Dialog open={open} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Are you sure you want to unfriend {username}?</DialogTitle>
