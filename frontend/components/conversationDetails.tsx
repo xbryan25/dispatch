@@ -6,11 +6,21 @@ import { Icon } from '@iconify/react';
 import { useChatStore } from '@/store/useChatStore';
 import ChangeThemeDialog from './changeThemeDialog';
 import { useState } from 'react';
+import UnfriendDialog from './unfriendDialog';
 
-export default function ConversationDetails() {
+interface ConversationDetailsProps {
+  onToggle: (newVal?: boolean) => void; // This is a function prop
+}
+
+export default function ConversationDetails({ onToggle }: ConversationDetailsProps) {
   const otherParticipantDetails = useChatStore((state) => state.otherParticipantDetails);
+  const setOtherParticipantFriendshipStatus = useChatStore(
+    (state) => state.setOtherParticipantFriendshipStatus
+  );
 
   const [openChangeThemeDialog, setOpenChangeThemeDialog] = useState(false);
+
+  const [openUnfriendDialog, setOpenUnfriendDialog] = useState(false);
 
   return (
     <div className="flex-1 flex flex-col items-teo justify-start gap-10 bg-white dark:bg-stone-900  rounded-xl p-5">
@@ -60,10 +70,26 @@ export default function ConversationDetails() {
           Set nicknames
         </button>
 
-        <button className="flex items-center gap-1 bg-white dark:bg-stone-900 hover:bg-stone-200 dark:hover:bg-stone-700 cursor-pointer rounded-md p-2 font-medium">
-          <Icon icon="solar:user-block-bold" className="size-7" />
-          Unfriend Bryan?
+        <button
+          className="flex items-center gap-1 bg-white dark:bg-stone-900 hover:bg-stone-200 dark:hover:bg-stone-700 cursor-pointer rounded-md p-2 font-medium"
+          onClick={() => setOpenUnfriendDialog(true)}
+        >
+          <Icon icon="material-symbols:palette" className="size-7" />
+          Unfriend {otherParticipantDetails?.username}
         </button>
+
+        <UnfriendDialog
+          username={otherParticipantDetails?.username ?? ''}
+          otherUserId={otherParticipantDetails?.userId ?? ''}
+          open={openUnfriendDialog}
+          onClose={() => {
+            setOpenUnfriendDialog(false);
+          }}
+          onSuccess={() => {
+            onToggle(false);
+            setOtherParticipantFriendshipStatus('unfriended');
+          }}
+        />
       </div>
     </div>
   );

@@ -12,7 +12,10 @@ import RejectFriendshipDialog from './rejectFriendshipDialog';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 import { useFriendsStore } from '@/store/useFriendsStore';
+
 import CreateNewConversationDialog from './createNewConversationDialog';
+
+import { useState } from 'react';
 
 interface UserCardProps {
   userInfo: UserInfo;
@@ -20,6 +23,8 @@ interface UserCardProps {
 
 export default function UserCard({ userInfo }: UserCardProps) {
   const userType = useFriendsStore((state) => state.userType);
+
+  const [openUnfriendDialog, setOpenUnfriendDialog] = useState(false);
   return (
     <div className="md:w-full w-80 flex items-center bg-stone-200 dark:bg-stone-700 rounded-lg transition-transform duration-500 hover:scale-102 px-2 gap-2 h-27">
       <div className="relative w-22 h-22 shrink-0 overflow-hidden rounded-full ">
@@ -63,7 +68,27 @@ export default function UserCard({ userInfo }: UserCardProps) {
             />
           )}
 
-          <UnfriendDialog username={userInfo.username} otherUserId={userInfo.userId} />
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                size="icon"
+                className="h-9 w-9 shrink-0 cursor-pointer"
+                onClick={() => setOpenUnfriendDialog(true)}
+              >
+                <Icon icon="material-symbols:person-remove" className="size-6" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p className="font-medium font-sans">Unfriend {userInfo.username}?</p>
+            </TooltipContent>
+          </Tooltip>
+
+          <UnfriendDialog
+            username={userInfo.username}
+            otherUserId={userInfo.userId}
+            open={openUnfriendDialog}
+            onClose={() => setOpenUnfriendDialog(false)}
+          />
         </div>
       )}
 
