@@ -12,6 +12,8 @@ class Settings(BaseSettings):
     SUPABASE_S3_SECRET_KEY: str
     SUPABASE_S3_BUCKET_NAME: str
 
+    REDIS_URL: str
+
     model_config = SettingsConfigDict(
         env_file="../.env", env_file_encoding="utf-8", extra="ignore"
     )
