@@ -13,8 +13,6 @@ import { useChatStore } from '@/store/useChatStore';
 
 import { useState, useEffect } from 'react';
 
-import { DateFormatters } from '@/types/chat';
-
 interface ConversationAreaProps {
   onToggle: (newVal?: boolean) => void; // This is a function prop
 }
@@ -25,9 +23,14 @@ export default function ConversationArea({ onToggle }: ConversationAreaProps) {
 
   const { send } = useSendMessage();
   const otherParticipantDetails = useChatStore((state) => state.otherParticipantDetails);
+
   const otherParticipantFriendshipStatus = useChatStore(
     (state) => state.otherParticipantFriendshipStatus
   );
+
+  const otherParticipantIsOnline = useChatStore((state) => state.otherParticipantIsOnline);
+
+  const otherParticipantLastOnline = useChatStore((state) => state.otherParticipantLastOnline);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -46,12 +49,12 @@ export default function ConversationArea({ onToggle }: ConversationAreaProps) {
     }
   }, [otherParticipantFriendshipStatus, onToggle]);
 
-  const formatRelativeTime = (dateString: string) => {
-    const start = new Date(dateString).getTime();
+  const formatRelativeTime = (date: Date) => {
+    const start = date.getTime();
     const now = Date.now();
     const diffInSeconds = Math.floor((now - start) / 1000);
 
-    if (diffInSeconds < 60) return 'just now';
+    if (diffInSeconds < 60) return '1m';
 
     const units = [
       { label: 'm', seconds: 60 },
@@ -67,25 +70,27 @@ export default function ConversationArea({ onToggle }: ConversationAreaProps) {
         return `${Math.floor(diffInSeconds / units[i].seconds)}${units[i].label}`;
       }
     }
-    return 'just now';
+    return '1m';
   };
 
   useEffect(() => {
     const update = () => {
       let timeStr: string = '';
 
-      if (otherParticipantDetails?.lastOnline && otherParticipantDetails?.lastOnline != undefined) {
-        timeStr = formatRelativeTime(otherParticipantDetails?.lastOnline);
+      if (otherParticipantLastOnline != null) {
+        timeStr = formatRelativeTime(otherParticipantLastOnline);
       }
       setFormattedLastOnline(timeStr || '');
     };
 
+    console.log(otherParticipantLastOnline instanceof Date);
+    console.log(otherParticipantLastOnline);
     update();
 
     const interval = setInterval(update, 60000);
 
     return () => clearInterval(interval);
-  }, [otherParticipantDetails?.lastOnline]);
+  }, [otherParticipantLastOnline]);
 
   return (
     <div className="flex-3 flex flex-col justify-start gap-2 bg-white dark:bg-stone-900 rounded-xl">
@@ -107,16 +112,14 @@ export default function ConversationArea({ onToggle }: ConversationAreaProps) {
 
           <div className="flex flex-col">
             <h3 className="font-semibold">{otherParticipantDetails?.username}</h3>
-            {otherParticipantDetails?.isOnline ? (
+            {otherParticipantIsOnline ? (
               <div className="flex gap-1 items-center">
                 <div className="bg-green-400 size-2 rounded-full"></div>
                 <p className="">Active now</p>
               </div>
             ) : (
               <div className="flex gap-1 items-center">
-                <p className="">
-                  Last active {formatRelativeTime('2025-02-21T10:33:33.266919Z')} ago
-                </p>
+                <p className="">Last active {formattedLastOnline} ago</p>
               </div>
             )}
           </div>

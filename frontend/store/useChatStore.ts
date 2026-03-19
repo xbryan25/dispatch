@@ -7,11 +7,16 @@ interface ChatState {
   socket: WebSocket | null;
   activeConversationId: string | null;
   hasMorePastMessages: boolean;
+
   isInitialLoad: boolean;
   isGetting: boolean;
   isSending: boolean;
+
   isGettingOtherParticipant: boolean;
   otherParticipantFriendshipStatus: string | null;
+  otherParticipantIsOnline: boolean;
+  otherParticipantLastOnline: Date | null;
+
   conversationTheme: string;
   conversationThemeChangedAt: Date | null;
   conversationThemeChangedBy: string | null;
@@ -30,6 +35,9 @@ interface ChatState {
   setConversationTheme: (newVal: string) => void;
   setConversationThemeChangedAt: (newVal: Date | null) => void;
   setConversationThemeChangedBy: (newVal: string | null) => void;
+
+  setOtherParticipantIsOnline: (newVal: boolean) => void;
+  setOtherParticipantLastOnline: (newVal: Date | null) => void;
 
   setSocket: (socket: WebSocket | null) => void;
   clearChat: () => void;
@@ -51,6 +59,9 @@ export const useChatStore = create<ChatState>((set, get) => ({
   conversationTheme: 'default',
   conversationThemeChangedAt: null,
   conversationThemeChangedBy: null,
+
+  otherParticipantIsOnline: false,
+  otherParticipantLastOnline: null,
 
   addMessage: (newMessage) =>
     set((state) => {
@@ -127,4 +138,9 @@ export const useChatStore = create<ChatState>((set, get) => ({
       isGettingOtherParticipant: true,
       otherParticipantFriendshipStatus: null,
     }),
+
+  setOtherParticipantIsOnline: (newVal: boolean) => set({ otherParticipantIsOnline: newVal }),
+
+  setOtherParticipantLastOnline: (newVal: Date | null) =>
+    set({ otherParticipantLastOnline: newVal }),
 }));

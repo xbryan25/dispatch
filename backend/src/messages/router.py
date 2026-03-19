@@ -33,9 +33,10 @@ import uuid
 import traceback
 from typing import Annotated
 
-from redis import Redis
+from redis.asyncio import Redis
 
 from .exceptions import InvalidConversationID
+
 
 router = APIRouter(
     prefix="/api/messages",
@@ -54,15 +55,31 @@ async def websocket_endpoint(
 
     await manager.connect(websocket, user_id)
 
+    # online:{user_id} is for general online state, while online_users is for group operations
+
     # Only store "1" in redis, it is just a placeholder to know if user is online
     await redis.set(f"online:{user_id}", "1", ex=60)
 
+    await redis.sadd("online_users", str(user_id))  # type: ignore
+
     try:
+        online_direct_message_participants = await redis.sinter(f"user:direct_message:{user_id}", "online_users")  # type: ignore
+
+        for online_direct_message_participant in online_direct_message_participants:
+            online_status_dict = {"isOnline": True}
+
+            event_data = {"type": "USER_ONLINE", "data": online_status_dict}
+
+            await manager.send_to_user(
+                UUID(online_direct_message_participant), event_data
+            )
+
         while True:
             data = await websocket.receive_json()
 
             if data["type"] == "PING":
                 await redis.set(f"online:{user_id}", "1", ex=60)
+                await redis.sadd("online_users", str(user_id))  # type: ignore
                 await websocket.send_json({"type": "PONG"})
 
     except InvalidConversationID:
@@ -77,9 +94,24 @@ async def websocket_endpoint(
         )
 
         if remaining_connections == 0:
-            await redis.delete(f"online:{user_id}")
+            online_direct_message_participants = await redis.sinter(f"user:direct_message:{user_id}", "online_users")  # type: ignore
 
-            await AuthService.update_last_online(db, user_id)
+            await redis.delete(f"online:{user_id}")
+            await redis.srem("online_users", str(user_id))  # type: ignore
+
+            last_online = await AuthService.update_last_online(db, user_id)
+
+            for online_direct_message_participant in online_direct_message_participants:
+                offline_status_dict = {
+                    "isOnline": False,
+                    "lastOnline": last_online.isoformat() if last_online else None,
+                }
+
+                event_data = {"type": "USER_OFFLINE", "data": offline_status_dict}
+
+                await manager.send_to_user(
+                    UUID(online_direct_message_participant), event_data
+                )
 
     except Exception:
         traceback.print_exc()
@@ -202,6 +234,9 @@ async def get_other_conversation_participant(
             if await redis.exists(f"online:{other_participant_dict["user_id"]}") == 1
             else False
         )
+
+        await redis.sadd(f"user:direct_message:{user_id}", str(other_participant_dict["user_id"]))  # type: ignore
+        await redis.expire(f"user:direct_message:{user_id}", 3600)
 
         other_participant_dict.update({"is_online": is_online})
 

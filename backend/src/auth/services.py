@@ -95,12 +95,13 @@ class AuthService:
                 update(UserProfile)
                 .where(UserProfile.user_id == user_id)
                 .values(last_online=func.now())
+                .returning(UserProfile.last_online)
             )
 
-            await db.execute(query)
+            result = await db.execute(query)
             await db.commit()
+            return result.scalar_one()
 
-            return {"message": "Last online updated successfully."}
         except Exception:
             traceback.print_exc()
 

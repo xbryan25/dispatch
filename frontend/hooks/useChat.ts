@@ -91,7 +91,15 @@ export function useGetOtherParticipantFromConversation() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const { setIsGettingOtherParticipant, setOtherParticipantDetails } = useChatStore();
+  const setIsGettingOtherParticipant = useChatStore((state) => state.setIsGettingOtherParticipant);
+
+  const setOtherParticipantDetails = useChatStore((state) => state.setOtherParticipantDetails);
+
+  const setOtherParticipantIsOnline = useChatStore((state) => state.setOtherParticipantIsOnline);
+
+  const setOtherParticipantLastOnline = useChatStore(
+    (state) => state.setOtherParticipantLastOnline
+  );
 
   const getOtherParticipant = async (conversationId: string) => {
     // put this here??
@@ -104,9 +112,17 @@ export function useGetOtherParticipantFromConversation() {
       if (conversationId) {
         console.log(`here ${conversationId}`);
         const data = await getOtherParticipantFromConversation(conversationId);
-        console.log(data);
 
         setOtherParticipantDetails(data);
+
+        setOtherParticipantIsOnline(data.isOnline);
+
+        if (data.lastOnline) {
+          const date = new Date(data.lastOnline);
+          setOtherParticipantLastOnline(date);
+        } else {
+          setOtherParticipantLastOnline(null);
+        }
       } else {
         throw Error('No conversation ID');
       }
@@ -249,6 +265,12 @@ export const useInitializeWebsocket = () => {
     (state) => state.setConversationThemeChangedAt
   );
 
+  const setOtherParticipantIsOnline = useChatStore((state) => state.setOtherParticipantIsOnline);
+
+  const setOtherParticipantLastOnline = useChatStore(
+    (state) => state.setOtherParticipantLastOnline
+  );
+
   const currentUserId = useAuthStore((state) => state.currentUserId);
 
   const upsertSnippet = useSidebarStore((state) => state.upsertSnippet);
@@ -298,6 +320,17 @@ export const useInitializeWebsocket = () => {
         toast.success(
           `The theme for this conversation has recently been set to ${selectedTheme?.label} by ${eventData.data.changedBy}.`
         );
+      } else if (eventData.type === 'USER_ONLINE') {
+        setOtherParticipantIsOnline(eventData.data.isOnline);
+      } else if (eventData.type === 'USER_OFFLINE') {
+        setOtherParticipantIsOnline(eventData.data.isOnline);
+
+        if (eventData.data.lastOnline) {
+          const date = new Date(eventData.data.lastOnline);
+          setOtherParticipantLastOnline(date);
+        } else {
+          setOtherParticipantLastOnline(null);
+        }
       }
     };
 
