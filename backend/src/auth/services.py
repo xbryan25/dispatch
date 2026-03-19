@@ -1,7 +1,7 @@
 from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from sqlalchemy import select, update
+from sqlalchemy import select, update, func
 
 from .models import UserProfile
 from .schemas import UserUpdate
@@ -84,6 +84,23 @@ class AuthService:
             await db.commit()
 
             return {"message": "Profile image URL updated successfully"}
+        except Exception:
+            traceback.print_exc()
+
+    @staticmethod
+    async def update_last_online(db: AsyncSession, user_id: UUID):
+
+        try:
+            query = (
+                update(UserProfile)
+                .where(UserProfile.user_id == user_id)
+                .values(last_online=func.now())
+            )
+
+            await db.execute(query)
+            await db.commit()
+
+            return {"message": "Last online updated successfully."}
         except Exception:
             traceback.print_exc()
 

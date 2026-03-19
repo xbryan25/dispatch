@@ -49,3 +49,4 @@ class BaseFriendResponse(UserMinimal):
 class UserMinimalWithStatus(UserMinimal):
     friendship_status: str
     is_online: bool
+    last_online: datetime

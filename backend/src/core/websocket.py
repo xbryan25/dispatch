@@ -7,6 +7,12 @@ class ConnectionManager:
     def __init__(self):
         self.user_connections: dict[UUID, list[WebSocket]] = {}
 
+    def get_current_connections_for_a_user(self, user_id: UUID):
+        return self.user_connections.get(user_id, [])
+
+    def get_num_of_current_connections_for_a_user(self, user_id: UUID):
+        return len(self.get_current_connections_for_a_user(user_id))
+
     async def connect(self, websocket: WebSocket, user_id: UUID):
         await websocket.accept()
 
