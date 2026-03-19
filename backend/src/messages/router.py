@@ -6,7 +6,7 @@ from fastapi import (
     HTTPException,
     Query,
 )
-from src.core import manager, get_db
+from src.core import manager, get_db, get_redis
 
 from src.auth.dependencies import get_current_user_id
 
@@ -22,7 +22,7 @@ from .schemas import (
     ConversationTheme,
 )
 
-from src.auth.schemas import UserMinimalWithFriendshipStatus, TargetUserId
+from src.auth.schemas import UserMinimalWithStatus, TargetUserId
 from src.auth.services import AuthService
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -32,6 +32,8 @@ import uuid
 
 import traceback
 from typing import Annotated
+
+from redis import Redis
 
 from .exceptions import InvalidConversationID
 
@@ -46,9 +48,14 @@ router = APIRouter(
 async def websocket_endpoint(
     websocket: WebSocket,
     user_id: Annotated[UUID, Depends(get_current_user_id)],
+    redis: Redis = Depends(get_redis),
 ):
 
     await manager.connect(websocket, user_id)
+
+    # Only store "1" in redis, it is just a placeholder to know if user is online
+    await redis.set(f"online:{user_id}", "1", ex=60)
+
     try:
         while True:
             await websocket.receive_text()
@@ -139,12 +146,13 @@ async def get_conversation_list(
 
 @router.get(
     "/{conversation_id}/other-participant",
-    response_model=UserMinimalWithFriendshipStatus,
+    response_model=UserMinimalWithStatus,
 )
 async def get_other_conversation_participant(
     user_id: Annotated[UUID, Depends(get_current_user_id)],
     conversation_id: UUID,
     db: AsyncSession = Depends(get_db),
+    redis: Redis = Depends(get_redis),
 ):
 
     try:
@@ -169,7 +177,17 @@ async def get_other_conversation_participant(
         if other_participant is None:
             raise HTTPException(status_code=404, detail="User not found")
 
-        return other_participant
+        other_participant_dict = dict(other_participant)
+
+        is_online = (
+            True
+            if await redis.exists(f"online:{other_participant_dict["user_id"]}") == 1
+            else False
+        )
+
+        other_participant_dict.update({"is_online": is_online})
+
+        return other_participant_dict
 
     except Exception:
         traceback.print_exc()

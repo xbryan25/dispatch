@@ -46,5 +46,6 @@ class BaseFriendResponse(UserMinimal):
     conversation_id: Optional[UUID] = None
 
 
-class UserMinimalWithFriendshipStatus(UserMinimal):
+class UserMinimalWithStatus(UserMinimal):
     friendship_status: str
+    is_online: bool

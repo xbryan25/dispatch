@@ -63,10 +63,16 @@ export default function ConversationArea({ onToggle }: ConversationAreaProps) {
 
           <div className="flex flex-col">
             <h3 className="font-semibold">{otherParticipantDetails?.username}</h3>
-            <div className="flex gap-1 items-center">
-              <div className="bg-green-400 size-2 rounded-full"></div>
-              <p className="">Active now</p>
-            </div>
+            {otherParticipantDetails?.isOnline ? (
+              <div className="flex gap-1 items-center">
+                <div className="bg-green-400 size-2 rounded-full"></div>
+                <p className="">Active now</p>
+              </div>
+            ) : (
+              <div className="flex gap-1 items-center">
+                <p className="">Not online</p>
+              </div>
+            )}
           </div>
         </div>
 
