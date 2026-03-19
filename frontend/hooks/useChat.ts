@@ -305,13 +305,19 @@ export const useInitializeWebsocket = () => {
 
     setSocket(ws);
 
-    return () => {
-      console.log('run onunmount');
+    const interval = setInterval(() => {
+      if (ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({ type: 'PING' }));
+      }
+    }, 30000);
 
+    return () => {
       if (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING) {
         console.log('Cleaning up connection for:', currentUserId);
         ws.close();
       }
+
+      clearInterval(interval);
     };
   }, [
     currentUserId,

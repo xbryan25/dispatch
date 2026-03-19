@@ -41,6 +41,10 @@ class UserProfile(Base):
         DateTime(timezone=True), server_default=func.now()
     )
 
+    last_online: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+
     is_email_verified: Mapped[bool] = mapped_column(
         Boolean, server_default="false", nullable=False, index=True
     )

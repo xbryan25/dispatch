@@ -49,6 +49,7 @@ async def websocket_endpoint(
     websocket: WebSocket,
     user_id: Annotated[UUID, Depends(get_current_user_id)],
     redis: Redis = Depends(get_redis),
+    db: AsyncSession = Depends(get_db),
 ):
 
     await manager.connect(websocket, user_id)
@@ -58,13 +59,30 @@ async def websocket_endpoint(
 
     try:
         while True:
-            await websocket.receive_text()
+            data = await websocket.receive_json()
+
+            if data["type"] == "PING":
+                await redis.set(f"online:{user_id}", "1", ex=60)
+                await websocket.send_json({"type": "PONG"})
+
     except InvalidConversationID:
         traceback.print_exc()
         await websocket.close(code=3001)
-    except (WebSocketDisconnect, Exception):
+    except WebSocketDisconnect:
         traceback.print_exc()
         manager.disconnect(websocket, user_id)
+
+        remaining_connections = manager.get_num_of_current_connections_for_a_user(
+            user_id
+        )
+
+        if remaining_connections == 0:
+            await redis.delete(f"online:{user_id}")
+
+            await AuthService.update_last_online(db, user_id)
+
+    except Exception:
+        traceback.print_exc()
 
 
 @router.post("/send", response_model=MessageRead)

@@ -73,6 +73,7 @@ class MessagesService:
                     ConversationParticipant.user_id,
                     UserProfile.username,
                     UserProfile.profile_image_url,
+                    UserProfile.last_online,
                     Friendship.status.label("friendship_status"),
                 )
                 .join(
