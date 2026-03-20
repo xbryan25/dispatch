@@ -47,6 +47,11 @@ class BaseFriendResponse(UserMinimal):
 
 
 class UserMinimalWithStatus(UserMinimal):
-    friendship_status: str
+    friendship_status: (
+        str | None
+    )  # Only for testing, this should not be None, remove | None later
     is_online: bool
-    last_online: datetime
+    last_online: datetime | None
+
+    last_read_message_id: UUID | None
+    last_read_message_at: datetime | None

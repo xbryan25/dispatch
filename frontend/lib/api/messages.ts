@@ -14,6 +14,8 @@ export async function getUserConversationsList() {
 }
 
 export async function sendMessage(content: string, activeConversationId: string | null) {
+  console.log(activeConversationId);
+
   const res = await fetch(`${fastapiServerUrl}/api/messages/send`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -90,5 +92,17 @@ export async function updateConversationTheme(conversationId: string, theme: str
   });
 
   if (!res.ok) throw new Error('Something went wrong when updating the conversation theme.');
+  return res.json();
+}
+
+export async function markConversationAsRead(conversationId: string) {
+  const res = await fetch(`${fastapiServerUrl}/api/messages/mark-as-read`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ conversationId }),
+    credentials: 'include',
+  });
+
+  if (!res.ok) throw new Error('Something went wrong when creating marking conversation as read.');
   return res.json();
 }

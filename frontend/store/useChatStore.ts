@@ -16,6 +16,8 @@ interface ChatState {
   otherParticipantFriendshipStatus: string | null;
   otherParticipantIsOnline: boolean;
   otherParticipantLastOnline: Date | null;
+  otherParticipantLastReadMessageId: string | null;
+  otherParticipantLastReadMessageAt: Date | null;
 
   conversationTheme: string;
   conversationThemeChangedAt: Date | null;
@@ -62,6 +64,8 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
   otherParticipantIsOnline: false,
   otherParticipantLastOnline: null,
+  otherParticipantLastReadMessageId: null,
+  otherParticipantLastReadMessageAt: null,
 
   addMessage: (newMessage) =>
     set((state) => {
@@ -98,12 +102,47 @@ export const useChatStore = create<ChatState>((set, get) => ({
   },
 
   setOtherParticipantDetails: (newParticipantDetails) => {
+    console.log(newParticipantDetails);
+
     set({
       otherParticipantDetails: newParticipantDetails,
     });
+
     set({
       otherParticipantFriendshipStatus: newParticipantDetails?.friendshipStatus,
     });
+
+    set({
+      otherParticipantIsOnline: newParticipantDetails?.isOnline,
+    });
+
+    if (newParticipantDetails?.lastOnline) {
+      const date = new Date(newParticipantDetails.lastOnline);
+
+      set({
+        otherParticipantLastOnline: date,
+      });
+    } else {
+      set({
+        otherParticipantLastOnline: null,
+      });
+    }
+
+    set({
+      otherParticipantLastReadMessageId: newParticipantDetails?.lastReadMessageId,
+    });
+
+    if (newParticipantDetails?.lastReadMessageAt) {
+      const date = new Date(newParticipantDetails.lastReadMessageAt);
+
+      set({
+        otherParticipantLastReadMessageAt: date,
+      });
+    } else {
+      set({
+        otherParticipantLastReadMessageAt: null,
+      });
+    }
   },
 
   setIsInitialLoad: (newVal: boolean) => set({ isInitialLoad: newVal }),

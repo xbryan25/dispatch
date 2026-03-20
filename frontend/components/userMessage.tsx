@@ -9,9 +9,13 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { useEffect, useState } from 'react';
 
 import { DateFormatters } from '@/types/chat';
+import { useChatStore } from '@/store/useChatStore';
+import { useAuthStore } from '@/store/useAuthStore';
 
 interface UserMessageProps {
+  messageId: string;
   messageType: string;
+  senderId: string;
   breakMessage?: boolean;
   content: string;
   createdAt: string;
@@ -21,7 +25,9 @@ interface UserMessageProps {
 }
 
 export default function UserMessage({
+  messageId,
   messageType,
+  senderId,
   breakMessage = false,
   content,
   createdAt,
@@ -30,6 +36,19 @@ export default function UserMessage({
   activeConversationTheme,
 }: UserMessageProps) {
   const [formattedTime, setFormattedTime] = useState('');
+  const [formattedSeenTime, setFormattedSeenTime] = useState('');
+
+  const currentUserId = useAuthStore((state) => state.currentUserId);
+
+  const otherParticipantLastReadMessageId = useChatStore(
+    (state) => state.otherParticipantLastReadMessageId
+  );
+
+  const otherParticipantLastReadMessageAt = useChatStore(
+    (state) => state.otherParticipantLastReadMessageAt
+  );
+
+  const otherParticipantDetails = useChatStore((state) => state.otherParticipantDetails);
 
   useEffect(() => {
     const formatMessageTime = (dateString: string) => {
@@ -38,15 +57,36 @@ export default function UserMessage({
 
       const diffInSeconds = Math.floor((now - start) / 1000);
 
-      if (diffInSeconds >= 604800) return dateFormatters.later.format(start);
-      else if (diffInSeconds >= 86400) return dateFormatters.currentWeek.format(start);
+      if (diffInSeconds >= 604800)
+        return `${dateFormatters.later.format(start)}, ${dateFormatters.hour.format(start)}`;
+      else if (diffInSeconds >= 86400)
+        return `${dateFormatters.currentWeek.format(start)}, ${dateFormatters.hour.format(start)}`;
 
-      return dateFormatters.currentDay.format(start);
+      return `${dateFormatters.hour.format(start)}`;
+    };
+
+    const formatSeenTime = (date: Date | null) => {
+      if (date == null) return '';
+
+      const start = date.getTime();
+      const now = Date.now();
+
+      const diffInSeconds = Math.floor((now - start) / 1000);
+
+      if (diffInSeconds >= 604800)
+        return `${dateFormatters.later.format(start)}, ${dateFormatters.hour.format(start)}`;
+      else if (diffInSeconds >= 86400)
+        return `${dateFormatters.currentWeek.format(start)}, ${dateFormatters.hour.format(start)}`;
+
+      return `${dateFormatters.hour.format(start)}`;
     };
 
     const update = () => {
       const timeStr = formatMessageTime(createdAt);
       setFormattedTime(timeStr || '');
+
+      const timeSeenStr = formatSeenTime(otherParticipantLastReadMessageAt);
+      setFormattedSeenTime(timeSeenStr || '');
     };
 
     update();
@@ -83,23 +123,54 @@ export default function UserMessage({
         </Tooltip>
       )}
 
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <div
-            className={cn(
-              'flex rounded-2xl items-center py-2 px-3 whitespace-pre-wrap wrap-break-word',
-              messageType === 'sender'
-                ? `${activeConversationTheme.sender}`
-                : `${activeConversationTheme.receiver}`
-            )}
-          >
-            <p>{content}</p>
+      <div className="flex flex-col">
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div className="flex flex-col gap-1">
+              <div
+                className={cn(
+                  'flex rounded-2xl items-center py-2 px-3 whitespace-pre-wrap wrap-break-word',
+                  messageType === 'sender'
+                    ? `${activeConversationTheme.sender}`
+                    : `${activeConversationTheme.receiver}`
+                )}
+              >
+                <p>{content}</p>
+              </div>
+            </div>
+          </TooltipTrigger>
+          <TooltipContent side={'left'}>
+            <p className="font-medium font-sans">{createdAt != null ? formattedTime : '-'}</p>
+          </TooltipContent>
+        </Tooltip>
+
+        {messageId === otherParticipantLastReadMessageId && currentUserId === senderId && (
+          <div className="flex justify-end pt-1">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="relative w-4 h-4 shrink-0 overflow-hidden rounded-full">
+                  <Image
+                    src={
+                      otherParticipantDetails?.profileImageUrl
+                        ? otherParticipantDetails.profileImageUrl
+                        : '/blank_picture.png'
+                    }
+                    alt="User avatar"
+                    fill
+                    sizes="96px" // Helps Next.js optimize the download size
+                    className="object-cover"
+                  />
+                </div>
+              </TooltipTrigger>
+              <TooltipContent side={'left'}>
+                <p className="font-medium font-sans">
+                  {createdAt != null ? `Seen by ${username} at ${formattedSeenTime}` : '-'}
+                </p>
+              </TooltipContent>
+            </Tooltip>
           </div>
-        </TooltipTrigger>
-        <TooltipContent side={'left'}>
-          <p className="font-medium font-sans">{createdAt != null ? formattedTime : '-'}</p>
-        </TooltipContent>
-      </Tooltip>
+        )}
+      </div>
     </div>
   );
 }
