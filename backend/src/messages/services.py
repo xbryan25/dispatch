@@ -1,5 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, and_, func
+from sqlalchemy import select, and_, func, update, or_
 from sqlalchemy.orm import selectinload
 
 from .schemas import MessageCreate
@@ -74,6 +74,8 @@ class MessagesService:
                     UserProfile.username,
                     UserProfile.profile_image_url,
                     UserProfile.last_online,
+                    ConversationParticipant.last_read_message_id,
+                    ConversationParticipant.last_read_message_at,
                     Friendship.status.label("friendship_status"),
                 )
                 .join(
@@ -315,3 +317,43 @@ class MessagesService:
         await db.commit()
 
         return None
+
+    @staticmethod
+    async def mark_conversation_as_read(
+        db: AsyncSession, conversation_id: UUID, user_id: UUID
+    ):
+
+        latest_message_id_subquery = (
+            select(Message.message_id)
+            .where(Message.conversation_id == conversation_id)
+            .order_by(Message.created_at.desc())
+            .limit(1)
+            .scalar_subquery()
+        )
+
+        stmt = (
+            update(ConversationParticipant)
+            .where(
+                ConversationParticipant.conversation_id == conversation_id,
+                ConversationParticipant.user_id == user_id,
+                or_(
+                    ConversationParticipant.last_read_message_id.is_(
+                        None
+                    ),  # ← NULL case
+                    ConversationParticipant.last_read_message_id
+                    != latest_message_id_subquery,
+                ),
+            )
+            .values(
+                last_read_message_id=latest_message_id_subquery,
+                last_read_message_at=func.now(),
+            )
+            .returning(
+                ConversationParticipant.last_read_message_id,
+                ConversationParticipant.last_read_message_at,
+            )
+        )
+
+        result = await db.execute(stmt)
+        await db.commit()
+        return result.mappings().fetchone()

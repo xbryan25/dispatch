@@ -14,6 +14,7 @@ import {
   createDirectMessage,
   updateConversationTheme,
   getConversationTheme,
+  markConversationAsRead,
 } from '@/lib/api/messages';
 
 const fastapiWebsocketUrl = process.env.NEXT_PUBLIC_FASTAPI_WEBSOCKET_URL;
@@ -22,7 +23,7 @@ export function useSendMessage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const { activeConversationId } = useChatStore();
+  const activeConversationId = useChatStore((state) => state.activeConversationId);
 
   const send = async (content: string) => {
     setLoading(true);
@@ -95,12 +96,6 @@ export function useGetOtherParticipantFromConversation() {
 
   const setOtherParticipantDetails = useChatStore((state) => state.setOtherParticipantDetails);
 
-  const setOtherParticipantIsOnline = useChatStore((state) => state.setOtherParticipantIsOnline);
-
-  const setOtherParticipantLastOnline = useChatStore(
-    (state) => state.setOtherParticipantLastOnline
-  );
-
   const getOtherParticipant = async (conversationId: string) => {
     // put this here??
     setIsGettingOtherParticipant(true);
@@ -113,16 +108,9 @@ export function useGetOtherParticipantFromConversation() {
         console.log(`here ${conversationId}`);
         const data = await getOtherParticipantFromConversation(conversationId);
 
+        console.log(data);
+
         setOtherParticipantDetails(data);
-
-        setOtherParticipantIsOnline(data.isOnline);
-
-        if (data.lastOnline) {
-          const date = new Date(data.lastOnline);
-          setOtherParticipantLastOnline(date);
-        } else {
-          setOtherParticipantLastOnline(null);
-        }
       } else {
         throw Error('No conversation ID');
       }
@@ -244,6 +232,30 @@ export function useUpdateConversationTheme() {
   return { changeConversationTheme, loading, error };
 }
 
+export function useMarkConversationAsRead() {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const markAsRead = async (conversationId: string) => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      await markConversationAsRead(conversationId);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('An unexpected error occurred');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return { markAsRead, loading, error };
+}
+
 export const useInitializeWebsocket = () => {
   const clearChat = useChatStore((state) => state.clearChat);
 
@@ -275,6 +287,8 @@ export const useInitializeWebsocket = () => {
 
   const upsertSnippet = useSidebarStore((state) => state.upsertSnippet);
 
+  const { markAsRead } = useMarkConversationAsRead();
+
   useEffect(() => {
     if (!currentUserId) return;
 
@@ -294,6 +308,8 @@ export const useInitializeWebsocket = () => {
       if (eventData.type === 'NEW_MESSAGE') {
         if (eventData.data.conversationId === latestActiveConversationId) {
           addMessage(eventData.data);
+
+          if (latestActiveConversationId) markAsRead(latestActiveConversationId);
         }
         upsertSnippet(eventData.data);
       } else if (eventData.type === 'UPDATE_CONVERSATION') {
@@ -331,6 +347,8 @@ export const useInitializeWebsocket = () => {
         } else {
           setOtherParticipantLastOnline(null);
         }
+      } else if (eventData.type === 'MESSAGE_SEEN') {
+        console.log(eventData);
       }
     };
 
@@ -362,5 +380,7 @@ export const useInitializeWebsocket = () => {
     setConversationTheme,
     setConversationThemeChangedAt,
     setConversationThemeChangedBy,
+    setOtherParticipantIsOnline,
+    setOtherParticipantLastOnline,
   ]);
 };

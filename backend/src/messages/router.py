@@ -20,6 +20,7 @@ from .schemas import (
     ConversationIdWithType,
     ConversationIdWithTheme,
     ConversationTheme,
+    ConversationId,
 )
 
 from src.auth.schemas import UserMinimalWithStatus, TargetUserId
@@ -350,6 +351,56 @@ async def update_conversation_theme(
                     await manager.send_to_user(conversation_participant, event_data)
 
         return theme_details
+
+    except Exception:
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+
+@router.post("/mark-as-read")
+async def mark_conversation_as_read(
+    payload: ConversationId,
+    user_id: Annotated[UUID, Depends(get_current_user_id)],
+    db: AsyncSession = Depends(get_db),
+):
+
+    try:
+        conversation_id = payload.conversation_id
+
+        result = await MessagesService.mark_conversation_as_read(
+            db, payload.conversation_id, user_id
+        )
+
+        conversation_participants = []
+
+        conversation_participants = (
+            await MessagesService.get_other_participants_details_in_conversation(
+                db, conversation_id, user_id
+            )
+            or []
+        )
+
+        other_participant = next(
+            (p for p in conversation_participants if p["user_id"] != user_id), None
+        )
+
+        if other_participant is None:
+            raise HTTPException(status_code=404, detail="User not found")
+
+        if result:
+            message_seen_dict = {
+                "conversationId": str(conversation_id),
+                "lastReadMessageId": str(result.last_read_message_id),
+                "lastReadMessageAt": (
+                    result.last_read_message_at.isoformat()
+                    if result.last_read_message_at
+                    else None
+                ),
+            }
+
+            event_data = {"type": "MESSAGE_SEEN", "data": message_seen_dict}
+
+            await manager.send_to_user(UUID(str(other_participant.user_id)), event_data)
 
     except Exception:
         traceback.print_exc()

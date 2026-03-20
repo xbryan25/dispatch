@@ -34,24 +34,18 @@ export default function MessageThread() {
   const previousHeightRef = useRef(0);
 
   const dateFormatters: Record<DateFormatters, Intl.DateTimeFormat> = {
-    currentDay: new Intl.DateTimeFormat('en-US', {
+    hour: new Intl.DateTimeFormat('en-US', {
       hour: 'numeric',
       minute: '2-digit',
       hour12: true,
     }),
     currentWeek: new Intl.DateTimeFormat('en-US', {
       weekday: 'long',
-      hour: 'numeric',
-      minute: '2-digit',
-      hour12: true,
     }),
     later: new Intl.DateTimeFormat('en-US', {
       year: 'numeric',
       month: 'long',
       day: 'numeric',
-      hour: 'numeric',
-      minute: '2-digit',
-      hour12: true,
     }),
   };
 
@@ -184,7 +178,9 @@ export default function MessageThread() {
         return (
           <UserMessage
             key={message.messageId}
+            messageId={message.messageId}
             messageType={isMe ? 'sender' : 'others'}
+            senderId={message.senderId}
             breakMessage={isLastInCluster ? true : false}
             content={message.content}
             createdAt={message.createdAt}

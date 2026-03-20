@@ -9,7 +9,11 @@ import { useChatStore } from '@/store/useChatStore';
 import { useEffect, useState, useRef } from 'react';
 import LoadingSpinner from '@/components/loadingSpinner';
 
-import { useGetConversationTheme, useGetOtherParticipantFromConversation } from '@/hooks/useChat';
+import {
+  useGetConversationTheme,
+  useGetOtherParticipantFromConversation,
+  useMarkConversationAsRead,
+} from '@/hooks/useChat';
 import { useGetPastMessagesFromConversation } from '@/hooks/useChat';
 
 export default function SpecificConversationPage() {
@@ -23,6 +27,8 @@ export default function SpecificConversationPage() {
   const { getPastMessages } = useGetPastMessagesFromConversation();
 
   const { getActiveConversationTheme } = useGetConversationTheme();
+
+  const { markAsRead } = useMarkConversationAsRead();
 
   const otherParticipantDetails = useChatStore((state) => state.otherParticipantDetails);
 
@@ -42,6 +48,8 @@ export default function SpecificConversationPage() {
       await getOtherParticipant(conversationId);
       await getActiveConversationTheme(conversationId);
       setIsReady(true);
+
+      await markAsRead(conversationId);
     }
     fetchData();
 

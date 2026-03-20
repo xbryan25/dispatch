@@ -111,5 +111,9 @@ class ConversationParticipant(Base):
         DateTime(timezone=True), server_default=func.now()
     )
 
+    last_read_message_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+
+    last_read_message_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
     user = relationship("UserProfile")
     conversation = relationship("Conversation", back_populates="participants")

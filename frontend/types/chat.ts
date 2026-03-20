@@ -23,6 +23,8 @@ export interface OtherParticipantDetails {
   friendshipStatus: string;
   isOnline: boolean;
   lastOnline: string | null;
+  lastReadMessageId: string;
+  lastReadMessageAt: string | null;
 }
 
-export type DateFormatters = 'currentDay' | 'currentWeek' | 'later';
+export type DateFormatters = 'hour' | 'currentWeek' | 'later';
