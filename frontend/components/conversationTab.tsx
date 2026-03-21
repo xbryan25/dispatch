@@ -10,6 +10,7 @@ import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 import { useRouter } from 'next/navigation';
+import { useAuthStore } from '@/store/useAuthStore';
 
 interface ConversationTabProps {
   conversationSnippet: ConversationSnippet;
@@ -20,6 +21,8 @@ export default function ConversationTab({ conversationSnippet }: ConversationTab
   const isActive = params.conversationId === conversationSnippet.conversationId;
 
   const router = useRouter();
+
+  const currentUserId = useAuthStore((state) => state.currentUserId);
 
   const [formattedTime, setFormattedTime] = useState('');
   const timestamp = conversationSnippet.latestMessageTime;
@@ -98,7 +101,8 @@ export default function ConversationTab({ conversationSnippet }: ConversationTab
                 : '-'}
           </p>
 
-          {conversationSnippet.hasSeenLatestMessage ? (
+          {conversationSnippet.hasSeenLatestMessage &&
+          currentUserId === conversationSnippet.latestMessageSenderId ? (
             <div className="relative w-4 h-4 shrink-0 overflow-hidden rounded-full">
               <Image
                 src={

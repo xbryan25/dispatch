@@ -390,12 +390,14 @@ async def mark_conversation_as_read(
         if result:
             message_seen_dict = {
                 "conversationId": str(conversation_id),
-                "lastReadMessageId": str(result.last_read_message_id),
+                "lastReadMessageId": str(result["last_read_message_id"]),
                 "lastReadMessageAt": (
-                    result.last_read_message_at.isoformat()
-                    if result.last_read_message_at
+                    result["last_read_message_at"].isoformat()
+                    if result["last_read_message_at"]
                     else None
                 ),
+                "hasSeenLatestMessage": True,
+                "latestMessageSenderId": str(result["latest_message_sender_id"]),
             }
 
             event_data = {"type": "MESSAGE_SEEN", "data": message_seen_dict}

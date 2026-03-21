@@ -14,7 +14,8 @@ export interface ConversationSnippet {
   otherUserAvatar: string;
   latestMessage: string;
   latestMessageTime: string;
-  hasSeenLatestMessage: string;
+  hasSeenLatestMessage: boolean;
+  latestMessageSenderId: string;
 }
 
 export interface OtherParticipantDetails {
