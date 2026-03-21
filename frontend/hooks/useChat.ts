@@ -295,6 +295,8 @@ export const useInitializeWebsocket = () => {
 
   const upsertSnippet = useSidebarStore((state) => state.upsertSnippet);
 
+  const updateHasSeenLatestMessage = useSidebarStore((state) => state.updateHasSeenLatestMessage);
+
   const { markAsRead } = useMarkConversationAsRead();
 
   useEffect(() => {
@@ -356,6 +358,12 @@ export const useInitializeWebsocket = () => {
           setOtherParticipantLastOnline(null);
         }
       } else if (eventData.type === 'MESSAGE_SEEN') {
+        updateHasSeenLatestMessage(
+          eventData.data.conversationId,
+          eventData.data.hasSeenLatestMessage,
+          eventData.data.latestMessageSenderId
+        );
+
         setOtherParticipantLastReadMessageId(eventData.data.lastReadMessageId);
 
         if (eventData.data.lastReadMessageAt) {
@@ -397,5 +405,6 @@ export const useInitializeWebsocket = () => {
     setConversationThemeChangedBy,
     setOtherParticipantIsOnline,
     setOtherParticipantLastOnline,
+    updateHasSeenLatestMessage,
   ]);
 };

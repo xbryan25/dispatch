@@ -8,6 +8,12 @@ interface SidebarState {
   // Actions
   setSnippets: (snippets: ConversationSnippet[]) => void;
   upsertSnippet: (message: Message) => void;
+
+  updateHasSeenLatestMessage: (
+    conversationId: string,
+    newHasSeenLatestMessage: boolean,
+    latestMessageSenderId: string
+  ) => void;
   setLoading: (value: boolean) => void;
 }
 
@@ -31,6 +37,26 @@ export const useSidebarStore = create<SidebarState>((set) => ({
         movedItem.latestMessageTime = message.createdAt;
         updatedSnippets.unshift(movedItem);
       }
+
+      return { conversationSnippets: updatedSnippets };
+    }),
+
+  updateHasSeenLatestMessage: (
+    conversationId: string,
+    newHasSeenLatestMessage: boolean,
+    latestMessageSenderId: string
+  ) =>
+    set((state) => {
+      const index = state.conversationSnippets.findIndex(
+        (s) => s.conversationId === conversationId
+      );
+      const updatedSnippets = [...state.conversationSnippets];
+
+      const conversationSnippet = updatedSnippets[index];
+      conversationSnippet['hasSeenLatestMessage'] = newHasSeenLatestMessage;
+      conversationSnippet['latestMessageSenderId'] = latestMessageSenderId;
+
+      updatedSnippets[index] = conversationSnippet;
 
       return { conversationSnippets: updatedSnippets };
     }),

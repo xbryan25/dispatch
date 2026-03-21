@@ -11,7 +11,7 @@ from src.friends.models import Friendship
 
 from uuid import UUID
 
-from typing import Optional
+from typing import Optional, Any
 
 import traceback
 
@@ -175,6 +175,9 @@ class MessagesService:
                 latest_message_id = (
                     latest_message_obj.message_id if latest_message_obj else None
                 )
+                latest_message_sender_id = (
+                    latest_message_obj.sender_id if latest_message_obj else None
+                )
                 latest_message = (
                     latest_message_obj.content if latest_message_obj else None
                 )
@@ -195,6 +198,7 @@ class MessagesService:
                             == latest_message_id
                             else False
                         ),
+                        "latest_message_sender_id": latest_message_sender_id,
                     }
                 )
 
@@ -336,7 +340,7 @@ class MessagesService:
     @staticmethod
     async def mark_conversation_as_read(
         db: AsyncSession, conversation_id: UUID, user_id: UUID
-    ):
+    ) -> dict[str, Any] | None:
 
         latest_message_id_subquery = (
             select(Message.message_id)
@@ -371,4 +375,21 @@ class MessagesService:
 
         result = await db.execute(stmt)
         await db.commit()
-        return result.mappings().fetchone()
+        row = result.fetchone()
+
+        if row is None:
+            return None
+
+        # Get sender of the last read message
+        sender_result = await db.execute(
+            select(Message.sender_id).where(
+                Message.message_id == row.last_read_message_id
+            )
+        )
+        sender_id = sender_result.scalar_one_or_none()
+
+        return {
+            "last_read_message_id": row.last_read_message_id,
+            "last_read_message_at": row.last_read_message_at,
+            "latest_message_sender_id": sender_id,
+        }

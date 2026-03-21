@@ -37,6 +37,7 @@ class ConversationSnippet(ConversationId):
     latest_message: Optional[str] = None
     latest_message_time: Optional[datetime] = None
     has_seen_latest_message: bool = False
+    latest_message_sender_id: UUID
 
 
 class ConversationList(BaseSchema):
