@@ -41,6 +41,9 @@ interface ChatState {
   setOtherParticipantIsOnline: (newVal: boolean) => void;
   setOtherParticipantLastOnline: (newVal: Date | null) => void;
 
+  setOtherParticipantLastReadMessageId: (newVal: string | null) => void;
+  setOtherParticipantLastReadMessageAt: (newVal: Date | null) => void;
+
   setSocket: (socket: WebSocket | null) => void;
   clearChat: () => void;
 
@@ -182,4 +185,10 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
   setOtherParticipantLastOnline: (newVal: Date | null) =>
     set({ otherParticipantLastOnline: newVal }),
+
+  setOtherParticipantLastReadMessageId: (newVal: string | null) =>
+    set({ otherParticipantLastReadMessageId: newVal }),
+
+  setOtherParticipantLastReadMessageAt: (newVal: Date | null) =>
+    set({ otherParticipantLastReadMessageAt: newVal }),
 }));
