@@ -36,6 +36,7 @@ class ConversationSnippet(ConversationId):
     other_user_avatar: Optional[str] = None
     latest_message: Optional[str] = None
     latest_message_time: Optional[datetime] = None
+    has_seen_latest_message: bool = False
 
 
 class ConversationList(BaseSchema):

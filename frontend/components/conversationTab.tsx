@@ -98,7 +98,21 @@ export default function ConversationTab({ conversationSnippet }: ConversationTab
                 : '-'}
           </p>
 
-          {conversationSnippet.latestMessage && (
+          {conversationSnippet.hasSeenLatestMessage ? (
+            <div className="relative w-4 h-4 shrink-0 overflow-hidden rounded-full">
+              <Image
+                src={
+                  conversationSnippet.otherUserAvatar
+                    ? conversationSnippet.otherUserAvatar
+                    : '/blank_picture.png'
+                }
+                alt="User avatar"
+                fill
+                sizes="96px" // Helps Next.js optimize the download size
+                className="object-cover"
+              />
+            </div>
+          ) : (
             <Icon icon="ri:check-double-fill" className="size-5 shrink-0" />
           )}
         </div>

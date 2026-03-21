@@ -6,7 +6,14 @@ import { getUserConversationsList } from '@/lib/api/messages';
 import { useSidebarStore } from '@/store/useSidebarStore';
 
 export function useConversationTabs() {
-  const { conversationSnippets, isLoading, setSnippets, setLoading } = useSidebarStore();
+  const conversationSnippets = useSidebarStore((state) => state.conversationSnippets);
+
+  const isLoading = useSidebarStore((state) => state.isLoading);
+
+  const setSnippets = useSidebarStore((state) => state.setSnippets);
+
+  const setLoading = useSidebarStore((state) => state.setLoading);
+
   const [error, setError] = useState<string | null>(null);
 
   const getConversations = async () => {

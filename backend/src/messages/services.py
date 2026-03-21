@@ -154,9 +154,15 @@ class MessagesService:
             formatted_conversations = []
             for conv in conversations:
                 # Find the other person
-                other_person: Optional[UserProfile] = next(
-                    (p.user for p in conv.participants if p.user_id != user_id), None
+
+                other_person_as_participant: Optional[ConversationParticipant] = next(
+                    (p for p in conv.participants if p.user_id != user_id), None
                 )
+
+                if not other_person_as_participant:
+                    continue
+
+                other_person: Optional[UserProfile] = other_person_as_participant.user
 
                 full_name = getattr(other_person, "full_name", "Deleted User")
                 profile_image_url = getattr(
@@ -165,6 +171,9 @@ class MessagesService:
 
                 latest_message_obj = max(
                     conv.messages, key=lambda m: m.created_at, default=None
+                )
+                latest_message_id = (
+                    latest_message_obj.message_id if latest_message_obj else None
                 )
                 latest_message = (
                     latest_message_obj.content if latest_message_obj else None
@@ -180,6 +189,12 @@ class MessagesService:
                         "other_user_avatar": profile_image_url,
                         "latest_message": latest_message,
                         "latest_message_time": latest_message_time,
+                        "has_seen_latest_message": (
+                            True
+                            if other_person_as_participant.last_read_message_id
+                            == latest_message_id
+                            else False
+                        ),
                     }
                 )
 
