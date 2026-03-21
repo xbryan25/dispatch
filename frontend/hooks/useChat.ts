@@ -283,6 +283,14 @@ export const useInitializeWebsocket = () => {
     (state) => state.setOtherParticipantLastOnline
   );
 
+  const setOtherParticipantLastReadMessageId = useChatStore(
+    (state) => state.setOtherParticipantLastReadMessageId
+  );
+
+  const setOtherParticipantLastReadMessageAt = useChatStore(
+    (state) => state.setOtherParticipantLastReadMessageAt
+  );
+
   const currentUserId = useAuthStore((state) => state.currentUserId);
 
   const upsertSnippet = useSidebarStore((state) => state.upsertSnippet);
@@ -348,7 +356,14 @@ export const useInitializeWebsocket = () => {
           setOtherParticipantLastOnline(null);
         }
       } else if (eventData.type === 'MESSAGE_SEEN') {
-        console.log(eventData);
+        setOtherParticipantLastReadMessageId(eventData.data.lastReadMessageId);
+
+        if (eventData.data.lastReadMessageAt) {
+          const date = new Date(eventData.data.lastReadMessageAt);
+          setOtherParticipantLastReadMessageAt(date);
+        } else {
+          setOtherParticipantLastReadMessageAt(null);
+        }
       }
     };
 
