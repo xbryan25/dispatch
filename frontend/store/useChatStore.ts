@@ -99,6 +99,8 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
   addFailedMessage: (newMessage) =>
     set((state) => {
+      console.log(state.failedMessages);
+
       return { failedMessages: [...state.failedMessages, newMessage] };
     }),
 

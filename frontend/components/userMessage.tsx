@@ -11,6 +11,7 @@ import { useEffect, useState } from 'react';
 import { DateFormatters } from '@/types/chat';
 import { useChatStore } from '@/store/useChatStore';
 import { useAuthStore } from '@/store/useAuthStore';
+import { useSendMessage } from '@/hooks/useChat';
 
 interface UserMessageProps {
   messageId: string;
@@ -40,6 +41,8 @@ export default function UserMessage({
   const [formattedTime, setFormattedTime] = useState('');
   const [formattedSeenTime, setFormattedSeenTime] = useState('');
 
+  const { send } = useSendMessage();
+
   const currentUserId = useAuthStore((state) => state.currentUserId);
 
   const [dots, setDots] = useState('.');
@@ -53,6 +56,40 @@ export default function UserMessage({
   );
 
   const otherParticipantDetails = useChatStore((state) => state.otherParticipantDetails);
+
+  const addSendingMessage = useChatStore((state) => state.addSendingMessage);
+  const removeSendingMessage = useChatStore((state) => state.removeSendingMessage);
+
+  const addFailedMessage = useChatStore((state) => state.addFailedMessage);
+  const removeFailedMessage = useChatStore((state) => state.removeFailedMessage);
+
+  const resendFailedMessage = async () => {
+    removeFailedMessage(messageId);
+
+    const tempMessageId: string = crypto.randomUUID();
+
+    addSendingMessage({
+      tempMessageId,
+      content: content.trim(),
+      createdAt: new Date().toISOString(),
+      status: 'sending',
+    });
+
+    const error = await send(content.trim(), tempMessageId);
+
+    console.log(error !== null);
+
+    if (error !== null) {
+      addFailedMessage({
+        tempMessageId,
+        content: content.trim(),
+        createdAt: new Date().toISOString(),
+        status: 'failed',
+      });
+
+      removeSendingMessage(tempMessageId);
+    }
+  };
 
   useEffect(() => {
     const formatMessageTime = (dateString: string) => {
@@ -136,7 +173,7 @@ export default function UserMessage({
         </Tooltip>
       )}
 
-      <div className="flex flex-col">
+      <div className="flex flex-col items-end">
         <div className="flex flex-col">
           <Tooltip>
             <TooltipTrigger asChild>
@@ -194,8 +231,14 @@ export default function UserMessage({
           )}
 
           {messageState === 'failed' && (
-            <div className="flex justify-end pt-1">
+            <div className="flex justify-end pt-1 gap-1">
               <p className="text-xs text-red-500">Failed to send message.</p>
+              <p
+                className="text-xs text-red-500 font-bold cursor-pointer"
+                onClick={resendFailedMessage}
+              >
+                Retry?
+              </p>
             </div>
           )}
         </div>
