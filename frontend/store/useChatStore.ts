@@ -207,9 +207,9 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
   setSocket: (socket) => set({ socket }),
 
-  clearChat: () => set({ messages: [], socket: null, activeConversationId: null }),
+  clearChat: () => set({ messages: [], socket: null }),
 
-  resetConversation: (conversationId?: string) =>
+  resetConversation: (conversationId?: string) => {
     set({
       activeConversationId: conversationId ?? null,
       messages: [],
@@ -217,7 +217,8 @@ export const useChatStore = create<ChatState>((set, get) => ({
       isInitialLoad: true,
       isGettingOtherParticipant: true,
       otherParticipantFriendshipStatus: null,
-    }),
+    });
+  },
 
   setOtherParticipantIsOnline: (newVal: boolean) => set({ otherParticipantIsOnline: newVal }),
 

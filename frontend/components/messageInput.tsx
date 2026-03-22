@@ -43,7 +43,6 @@ export default function MessageInput({
     });
 
     setNewMessage('');
-    await send(newMessage.trim(), tempMessageId);
 
     const error = await send(newMessage.trim(), tempMessageId);
 
