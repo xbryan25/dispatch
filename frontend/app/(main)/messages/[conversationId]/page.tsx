@@ -53,16 +53,13 @@ export default function SpecificConversationPage() {
     }
     fetchData();
 
-    return () => {
-      fetchedIdRef.current = null;
-    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [conversationId]);
 
   // Clears store when user navigates away from this page
   useEffect(() => {
     return () => {
-      resetConversation();
+      fetchedIdRef.current = null;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
