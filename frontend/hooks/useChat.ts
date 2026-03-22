@@ -30,12 +30,11 @@ export function useSendMessage() {
     setError(null);
     try {
       await sendMessage(content, tempMessageId, activeConversationId);
+      return null;
     } catch (err: unknown) {
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError('An unexpected error occurred');
-      }
+      const message = err instanceof Error ? err.message : 'An unexpected error occurred';
+      setError(message);
+      return message;
     } finally {
       setLoading(false);
     }

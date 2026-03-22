@@ -19,7 +19,7 @@ export default function MessageInput({
 }: MessageInputProps) {
   const [newMessage, setNewMessage] = useState('');
 
-  const { send, error: sendError } = useSendMessage();
+  const { send } = useSendMessage();
   const addSendingMessage = useChatStore((state) => state.addSendingMessage);
   const removeSendingMessage = useChatStore((state) => state.removeSendingMessage);
 
@@ -45,12 +45,16 @@ export default function MessageInput({
     setNewMessage('');
     await send(newMessage.trim(), tempMessageId);
 
-    if (sendError !== null) {
+    const error = await send(newMessage.trim(), tempMessageId);
+
+    console.log(error !== null);
+
+    if (error !== null) {
       addFailedMessage({
         tempMessageId,
         content: newMessage.trim(),
         createdAt: new Date().toISOString(),
-        status: 'sending',
+        status: 'failed',
       });
 
       removeSendingMessage(tempMessageId);

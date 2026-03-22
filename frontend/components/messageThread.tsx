@@ -1,7 +1,7 @@
 'use client';
 import UserMessage from './userMessage';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useMemo } from 'react';
 
 import { useAuthStore } from '@/store/useAuthStore';
 import { useChatStore } from '@/store/useChatStore';
@@ -15,6 +15,17 @@ import { themes } from '@/lib/themes';
 export default function MessageThread() {
   const messages = useChatStore((state) => state.messages);
   const sendingMessages = useChatStore((state) => state.sendingMessages);
+  const failedMessages = useChatStore((state) => state.failedMessages);
+
+  const pendingMessages = useMemo(() => {
+    return [...sendingMessages, ...failedMessages].sort(
+      (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+    );
+  }, [sendingMessages, failedMessages]);
+
+  useEffect(() => {
+    console.log(failedMessages);
+  }, [failedMessages]);
 
   const hasMorePastMessages = useChatStore((state) => state.hasMorePastMessages);
   const activeConversationId = useChatStore((state) => state.activeConversationId);
@@ -89,7 +100,7 @@ export default function MessageThread() {
     if (isNearBottom) {
       scrollToBottom();
     }
-  }, [messages, sendingMessages, activeConversationId]);
+  }, [messages, sendingMessages, failedMessages, activeConversationId]);
 
   useEffect(() => {
     // This useEffect activates getPastMessagesFromConversation() when sentinel is shown in viewport
@@ -194,13 +205,13 @@ export default function MessageThread() {
         );
       })}
 
-      {sendingMessages.map((tempMessage) => {
+      {pendingMessages.map((tempMessage) => {
         return (
           <UserMessage
             key={tempMessage.tempMessageId}
             messageId={tempMessage.tempMessageId}
             messageType="sender"
-            messageState="sending"
+            messageState={tempMessage.status}
             senderId=""
             breakMessage={false}
             content={tempMessage.content}
