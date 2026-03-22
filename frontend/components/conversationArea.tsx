@@ -29,16 +29,16 @@ export default function ConversationArea({ onToggle }: ConversationAreaProps) {
   );
 
   const otherParticipantIsOnline = useChatStore((state) => state.otherParticipantIsOnline);
-
   const otherParticipantLastOnline = useChatStore((state) => state.otherParticipantLastOnline);
+
+  const addSendingMessage = useChatStore((state) => state.addSendingMessage);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
 
       if (newMessage.trim() !== '') {
-        send(newMessage.trim());
-        setNewMessage('');
+        sendNewMessage();
       }
     }
   };
@@ -73,6 +73,20 @@ export default function ConversationArea({ onToggle }: ConversationAreaProps) {
     return '1m';
   };
 
+  const sendNewMessage = () => {
+    const tempMessageId: string = crypto.randomUUID();
+
+    addSendingMessage({
+      tempMessageId,
+      content: newMessage.trim(),
+      createdAt: new Date().toISOString(),
+      status: 'sending',
+    });
+
+    send(newMessage.trim(), tempMessageId);
+    setNewMessage('');
+  };
+
   useEffect(() => {
     const update = () => {
       let timeStr: string = '';
@@ -83,8 +97,6 @@ export default function ConversationArea({ onToggle }: ConversationAreaProps) {
       setFormattedLastOnline(timeStr || '');
     };
 
-    console.log(otherParticipantLastOnline instanceof Date);
-    console.log(otherParticipantLastOnline);
     update();
 
     const interval = setInterval(update, 60000);
@@ -152,7 +164,7 @@ export default function ConversationArea({ onToggle }: ConversationAreaProps) {
 
         <Button
           className="cursor-pointer h-9.5"
-          onClick={() => (send(newMessage.trim()), setNewMessage(''))}
+          onClick={() => sendNewMessage()}
           disabled={newMessage.trim() === '' || otherParticipantFriendshipStatus !== 'accepted'}
         >
           Send

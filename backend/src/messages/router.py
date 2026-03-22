@@ -155,7 +155,12 @@ async def send_message(
         )
 
         if user_details:
-            msg_dict.update({"username": user_details.username})
+            msg_dict.update(
+                {
+                    "username": user_details.username,
+                    "tempMessageId": str(payload.temp_message_id),
+                }
+            )
 
             event_data = {"type": "NEW_MESSAGE", "data": msg_dict}
 

@@ -8,6 +8,13 @@ export interface Message {
   status: string;
 }
 
+export interface TempMessage {
+  tempMessageId: string;
+  content: string;
+  createdAt: string;
+  status: 'sending' | 'failed';
+}
+
 export interface ConversationSnippet {
   conversationId: string;
   otherUserName: string;

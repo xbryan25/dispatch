@@ -25,11 +25,11 @@ export function useSendMessage() {
 
   const activeConversationId = useChatStore((state) => state.activeConversationId);
 
-  const send = async (content: string) => {
+  const send = async (content: string, tempMessageId: string) => {
     setLoading(true);
     setError(null);
     try {
-      await sendMessage(content, activeConversationId);
+      await sendMessage(content, tempMessageId, activeConversationId);
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message);
@@ -291,6 +291,8 @@ export const useInitializeWebsocket = () => {
     (state) => state.setOtherParticipantLastReadMessageAt
   );
 
+  const removeSendingMessage = useChatStore((state) => state.removeSendingMessage);
+
   const currentUserId = useAuthStore((state) => state.currentUserId);
 
   const upsertSnippet = useSidebarStore((state) => state.upsertSnippet);
@@ -319,7 +321,11 @@ export const useInitializeWebsocket = () => {
         if (eventData.data.conversationId === latestActiveConversationId) {
           addMessage(eventData.data);
 
-          if (latestActiveConversationId) markAsRead(latestActiveConversationId);
+          if (eventData.data.senderId === currentUserId) {
+            removeSendingMessage(eventData.data.tempMessageId);
+          } else if (latestActiveConversationId) {
+            markAsRead(latestActiveConversationId);
+          }
         }
         upsertSnippet(eventData.data);
       } else if (eventData.type === 'UPDATE_CONVERSATION') {
@@ -406,5 +412,7 @@ export const useInitializeWebsocket = () => {
     setOtherParticipantIsOnline,
     setOtherParticipantLastOnline,
     updateHasSeenLatestMessage,
+    setOtherParticipantLastReadMessageAt,
+    setOtherParticipantLastReadMessageId,
   ]);
 };
