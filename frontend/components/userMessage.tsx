@@ -15,6 +15,7 @@ import { useAuthStore } from '@/store/useAuthStore';
 interface UserMessageProps {
   messageId: string;
   messageType: string;
+  messageState: 'sent' | 'sending' | 'failed';
   senderId: string;
   breakMessage?: boolean;
   content: string;
@@ -27,6 +28,7 @@ interface UserMessageProps {
 export default function UserMessage({
   messageId,
   messageType,
+  messageState,
   senderId,
   breakMessage = false,
   content,
@@ -39,6 +41,8 @@ export default function UserMessage({
   const [formattedSeenTime, setFormattedSeenTime] = useState('');
 
   const currentUserId = useAuthStore((state) => state.currentUserId);
+
+  const [dots, setDots] = useState('.');
 
   const otherParticipantLastReadMessageId = useChatStore(
     (state) => state.otherParticipantLastReadMessageId
@@ -95,6 +99,15 @@ export default function UserMessage({
 
     return () => clearInterval(interval);
   }, [createdAt]);
+
+  // For "animating" ellipsis when sending messages
+  useEffect(() => {
+    if (messageState !== 'sending') return;
+    const interval = setInterval(() => {
+      setDots((d) => (d.length >= 3 ? '.' : d + '.'));
+    }, 300);
+    return () => clearInterval(interval);
+  }, [messageState]);
 
   return (
     <div
@@ -168,6 +181,12 @@ export default function UserMessage({
                 </p>
               </TooltipContent>
             </Tooltip>
+          </div>
+        )}
+
+        {messageState === 'sending' && (
+          <div className="flex justify-end pt-1">
+            <p className="text-xs">Sending{dots}</p>
           </div>
         )}
       </div>

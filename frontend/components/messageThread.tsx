@@ -14,6 +14,8 @@ import { themes } from '@/lib/themes';
 
 export default function MessageThread() {
   const messages = useChatStore((state) => state.messages);
+  const sendingMessages = useChatStore((state) => state.sendingMessages);
+
   const hasMorePastMessages = useChatStore((state) => state.hasMorePastMessages);
   const activeConversationId = useChatStore((state) => state.activeConversationId);
   const isInitialLoad = useChatStore((state) => state.isInitialLoad);
@@ -25,7 +27,7 @@ export default function MessageThread() {
 
   const { getPastMessages } = useGetPastMessagesFromConversation();
 
-  const { currentUserId } = useAuthStore();
+  const currentUserId = useAuthStore((state) => state.currentUserId);
 
   const topSentinelRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -87,7 +89,7 @@ export default function MessageThread() {
     if (isNearBottom) {
       scrollToBottom();
     }
-  }, [messages, activeConversationId]);
+  }, [messages, sendingMessages, activeConversationId]);
 
   useEffect(() => {
     // This useEffect activates getPastMessagesFromConversation() when sentinel is shown in viewport
@@ -180,12 +182,31 @@ export default function MessageThread() {
             key={message.messageId}
             messageId={message.messageId}
             messageType={isMe ? 'sender' : 'others'}
+            messageState="sent"
             senderId={message.senderId}
             breakMessage={isLastInCluster ? true : false}
             content={message.content}
             createdAt={message.createdAt}
             dateFormatters={dateFormatters}
             username={message.username}
+            activeConversationTheme={activeConversationTheme}
+          />
+        );
+      })}
+
+      {sendingMessages.map((tempMessage) => {
+        return (
+          <UserMessage
+            key={tempMessage.tempMessageId}
+            messageId={tempMessage.tempMessageId}
+            messageType="sender"
+            messageState="sending"
+            senderId=""
+            breakMessage={false}
+            content={tempMessage.content}
+            createdAt={tempMessage.createdAt}
+            dateFormatters={dateFormatters}
+            username=""
             activeConversationTheme={activeConversationTheme}
           />
         );

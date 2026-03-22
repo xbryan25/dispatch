@@ -25,10 +25,15 @@ class MessagesService:
     ):
 
         try:
-            db_message = Message(
-                **message_data.model_dump(),
-                sender_id=sender_id,
+            message_data_dict = MessageCreate.model_validate(message_data).model_dump(
+                mode="python"
             )
+
+            del message_data_dict["temp_message_id"]
+
+            message_data_dict.update({"sender_id": sender_id})
+
+            db_message = Message(**message_data_dict)
 
             db.add(db_message)
             await db.commit()

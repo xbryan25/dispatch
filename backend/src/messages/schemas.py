@@ -16,6 +16,7 @@ class ConversationId(BaseSchema):
 
 class MessageCreate(ConversationId):
     content: str
+    temp_message_id: UUID
 
 
 class MessageRead(ConversationId):

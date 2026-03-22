@@ -1,8 +1,11 @@
 import { create } from 'zustand';
-import { Message, OtherParticipantDetails } from '@/types/chat';
+import { Message, OtherParticipantDetails, TempMessage } from '@/types/chat';
 
 interface ChatState {
   messages: Message[];
+  sendingMessages: TempMessage[];
+  failedMessages: TempMessage[];
+
   otherParticipantDetails: OtherParticipantDetails | null;
   socket: WebSocket | null;
   activeConversationId: string | null;
@@ -24,9 +27,15 @@ interface ChatState {
   conversationThemeChangedBy: string | null;
 
   // Actions
-  addMessage: (msg: Message) => void;
+  addMessage: (newMessage: Message) => void;
+  addSendingMessage: (newMessage: TempMessage) => void;
+  addFailedMessage: (newMessage: TempMessage) => void;
+
+  removeSendingMessage: (tempMessageId: string) => void;
+  removeFailedMessage: (tempMessageId: string) => void;
+
   prependPastMessages: (pastMessages: Message[]) => void;
-  setMessages: (msgs: Message[]) => void;
+  setMessages: (newMessages: Message[]) => void;
   setActiveConversationId: (conversationId: string | null) => void;
   setOtherParticipantDetails: (newParticipantDetails: OtherParticipantDetails | null) => void;
   setIsInitialLoad: (newVal: boolean) => void;
@@ -52,6 +61,9 @@ interface ChatState {
 
 export const useChatStore = create<ChatState>((set, get) => ({
   messages: [],
+  sendingMessages: [],
+  failedMessages: [],
+
   otherParticipantDetails: null,
   socket: null,
   activeConversationId: null,
@@ -80,6 +92,30 @@ export const useChatStore = create<ChatState>((set, get) => ({
       return { messages: [...state.messages, newMessage] };
     }),
 
+  addSendingMessage: (newMessage) =>
+    set((state) => {
+      return { sendingMessages: [...state.sendingMessages, newMessage] };
+    }),
+
+  addFailedMessage: (newMessage) =>
+    set((state) => {
+      return { failedMessages: [...state.failedMessages, newMessage] };
+    }),
+
+  removeSendingMessage: (tempMessageId: string) =>
+    set((state) => {
+      return {
+        sendingMessages: state.sendingMessages.filter((msg) => msg.tempMessageId !== tempMessageId),
+      };
+    }),
+
+  removeFailedMessage: (tempMessageId: string) =>
+    set((state) => {
+      return {
+        failedMessages: state.failedMessages.filter((msg) => msg.tempMessageId !== tempMessageId),
+      };
+    }),
+
   prependPastMessages: (pastMessages: Message[]) =>
     set((state) => {
       // Checks if messageIds already exists in messages array
@@ -95,7 +131,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
       };
     }),
 
-  setMessages: (msgs) => set({ messages: msgs }),
+  setMessages: (newMessages: Message[]) => set({ messages: newMessages }),
 
   setActiveConversationId: (conversationId) => {
     if (get().activeConversationId === conversationId) return;

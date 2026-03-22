@@ -13,13 +13,17 @@ export async function getUserConversationsList() {
   return res.json();
 }
 
-export async function sendMessage(content: string, activeConversationId: string | null) {
+export async function sendMessage(
+  content: string,
+  tempMessageId: string,
+  activeConversationId: string | null
+) {
   console.log(activeConversationId);
 
   const res = await fetch(`${fastapiServerUrl}/api/messages/send`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ content, conversation_id: activeConversationId }),
+    body: JSON.stringify({ content, tempMessageId, conversationId: activeConversationId }),
     credentials: 'include',
   });
 
