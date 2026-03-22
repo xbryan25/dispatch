@@ -137,58 +137,68 @@ export default function UserMessage({
       )}
 
       <div className="flex flex-col">
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <div className="flex flex-col gap-1">
-              <div
-                className={cn(
-                  'flex rounded-2xl items-center py-2 px-3 whitespace-pre-wrap wrap-break-word',
-                  messageType === 'sender'
-                    ? `${activeConversationTheme.sender}`
-                    : `${activeConversationTheme.receiver}`
-                )}
-              >
-                <p>{content}</p>
-              </div>
-            </div>
-          </TooltipTrigger>
-          <TooltipContent side={'left'}>
-            <p className="font-medium font-sans">{createdAt != null ? formattedTime : '-'}</p>
-          </TooltipContent>
-        </Tooltip>
-
-        {messageId === otherParticipantLastReadMessageId && currentUserId === senderId && (
-          <div className="flex justify-end pt-1">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <div className="relative w-4 h-4 shrink-0 overflow-hidden rounded-full">
-                  <Image
-                    src={
-                      otherParticipantDetails?.profileImageUrl
-                        ? otherParticipantDetails.profileImageUrl
-                        : '/blank_picture.png'
-                    }
-                    alt="User avatar"
-                    fill
-                    sizes="96px" // Helps Next.js optimize the download size
-                    className="object-cover"
-                  />
+        <div className="flex flex-col">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="flex flex-col gap-1">
+                <div
+                  className={cn(
+                    'flex rounded-2xl items-center py-2 px-3 whitespace-pre-wrap wrap-break-word',
+                    messageType === 'sender'
+                      ? `${activeConversationTheme.sender}`
+                      : `${activeConversationTheme.receiver}`
+                  )}
+                >
+                  <p>{content}</p>
                 </div>
-              </TooltipTrigger>
-              <TooltipContent side={'left'}>
-                <p className="font-medium font-sans">
-                  {createdAt != null ? `Seen by ${username} at ${formattedSeenTime}` : '-'}
-                </p>
-              </TooltipContent>
-            </Tooltip>
-          </div>
-        )}
+              </div>
+            </TooltipTrigger>
+            <TooltipContent side={'left'}>
+              <p className="font-medium font-sans">{createdAt != null ? formattedTime : '-'}</p>
+            </TooltipContent>
+          </Tooltip>
 
-        {messageState === 'sending' && (
-          <div className="flex justify-end pt-1">
-            <p className="text-xs">Sending{dots}</p>
-          </div>
-        )}
+          {messageId === otherParticipantLastReadMessageId && currentUserId === senderId && (
+            <div className="flex justify-end pt-1">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="relative w-4 h-4 shrink-0 overflow-hidden rounded-full">
+                    <Image
+                      src={
+                        otherParticipantDetails?.profileImageUrl
+                          ? otherParticipantDetails.profileImageUrl
+                          : '/blank_picture.png'
+                      }
+                      alt="User avatar"
+                      fill
+                      sizes="96px" // Helps Next.js optimize the download size
+                      className="object-cover"
+                    />
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent side={'left'}>
+                  <p className="font-medium font-sans">
+                    {createdAt != null ? `Seen by ${username} at ${formattedSeenTime}` : '-'}
+                  </p>
+                </TooltipContent>
+              </Tooltip>
+            </div>
+          )}
+        </div>
+
+        <div>
+          {messageState === 'sending' && (
+            <div className="flex justify-end pt-1">
+              <p className="text-xs">Sending{dots}</p>
+            </div>
+          )}
+
+          {messageState === 'failed' && (
+            <div className="flex justify-end pt-1">
+              <p className="text-xs text-red-500">Failed to send message.</p>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

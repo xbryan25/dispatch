@@ -2,26 +2,22 @@
 
 import { Button } from './ui/button';
 
-import { InputGroup, InputGroupTextarea } from '@/components/ui/input-group';
-
 import Image from 'next/image';
 import { Icon } from '@iconify/react';
 import MessageThread from './messageThread';
 
-import { useSendMessage } from '@/hooks/useChat';
 import { useChatStore } from '@/store/useChatStore';
 
 import { useState, useEffect } from 'react';
+import MessageInput from './messageInput';
 
 interface ConversationAreaProps {
   onToggle: (newVal?: boolean) => void; // This is a function prop
 }
 
 export default function ConversationArea({ onToggle }: ConversationAreaProps) {
-  const [newMessage, setNewMessage] = useState<string>('');
   const [formattedLastOnline, setFormattedLastOnline] = useState<string>('');
 
-  const { send } = useSendMessage();
   const otherParticipantDetails = useChatStore((state) => state.otherParticipantDetails);
 
   const otherParticipantFriendshipStatus = useChatStore(
@@ -30,18 +26,6 @@ export default function ConversationArea({ onToggle }: ConversationAreaProps) {
 
   const otherParticipantIsOnline = useChatStore((state) => state.otherParticipantIsOnline);
   const otherParticipantLastOnline = useChatStore((state) => state.otherParticipantLastOnline);
-
-  const addSendingMessage = useChatStore((state) => state.addSendingMessage);
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-
-      if (newMessage.trim() !== '') {
-        sendNewMessage();
-      }
-    }
-  };
 
   useEffect(() => {
     if (otherParticipantFriendshipStatus !== 'accepted') {
@@ -71,20 +55,6 @@ export default function ConversationArea({ onToggle }: ConversationAreaProps) {
       }
     }
     return '1m';
-  };
-
-  const sendNewMessage = () => {
-    const tempMessageId: string = crypto.randomUUID();
-
-    addSendingMessage({
-      tempMessageId,
-      content: newMessage.trim(),
-      createdAt: new Date().toISOString(),
-      status: 'sending',
-    });
-
-    send(newMessage.trim(), tempMessageId);
-    setNewMessage('');
   };
 
   useEffect(() => {
@@ -146,30 +116,10 @@ export default function ConversationArea({ onToggle }: ConversationAreaProps) {
 
       <MessageThread />
 
-      <div className="flex gap-2 px-2 my-2 items-end">
-        <InputGroup className="flex-1 shrink-0">
-          <InputGroupTextarea
-            placeholder={
-              otherParticipantFriendshipStatus !== 'accepted'
-                ? `You aren't friends with ${otherParticipantDetails?.username} anymore. This conversation is read-only.`
-                : 'Type your message...'
-            }
-            value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
-            onKeyDown={handleKeyDown}
-            className="min-h-8.5 max-h-40 overflow-y-auto py-2 px-3"
-            disabled={otherParticipantFriendshipStatus !== 'accepted'}
-          />
-        </InputGroup>
-
-        <Button
-          className="cursor-pointer h-9.5"
-          onClick={() => sendNewMessage()}
-          disabled={newMessage.trim() === '' || otherParticipantFriendshipStatus !== 'accepted'}
-        >
-          Send
-        </Button>
-      </div>
+      <MessageInput
+        otherParticipantFriendshipStatus={otherParticipantFriendshipStatus}
+        otherParticipantDetails={otherParticipantDetails}
+      />
     </div>
   );
 }
