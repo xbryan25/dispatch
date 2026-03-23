@@ -93,11 +93,18 @@ export async function getPresignedUrl(image: File) {
     }
   );
 
-  if (!res.ok) throw new Error('Something went wrong when updating profile image.');
+  if (!res.ok) {
+    const error = new Error('Something went wrong when getting the presigned URL.') as Error & {
+      status: number;
+    };
+    error.status = res.status;
+    throw error;
+  }
+
   return res.json();
 }
 
-export async function updateProfileImageUrl(imageUrl: string) {
+export async function updateProfileImage(imageUrl: string) {
   const res = await fetch(`${fastapiServerUrl}/api/auth/profile-image`, {
     method: 'PATCH',
     credentials: 'include',
@@ -107,6 +114,13 @@ export async function updateProfileImageUrl(imageUrl: string) {
     body: JSON.stringify({ profile_image_url: imageUrl }),
   });
 
-  if (!res.ok) throw new Error('Something went wrong when updating profile image.');
+  if (!res.ok) {
+    const error = new Error('Something went wrong when updating the profile image.') as Error & {
+      status: number;
+    };
+    error.status = res.status;
+    throw error;
+  }
+
   return res.json();
 }

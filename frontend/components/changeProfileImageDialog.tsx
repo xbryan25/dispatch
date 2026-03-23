@@ -30,9 +30,15 @@ import { validateImageFile } from '@/lib/validation';
 import { ChangeEvent } from 'react';
 import LoadingSpinner from './loadingSpinner';
 
+import { cn } from '@/lib/utils';
+
 export default function ChangeProfileImageDialog() {
-  const { patchUserProfileImage, loading: patchUserProfileImageLoading } =
-    useUpdateUserProfileImage();
+  const {
+    patchUserProfileImage,
+    loading: patchUserProfileImageLoading,
+    isRateLimitedPresignedURL: isGetPresignedURLRateLimited,
+    isRateLimitedUpdatingImage: isUpdateImageRateLimited,
+  } = useUpdateUserProfileImage();
 
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [isSuccessfulUpdate, setIsSuccessfulUpdate] = useState<boolean>(false);
@@ -58,17 +64,26 @@ export default function ChangeProfileImageDialog() {
   const updateUserProfilePicture = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (selectedImage) {
-      setIsSuccessfulUpdate(true);
+    if (!selectedImage) return;
 
-      await patchUserProfileImage(selectedImage);
+    setIsSuccessfulUpdate(true);
 
+    const { error, rateLimited } = await patchUserProfileImage(selectedImage);
+
+    if (error != null) {
+      toast.error('Profile image update has failed.');
       setIsOpen(false);
-      toast.success('Profile update is successful!');
-    } else {
-      setIsSuccessfulUpdate(false);
-      toast.error('No image is currently selected.');
+      return;
+    } else if (rateLimited) {
+      toast.error('You have made too many requests. Try again in 1 minute.');
+      setIsOpen(false);
+      return;
     }
+
+    setIsOpen(false);
+
+    setIsSuccessfulUpdate(true);
+    toast.success('Profile image update is successful!');
   };
 
   return (
@@ -81,7 +96,12 @@ export default function ChangeProfileImageDialog() {
     >
       <DialogTrigger asChild>
         <button
-          className="flex items-center gap-1 bg-white dark:bg-stone-900 hover:bg-stone-200 dark:hover:bg-stone-700 cursor-pointer rounded-md p-2 font-medium"
+          className={cn(
+            'flex items-center gap-1 bg-white dark:bg-stone-900  rounded-md p-2 font-medium',
+            isGetPresignedURLRateLimited || isUpdateImageRateLimited
+              ? 'cursor-not-allowed text-stone-400'
+              : ' hover:bg-stone-200 dark:hover:bg-stone-700  cursor-pointer'
+          )}
           onClick={() => setIsOpen(true)}
         >
           <Icon icon="material-symbols:image" className="size-4" />
