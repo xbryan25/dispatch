@@ -121,51 +121,60 @@ export function useInitCurrentUserId() {
 export function useGetCurrentUserDetails() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isRateLimited, setIsRateLimited] = useState(false);
 
   const retrieveUserDetails = async () => {
     setLoading(true);
     setError(null);
     try {
       const data: UserProfile = await getCurrentUserDetails();
-
-      return { data, error: null };
+      setLoading(false);
+      return { data, error: null, rateLimited: false };
     } catch (err: unknown) {
+      if (err instanceof Error && (err as Error & { status: number }).status === 429) {
+        setIsRateLimited(true);
+        setTimeout(() => setIsRateLimited(false), 60000);
+        return { data: null, error: null, rateLimited: true };
+      }
       const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred';
 
       setError(errorMessage);
 
-      return { data: null, error: errorMessage };
-    } finally {
-      setLoading(false);
+      return { data: null, error: errorMessage, rateLimited: false };
     }
   };
 
-  return { retrieveUserDetails, loading, error };
+  return { retrieveUserDetails, loading, error, isRateLimited };
 }
 
 export function useUpdateCurrentUserDetails() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isRateLimited, setIsRateLimited] = useState(false);
 
   const patchUserDetails = async (payload: UserProfileUpdate) => {
     setLoading(true);
     setError(null);
     try {
       await updateUserDetails(payload);
-
-      return { error: null };
+      return { error: null, rateLimited: false };
     } catch (err: unknown) {
+      if (err instanceof Error && (err as Error & { status: number }).status === 429) {
+        setIsRateLimited(true);
+        setTimeout(() => setIsRateLimited(false), 60000);
+        return { error: null, rateLimited: true };
+      }
       const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred';
 
       setError(errorMessage);
 
-      return { error: errorMessage };
+      return { error: errorMessage, rateLimited: false };
     } finally {
       setLoading(false);
     }
   };
 
-  return { patchUserDetails, loading, error };
+  return { patchUserDetails, loading, error, isRateLimited };
 }
 
 export function useUpdateUserProfileImage() {

@@ -42,7 +42,14 @@ export async function getCurrentUserDetails() {
     credentials: 'include',
   });
 
-  if (!res.ok) throw new Error('Something went wrong when getting user details.');
+  if (!res.ok) {
+    const error = new Error('Something went wrong when getting user details.') as Error & {
+      status: number;
+    };
+    error.status = res.status;
+    throw error;
+  }
+
   return res.json();
 }
 
@@ -66,7 +73,14 @@ export async function updateUserDetails(payload: UserProfileUpdate) {
     credentials: 'include',
   });
 
-  if (!res.ok) throw new Error('Something went wrong when getting user details.');
+  if (!res.ok) {
+    const error = new Error('Something went wrong when updating user details.') as Error & {
+      status: number;
+    };
+    error.status = res.status;
+    throw error;
+  }
+
   return res.json();
 }
 

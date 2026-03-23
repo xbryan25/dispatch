@@ -40,9 +40,20 @@ import { FormEvent } from 'react';
 import { toast } from 'sonner';
 import LoadingSpinner from './loadingSpinner';
 
+import { cn } from '@/lib/utils';
+import { Spinner } from './ui/spinner';
+
 export default function UpdateProfileDialog() {
-  const { retrieveUserDetails, loading: retrieveUserDetailsLoading } = useGetCurrentUserDetails();
-  const { patchUserDetails } = useUpdateCurrentUserDetails();
+  const {
+    retrieveUserDetails,
+    loading: retrieveUserDetailsLoading,
+    isRateLimited: isGetUserDetailsRateLimited,
+  } = useGetCurrentUserDetails();
+  const {
+    patchUserDetails,
+    loading: patchUserDetailsLoading,
+    isRateLimited: isUpdatingUserDetailsRateLimited,
+  } = useUpdateCurrentUserDetails();
 
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [isSuccessfulUpdate, setIsSuccessfulUpdate] = useState<boolean>(false);
@@ -58,7 +69,17 @@ export default function UpdateProfileDialog() {
   const [userDetails, setUserDetails] = useState<UserProfile | null>(null);
 
   const getUserDetails = async () => {
-    const { data } = await retrieveUserDetails();
+    const { data, error, rateLimited } = await retrieveUserDetails();
+
+    if (error != null) {
+      toast.error(error);
+      setIsOpen(false);
+      return;
+    } else if (rateLimited) {
+      toast.error('You have made too many requests. Try again in 1 minute.');
+      setIsOpen(false);
+      return;
+    }
 
     setUserDetails(data);
 
@@ -69,15 +90,28 @@ export default function UpdateProfileDialog() {
   const updateUserDetails = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    try {
-      setIsSuccessfulUpdate(true);
-      await patchUserDetails({ dateOfBirth, fullName, gender, username });
-      setIsOpen(false);
-      toast.success('Profile update is successful!');
-    } catch {
-      setIsSuccessfulUpdate(false);
+    const { error, rateLimited } = await patchUserDetails({
+      dateOfBirth,
+      fullName,
+      gender,
+      username,
+    });
+
+    if (error != null) {
       toast.error('Profile update has failed.');
+      setIsOpen(false);
+      return;
+    } else if (rateLimited) {
+      toast.error('You have made too many requests. Try again in 1 minute.');
+      setIsOpen(false);
+      return;
     }
+
+    setIsOpen(false);
+
+    setIsSuccessfulUpdate(true);
+
+    toast.success('Profile update is successful!');
   };
 
   const resetValues = () => {
@@ -102,8 +136,14 @@ export default function UpdateProfileDialog() {
     >
       <DialogTrigger asChild>
         <button
-          className="flex items-center gap-1 bg-white dark:bg-stone-900 hover:bg-stone-200 dark:hover:bg-stone-700 cursor-pointer rounded-md p-2 font-medium"
+          className={cn(
+            'flex items-center gap-1 bg-white dark:bg-stone-900  rounded-md p-2 font-medium',
+            isGetUserDetailsRateLimited || isUpdatingUserDetailsRateLimited
+              ? 'cursor-not-allowed text-stone-400'
+              : ' hover:bg-stone-200 dark:hover:bg-stone-700  cursor-pointer'
+          )}
           onClick={getUserDetails}
+          disabled={isGetUserDetailsRateLimited || isUpdatingUserDetailsRateLimited}
         >
           <Icon icon="material-symbols:person" className="size-4" />
           Update profile
@@ -119,6 +159,7 @@ export default function UpdateProfileDialog() {
         </DialogHeader>
 
         {(retrieveUserDetailsLoading || isSuccessfulUpdate) && <LoadingSpinner />}
+
         {!retrieveUserDetailsLoading && !isSuccessfulUpdate && (
           <div className="flex w-full gap-2 pt-2">
             <div className="w-full max-w-md">
@@ -226,8 +267,9 @@ export default function UpdateProfileDialog() {
                     <Button
                       type="submit"
                       className="w-full cursor-pointer text-lg"
-                      disabled={!enableSaveButton}
+                      disabled={!enableSaveButton || patchUserDetailsLoading}
                     >
+                      {patchUserDetailsLoading && <Spinner />}
                       Save changes
                     </Button>
                   </Field>
