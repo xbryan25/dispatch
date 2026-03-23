@@ -101,7 +101,7 @@ export async function updateConversationTheme(conversationId: string, theme: str
 
 export async function markConversationAsRead(conversationId: string) {
   const res = await fetch(`${fastapiServerUrl}/api/messages/mark-as-read`, {
-    method: 'POST',
+    method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ conversationId }),
     credentials: 'include',

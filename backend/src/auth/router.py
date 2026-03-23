@@ -1,8 +1,9 @@
-from fastapi import APIRouter, Depends, Query, HTTPException
+from fastapi import APIRouter, Depends, Query, HTTPException, Request
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.core import get_db, get_s3_client, settings
+from src.core import get_db, get_s3_client, settings, limiter
+
 from .dependencies import get_current_user_id
 from .services import AuthService
 from .schemas import (
@@ -24,23 +25,33 @@ router = APIRouter(
     prefix="/api/auth", tags=["auth"], dependencies=[Depends(get_current_user_id)]
 )
 
+public_router = APIRouter(prefix="/api/auth", tags=["auth"])
 
-@router.get("/check-username", response_model=UsernameCheckResponse)
+
+@public_router.get("/check-username", response_model=UsernameCheckResponse)
+@limiter.limit("10/minute")
 async def check_username(
-    username: str = Query(..., min_length=3), db: AsyncSession = Depends(get_db)
-):
+    request: Request,
+    username: str = Query(..., min_length=3),
+    db: AsyncSession = Depends(get_db),
+):  # noqa: F401
 
     return await AuthService.check_username(db, username)
 
 
 @router.get("/me")
-async def get_me(user_id: Annotated[UUID, Depends(get_current_user_id)]):
+@limiter.limit("120/minute")
+async def get_me(
+    request: Request, user_id: Annotated[UUID, Depends(get_current_user_id)]
+):
 
     return {"currentUserId": user_id}
 
 
 @router.get("/user-details", response_model=UserResponse)
+@limiter.limit("30/minute")
 async def get_user_details(
+    request: Request,
     user_id: Annotated[UUID, Depends(get_current_user_id)],
     db: AsyncSession = Depends(get_db),
 ):
@@ -54,14 +65,14 @@ async def get_user_details(
 
 
 @router.patch("/user-details")
+@limiter.limit("10/minute")
 async def update_user_details(
+    request: Request,
     payload: UserUpdate,
     user_id: Annotated[UUID, Depends(get_current_user_id)],
     db: AsyncSession = Depends(get_db),
 ):
-
     try:
-
         return await AuthService.update_participant_details(db, user_id, payload)
 
     except Exception:
@@ -70,7 +81,9 @@ async def update_user_details(
 
 
 @router.get("/profile-image-upload-url")
+@limiter.limit("30/minute")
 async def get_profile_image_upload_url(
+    request: Request,
     filename: str,
     file_type: str,
     user_id: Annotated[UUID, Depends(get_current_user_id)],
@@ -99,7 +112,9 @@ async def get_profile_image_upload_url(
 
 
 @router.patch("/profile-image")
+@limiter.limit("10/minute")
 async def update_profile_image_url(
+    request: Request,
     payload: UserProfileImageUrl,
     user_id: Annotated[UUID, Depends(get_current_user_id)],
     db: AsyncSession = Depends(get_db),
