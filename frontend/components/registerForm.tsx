@@ -28,7 +28,11 @@ export default function RegisterForm() {
 
   const { registerUser, loading, error } = useRegisterUser();
 
-  const { isUsernameTaken, isLoading: isCheckingUsername } = useUsernameCheck(username);
+  const {
+    isUsernameTaken,
+    isLoading: isCheckingUsername,
+    isRateLimited: isUsernameCheckRateLimited,
+  } = useUsernameCheck(username);
 
   const passwordErrors = validatePassword(password);
   const isEmailValid = validateEmail(email);
@@ -66,6 +70,13 @@ export default function RegisterForm() {
                   onChange={(e) => setUsername(e.target.value)}
                 />
 
+                {isCheckingUsername && !isUsernameCheckRateLimited && (
+                  <div className="flex gap-1 items-center">
+                    <Spinner />
+                    <span className=" text-sm">Checking username availability...</span>
+                  </div>
+                )}
+
                 {!isCheckingUsername && isUsernameTaken && (
                   <div className="flex gap-1 items-center">
                     <Icon
@@ -84,6 +95,18 @@ export default function RegisterForm() {
                     />
                     <span className="text-red-500 text-sm">
                       Username should have 3 or more characters.
+                    </span>
+                  </div>
+                )}
+
+                {isUsernameCheckRateLimited && (
+                  <div className="flex gap-1 items-center">
+                    <Icon
+                      icon="material-symbols:cancel-outline-rounded"
+                      className="w-4 h-4 text-red-500"
+                    />
+                    <span className="text-red-500 text-sm">
+                      Too many attempts. Please wait a minute.
                     </span>
                   </div>
                 )}
@@ -169,7 +192,8 @@ export default function RegisterForm() {
                 !passwordsMatch ||
                 !isEmailValid ||
                 isFormEmpty ||
-                !isUsernameProperLength
+                !isUsernameProperLength ||
+                isUsernameCheckRateLimited
               }
               className="w-full cursor-pointer text-lg"
             >
