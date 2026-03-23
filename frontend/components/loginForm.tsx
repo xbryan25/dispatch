@@ -44,7 +44,7 @@ export default function LoginForm() {
       const { error: initCurrentUserIdError } = await initCurrentUserId();
 
       if (initCurrentUserIdError) {
-        toast.error(`Failed to retrieve currentUserId. ${initCurrentUserIdError}.`);
+        toast.error(`Login successful but failed to load your account. Please refresh.`);
       } else {
         toast.success('Login successful. Welcome to Dispatch!');
         router.push('/messages');
