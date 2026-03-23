@@ -7,7 +7,14 @@ export async function checkIfUsernameIsTaken(username: string) {
     `${fastapiServerUrl}/api/auth/check-username?username=${encodeURIComponent(username)}`
   );
 
-  if (!res.ok) throw new Error('Something went wrong when checking for username availability.');
+  if (!res.ok) {
+    const error = new Error(
+      'Something went wrong when checking for username availability.'
+    ) as Error & { status: number };
+    error.status = res.status;
+    throw error;
+  }
+
   return res.json();
 }
 
