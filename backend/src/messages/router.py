@@ -5,8 +5,9 @@ from fastapi import (
     Depends,
     HTTPException,
     Query,
+    Request,
 )
-from src.core import manager, get_db, get_redis
+from src.core import manager, get_db, get_redis, limiter
 
 from src.auth.dependencies import get_current_user_id
 
@@ -119,7 +120,9 @@ async def websocket_endpoint(
 
 
 @router.post("/send", response_model=MessageRead)
+@limiter.limit("30/minute")
 async def send_message(
+    request: Request,
     payload: MessageCreate,
     user_id: Annotated[UUID, Depends(get_current_user_id)],
     db: AsyncSession = Depends(get_db),
@@ -179,7 +182,9 @@ async def send_message(
 
 
 @router.get("/conversations", response_model=ConversationList)
+@limiter.limit("60/minute")
 async def get_conversation_list(
+    request: Request,
     user_id: Annotated[UUID, Depends(get_current_user_id)],
     db: AsyncSession = Depends(get_db),
 ):
@@ -204,7 +209,9 @@ async def get_conversation_list(
     "/{conversation_id}/other-participant",
     response_model=UserMinimalWithStatus,
 )
+@limiter.limit("60/minute")
 async def get_other_conversation_participant(
+    request: Request,
     user_id: Annotated[UUID, Depends(get_current_user_id)],
     conversation_id: UUID,
     db: AsyncSession = Depends(get_db),
@@ -254,7 +261,9 @@ async def get_other_conversation_participant(
 
 
 @router.post("/new-direct-message", response_model=ConversationIdWithType)
+@limiter.limit("20/minute")
 async def create_direct_message(
+    request: Request,
     payload: TargetUserId,
     user_id: Annotated[UUID, Depends(get_current_user_id)],
     db: AsyncSession = Depends(get_db),
@@ -294,7 +303,9 @@ async def create_direct_message(
 
 
 @router.get("/theme", response_model=ConversationTheme)
+@limiter.limit("60/minute")
 async def get_conversation_theme(
+    request: Request,
     conversation_id: UUID,
     db: AsyncSession = Depends(get_db),
 ):
@@ -313,6 +324,7 @@ async def get_conversation_theme(
 
 @router.patch("/update-theme", response_model=ConversationTheme)
 async def update_conversation_theme(
+    request: Request,
     payload: ConversationIdWithTheme,
     user_id: Annotated[UUID, Depends(get_current_user_id)],
     db: AsyncSession = Depends(get_db),
@@ -362,8 +374,10 @@ async def update_conversation_theme(
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
-@router.post("/mark-as-read")
+@router.patch("/mark-as-read")
+@limiter.limit("20/minute")
 async def mark_conversation_as_read(
+    request: Request,
     payload: ConversationId,
     user_id: Annotated[UUID, Depends(get_current_user_id)],
     db: AsyncSession = Depends(get_db),
@@ -415,7 +429,9 @@ async def mark_conversation_as_read(
 
 
 @router.get("/{conversation_id}", response_model=PastMessagesList)
+@limiter.limit("90/minute")
 async def get_conversation_message_history(
+    request: Request,
     conversation_id: UUID,
     filter_params: Annotated[HistoryFilter, Query()],
     db: AsyncSession = Depends(get_db),

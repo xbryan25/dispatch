@@ -1,9 +1,5 @@
-from fastapi import (
-    APIRouter,
-    Depends,
-    HTTPException,
-)
-from src.core import manager, get_db
+from fastapi import APIRouter, Depends, HTTPException, Request
+from src.core import manager, get_db, limiter
 
 from src.auth.dependencies import get_current_user_id
 
@@ -33,7 +29,9 @@ router = APIRouter(
 
 
 @router.get("", response_model=UsersWithPaginationDetails)
+@limiter.limit("30/minute")
 async def get_current_friends(
+    request: Request,
     user_id: Annotated[UUID, Depends(get_current_user_id)],
     sort_state: str = "ascending",
     search_query: str = "",
@@ -65,7 +63,9 @@ async def get_current_friends(
 
 
 @router.get("/sent", response_model=UsersWithPaginationDetails)
+@limiter.limit("30/minute")
 async def get_sent_requests_profiles(
+    request: Request,
     user_id: Annotated[UUID, Depends(get_current_user_id)],
     sort_state: str = "ascending",
     search_query: str = "",
@@ -97,7 +97,9 @@ async def get_sent_requests_profiles(
 
 
 @router.get("/received", response_model=UsersWithPaginationDetails)
+@limiter.limit("30/minute")
 async def get_received_requests_profiles(
+    request: Request,
     user_id: Annotated[UUID, Depends(get_current_user_id)],
     sort_state: str = "ascending",
     search_query: str = "",
@@ -129,7 +131,9 @@ async def get_received_requests_profiles(
 
 
 @router.get("/former", response_model=UsersWithPaginationDetails)
+@limiter.limit("30/minute")
 async def get_former_friends(
+    request: Request,
     user_id: Annotated[UUID, Depends(get_current_user_id)],
     sort_state: str = "ascending",
     search_query: str = "",
@@ -161,7 +165,9 @@ async def get_former_friends(
 
 
 @router.get("/suggestions", response_model=UsersWithPaginationDetails)
+@limiter.limit("30/minute")
 async def get_friend_suggestions(
+    request: Request,
     user_id: Annotated[UUID, Depends(get_current_user_id)],
     sort_state: str = "ascending",
     search_query: str = "",
@@ -193,7 +199,9 @@ async def get_friend_suggestions(
 
 
 @router.post("/friend-request")
+@limiter.limit("20/minute")
 async def create_new_friend_request(
+    request: Request,
     payload: TargetUserId,
     user_id: Annotated[UUID, Depends(get_current_user_id)],
     db: AsyncSession = Depends(get_db),
@@ -220,7 +228,9 @@ async def create_new_friend_request(
 
 
 @router.delete("/friend-request/{target_user_id}")
+@limiter.limit("20/minute")
 async def cancel_friend_request(
+    request: Request,
     target_user_id: UUID,
     user_id: Annotated[UUID, Depends(get_current_user_id)],
     db: AsyncSession = Depends(get_db),
@@ -237,7 +247,9 @@ async def cancel_friend_request(
 
 
 @router.patch("/friend-request")
+@limiter.limit("20/minute")
 async def accept_friend_request(
+    request: Request,
     payload: TargetUserId,
     user_id: Annotated[UUID, Depends(get_current_user_id)],
     db: AsyncSession = Depends(get_db),
@@ -276,7 +288,9 @@ async def accept_friend_request(
 
 
 @router.delete("/friend-request/reject/{target_user_id}")
+@limiter.limit("20/minute")
 async def reject_friend_request(
+    request: Request,
     target_user_id: UUID,
     user_id: Annotated[UUID, Depends(get_current_user_id)],
     db: AsyncSession = Depends(get_db),
@@ -293,7 +307,9 @@ async def reject_friend_request(
 
 
 @router.patch("/unfriend")
+@limiter.limit("20/minute")
 async def unfriend_user(
+    request: Request,
     payload: TargetUserId,
     user_id: Annotated[UUID, Depends(get_current_user_id)],
     db: AsyncSession = Depends(get_db),
@@ -330,7 +346,9 @@ async def unfriend_user(
 
 
 @router.patch("/friend-request/reconnect")
+@limiter.limit("20/minute")
 async def reconnect_to_former_friend(
+    request: Request,
     payload: TargetUserId,
     user_id: Annotated[UUID, Depends(get_current_user_id)],
     db: AsyncSession = Depends(get_db),
