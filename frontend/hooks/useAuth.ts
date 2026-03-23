@@ -9,7 +9,7 @@ import {
   getCurrentUserDetails,
   updateUserDetails,
   getPresignedUrl,
-  updateProfileImageUrl,
+  updateProfileImage,
 } from '@/lib/api/auth';
 
 import { uploadImageToSupabaseStorage } from '@/lib/supabase/client';
@@ -180,6 +180,8 @@ export function useUpdateCurrentUserDetails() {
 export function useUpdateUserProfileImage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isRateLimitedPresignedURL, setIsRateLimitedPresignedURL] = useState(false);
+  const [isRateLimitedUpdatingImage, setIsRateLimitedUpdatingImage] = useState(false);
 
   const patchUserProfileImage = async (image: File) => {
     setLoading(true);
@@ -189,19 +191,35 @@ export function useUpdateUserProfileImage() {
 
       await uploadImageToSupabaseStorage(data.upload_url, image);
 
-      await updateProfileImageUrl(data.final_image_url);
+      await updateProfileImage(data.final_image_url);
 
-      return { error: null };
+      return { error: null, rateLimited: false };
     } catch (err: unknown) {
+      if (err instanceof Error && (err as Error & { status: number }).status === 429) {
+        setIsRateLimitedPresignedURL(true);
+        setIsRateLimitedUpdatingImage(true);
+        setTimeout(
+          () => (setIsRateLimitedPresignedURL(false), setIsRateLimitedUpdatingImage(false)),
+          60000
+        );
+        return { error: null, rateLimited: true };
+      }
+
       const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred';
 
       setError(errorMessage);
 
-      return { error: errorMessage };
+      return { error: errorMessage, rateLimited: false };
     } finally {
       setLoading(false);
     }
   };
 
-  return { patchUserProfileImage, loading, error };
+  return {
+    patchUserProfileImage,
+    loading,
+    error,
+    isRateLimitedPresignedURL,
+    isRateLimitedUpdatingImage,
+  };
 }
