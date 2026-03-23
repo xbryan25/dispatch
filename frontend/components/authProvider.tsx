@@ -13,7 +13,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       try {
         await initCurrentUserId();
       } catch {
-        // If the backend says the session is dead, wipe the store
+        // Wipe the store
         console.error('Session invalid, logging out...');
         clearCurrentUserId();
       }

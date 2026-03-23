@@ -344,9 +344,7 @@ class FriendsQueries:
         """This statement updates a friend request and turns the status to 'unfriended'."""
 
         id_a, id_b = sorted([current_user_id, target_user_id])
-
-        print(f"\n\nid_a: {id_a} id_b:{id_b}\n\n")
-
+        
         stmt = (
             update(Friendship)
             .where(
