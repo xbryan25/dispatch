@@ -25,7 +25,13 @@ export async function getCurrentUserId() {
     credentials: 'include',
   });
 
-  if (!res.ok) throw new Error('Something went wrong when getting userId.');
+  if (!res.ok) {
+    const error = new Error('Something went wrong when getting userId.') as Error & {
+      status: number;
+    };
+    error.status = res.status;
+    throw error;
+  }
   return res.json();
 }
 

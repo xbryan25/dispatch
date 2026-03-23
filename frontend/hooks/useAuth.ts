@@ -90,7 +90,7 @@ export function useLogout() {
 }
 
 export function useInitCurrentUserId() {
-  const { setCurrentUserId } = useAuthStore(); // Your existing store
+  const { setCurrentUserId } = useAuthStore();
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
