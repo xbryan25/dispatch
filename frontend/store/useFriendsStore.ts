@@ -11,6 +11,7 @@ import {
 } from '@/lib/api/friendship';
 
 import { SortState, UserCategory } from '@/types/friends';
+import { Factory } from 'lucide-react';
 
 interface FriendsState {
   users: UserInfo[];
@@ -25,6 +26,8 @@ interface FriendsState {
   totalUsers: number;
   totalPages: number;
   currentPage: number;
+
+  retryTimeout: ReturnType<typeof setTimeout> | null;
 
   // Actions
   setUsers: (newUsers: UserInfo[]) => void;
@@ -43,23 +46,36 @@ interface FriendsState {
   setTotalPages: (newTotalPages: number) => void;
   setCurrentPage: (newCurrentPage: number) => void;
 
-  getFriends: (sortState: string, searchQuery: string, page: number) => Promise<void>;
+  getFriends: (
+    sortState: string,
+    searchQuery: string,
+    page: number,
+    isRetry?: boolean
+  ) => Promise<void>;
   getProfilesOfSentRequests: (
     sortState: string,
     searchQuery: string,
-    page: number
+    page: number,
+    isRetry?: boolean
   ) => Promise<void>;
   getProfilesOfReceivedRequests: (
     sortState: string,
     searchQuery: string,
-    page: number
+    page: number,
+    isRetry?: boolean
   ) => Promise<void>;
   getProfilesOfFormerFriends: (
     sortState: string,
     searchQuery: string,
-    page: number
+    page: number,
+    isRetry?: boolean
   ) => Promise<void>;
-  getSuggestedProfiles: (sortState: string, searchQuery: string, page: number) => Promise<void>;
+  getSuggestedProfiles: (
+    sortState: string,
+    searchQuery: string,
+    page: number,
+    isRetry?: boolean
+  ) => Promise<void>;
 
   loadUsersData: (newPage?: number) => Promise<void>;
 }
@@ -84,6 +100,8 @@ export const useFriendsStore = create<FriendsState>()((set, get) => ({
   totalUsers: 0,
   totalPages: 0,
   currentPage: 1,
+
+  retryTimeout: null,
 
   setUsers: (newUsers) => set({ users: newUsers }),
   clearUsers: () => set({ users: [] }),
@@ -119,7 +137,12 @@ export const useFriendsStore = create<FriendsState>()((set, get) => ({
   setTotalPages: (newTotalPages) => set({ totalPages: newTotalPages }),
   setCurrentPage: (newCurrentPage) => set({ currentPage: newCurrentPage }),
 
-  getFriends: async (sortState: string, searchQuery: string, page: number) => {
+  getFriends: async (
+    sortState: string,
+    searchQuery: string,
+    page: number,
+    isRetry: boolean = false
+  ) => {
     set({ loading: true, error: null });
 
     try {
@@ -137,19 +160,24 @@ export const useFriendsStore = create<FriendsState>()((set, get) => ({
         set((prev) => ({
           isRateLimited: {
             ...prev.isRateLimited,
-            ['friends']: true,
+            friends: true,
           },
+          users: [],
         }));
-        setTimeout(
-          () =>
+
+        if (!isRetry) {
+          setTimeout(() => {
             set((prev) => ({
-              isRateLimited: {
-                ...prev.isRateLimited,
-                ['friends']: false,
-              },
-            })),
-          60000
-        );
+              isRateLimited: { ...prev.isRateLimited, friends: false },
+            }));
+          }, 60000);
+
+          const timeout = setTimeout(() => {
+            get().getFriends(sortState, searchQuery, page, true);
+          }, 60000);
+
+          set({ retryTimeout: timeout });
+        }
       } else {
         set({
           error: err instanceof Error ? err.message : 'An error occurred',
@@ -162,7 +190,12 @@ export const useFriendsStore = create<FriendsState>()((set, get) => ({
     }
   },
 
-  getProfilesOfSentRequests: async (sortState: string, searchQuery: string, page: number) => {
+  getProfilesOfSentRequests: async (
+    sortState: string,
+    searchQuery: string,
+    page: number,
+    isRetry: boolean = false
+  ) => {
     set({ loading: true, error: null });
 
     try {
@@ -180,19 +213,23 @@ export const useFriendsStore = create<FriendsState>()((set, get) => ({
         set((prev) => ({
           isRateLimited: {
             ...prev.isRateLimited,
-            ['pending']: true,
+            pending: true,
           },
+          users: [],
         }));
-        setTimeout(
-          () =>
+        if (!isRetry) {
+          setTimeout(() => {
             set((prev) => ({
-              isRateLimited: {
-                ...prev.isRateLimited,
-                ['pending']: false,
-              },
-            })),
-          60000
-        );
+              isRateLimited: { ...prev.isRateLimited, pending: false },
+            }));
+          }, 60000);
+
+          const timeout = setTimeout(() => {
+            get().getProfilesOfSentRequests(sortState, searchQuery, page, true);
+          }, 60000);
+
+          set({ retryTimeout: timeout });
+        }
       } else {
         set({
           error: err instanceof Error ? err.message : 'An error occurred',
@@ -205,7 +242,12 @@ export const useFriendsStore = create<FriendsState>()((set, get) => ({
     }
   },
 
-  getProfilesOfReceivedRequests: async (sortState: string, searchQuery: string, page: number) => {
+  getProfilesOfReceivedRequests: async (
+    sortState: string,
+    searchQuery: string,
+    page: number,
+    isRetry: boolean = false
+  ) => {
     set({ loading: true, error: null });
 
     try {
@@ -223,19 +265,23 @@ export const useFriendsStore = create<FriendsState>()((set, get) => ({
         set((prev) => ({
           isRateLimited: {
             ...prev.isRateLimited,
-            ['requests']: true,
+            requests: true,
           },
+          users: [],
         }));
-        setTimeout(
-          () =>
+        if (!isRetry) {
+          setTimeout(() => {
             set((prev) => ({
-              isRateLimited: {
-                ...prev.isRateLimited,
-                ['requests']: false,
-              },
-            })),
-          60000
-        );
+              isRateLimited: { ...prev.isRateLimited, requests: false },
+            }));
+          }, 60000);
+
+          const timeout = setTimeout(() => {
+            get().getProfilesOfReceivedRequests(sortState, searchQuery, page, true);
+          }, 60000);
+
+          set({ retryTimeout: timeout });
+        }
       } else {
         set({
           error: err instanceof Error ? err.message : 'An error occurred',
@@ -248,7 +294,12 @@ export const useFriendsStore = create<FriendsState>()((set, get) => ({
     }
   },
 
-  getProfilesOfFormerFriends: async (sortState: string, searchQuery: string, page: number) => {
+  getProfilesOfFormerFriends: async (
+    sortState: string,
+    searchQuery: string,
+    page: number,
+    isRetry: boolean = false
+  ) => {
     set({ loading: true, error: null });
 
     try {
@@ -266,19 +317,22 @@ export const useFriendsStore = create<FriendsState>()((set, get) => ({
         set((prev) => ({
           isRateLimited: {
             ...prev.isRateLimited,
-            ['formerFriends']: true,
+            formerFriends: true,
           },
+          users: [],
         }));
-        setTimeout(
-          () =>
+        if (!isRetry) {
+          setTimeout(() => {
             set((prev) => ({
-              isRateLimited: {
-                ...prev.isRateLimited,
-                ['formerFriends']: false,
-              },
-            })),
-          60000
-        );
+              isRateLimited: { ...prev.isRateLimited, formerFriends: false },
+            }));
+          }, 60000);
+          const timeout = setTimeout(() => {
+            get().getProfilesOfFormerFriends(sortState, searchQuery, page, true);
+          }, 60000);
+
+          set({ retryTimeout: timeout });
+        }
       } else {
         set({
           error: err instanceof Error ? err.message : 'An error occurred',
@@ -291,7 +345,12 @@ export const useFriendsStore = create<FriendsState>()((set, get) => ({
     }
   },
 
-  getSuggestedProfiles: async (sortState: string, searchQuery: string, page: number) => {
+  getSuggestedProfiles: async (
+    sortState: string,
+    searchQuery: string,
+    page: number,
+    isRetry: boolean = false
+  ) => {
     set({ loading: true, error: null });
 
     try {
@@ -309,19 +368,23 @@ export const useFriendsStore = create<FriendsState>()((set, get) => ({
         set((prev) => ({
           isRateLimited: {
             ...prev.isRateLimited,
-            ['addFriend']: true,
+            addFriend: true,
           },
+          users: [],
         }));
-        setTimeout(
-          () =>
+        if (!isRetry) {
+          setTimeout(() => {
             set((prev) => ({
-              isRateLimited: {
-                ...prev.isRateLimited,
-                ['addFriend']: false,
-              },
-            })),
-          60000
-        );
+              isRateLimited: { ...prev.isRateLimited, addFriend: false },
+            }));
+          }, 60000);
+
+          const timeout = setTimeout(() => {
+            get().getSuggestedProfiles(sortState, searchQuery, page, true);
+          }, 60000);
+
+          set({ retryTimeout: timeout });
+        }
       } else {
         set({
           error: err instanceof Error ? err.message : 'An error occurred',
