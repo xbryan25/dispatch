@@ -16,6 +16,7 @@ interface FriendsState {
   users: UserInfo[];
   loading: boolean;
   error: string | null;
+  isRateLimited: Record<UserCategory, boolean>;
 
   sortState: SortState;
   searchQuery: string;
@@ -31,6 +32,8 @@ interface FriendsState {
 
   setLoading: (state: boolean) => void;
   setError: (state: string | null) => void;
+
+  setIsRateLimited: (userCategory: UserCategory, state: boolean) => void;
 
   setSortState: (newSortState: 'ascending' | 'descending') => void;
   setSearchQuery: (newSearchQuery: string) => void;
@@ -66,6 +69,14 @@ export const useFriendsStore = create<FriendsState>()((set, get) => ({
   loading: false,
   error: '',
 
+  isRateLimited: {
+    friends: false,
+    pending: false,
+    requests: false,
+    formerFriends: false,
+    addFriend: false,
+  },
+
   sortState: 'ascending',
   searchQuery: '',
   userType: 'friends',
@@ -79,6 +90,14 @@ export const useFriendsStore = create<FriendsState>()((set, get) => ({
 
   setLoading: (state) => set({ loading: state }),
   setError: (state) => set({ error: state }),
+
+  setIsRateLimited: (userCategory, state) =>
+    set((prev) => ({
+      isRateLimited: {
+        ...prev.isRateLimited,
+        [userCategory]: state,
+      },
+    })),
 
   setSortState: async (newSortState) => {
     set({ sortState: newSortState });
@@ -114,8 +133,30 @@ export const useFriendsStore = create<FriendsState>()((set, get) => ({
         loading: false,
       });
     } catch (err: unknown) {
+      if (err instanceof Error && (err as Error & { status: number }).status === 429) {
+        set((prev) => ({
+          isRateLimited: {
+            ...prev.isRateLimited,
+            ['friends']: true,
+          },
+        }));
+        setTimeout(
+          () =>
+            set((prev) => ({
+              isRateLimited: {
+                ...prev.isRateLimited,
+                ['friends']: false,
+              },
+            })),
+          60000
+        );
+      } else {
+        set({
+          error: err instanceof Error ? err.message : 'An error occurred',
+        });
+      }
+    } finally {
       set({
-        error: err instanceof Error ? err.message : 'An error occurred',
         loading: false,
       });
     }
@@ -135,8 +176,30 @@ export const useFriendsStore = create<FriendsState>()((set, get) => ({
         loading: false,
       });
     } catch (err: unknown) {
+      if (err instanceof Error && (err as Error & { status: number }).status === 429) {
+        set((prev) => ({
+          isRateLimited: {
+            ...prev.isRateLimited,
+            ['pending']: true,
+          },
+        }));
+        setTimeout(
+          () =>
+            set((prev) => ({
+              isRateLimited: {
+                ...prev.isRateLimited,
+                ['pending']: false,
+              },
+            })),
+          60000
+        );
+      } else {
+        set({
+          error: err instanceof Error ? err.message : 'An error occurred',
+        });
+      }
+    } finally {
       set({
-        error: err instanceof Error ? err.message : 'An error occurred',
         loading: false,
       });
     }
@@ -156,8 +219,30 @@ export const useFriendsStore = create<FriendsState>()((set, get) => ({
         loading: false,
       });
     } catch (err: unknown) {
+      if (err instanceof Error && (err as Error & { status: number }).status === 429) {
+        set((prev) => ({
+          isRateLimited: {
+            ...prev.isRateLimited,
+            ['requests']: true,
+          },
+        }));
+        setTimeout(
+          () =>
+            set((prev) => ({
+              isRateLimited: {
+                ...prev.isRateLimited,
+                ['requests']: false,
+              },
+            })),
+          60000
+        );
+      } else {
+        set({
+          error: err instanceof Error ? err.message : 'An error occurred',
+        });
+      }
+    } finally {
       set({
-        error: err instanceof Error ? err.message : 'An error occurred',
         loading: false,
       });
     }
@@ -177,8 +262,30 @@ export const useFriendsStore = create<FriendsState>()((set, get) => ({
         loading: false,
       });
     } catch (err: unknown) {
+      if (err instanceof Error && (err as Error & { status: number }).status === 429) {
+        set((prev) => ({
+          isRateLimited: {
+            ...prev.isRateLimited,
+            ['formerFriends']: true,
+          },
+        }));
+        setTimeout(
+          () =>
+            set((prev) => ({
+              isRateLimited: {
+                ...prev.isRateLimited,
+                ['formerFriends']: false,
+              },
+            })),
+          60000
+        );
+      } else {
+        set({
+          error: err instanceof Error ? err.message : 'An error occurred',
+        });
+      }
+    } finally {
       set({
-        error: err instanceof Error ? err.message : 'An error occurred',
         loading: false,
       });
     }
@@ -198,8 +305,30 @@ export const useFriendsStore = create<FriendsState>()((set, get) => ({
         loading: false,
       });
     } catch (err: unknown) {
+      if (err instanceof Error && (err as Error & { status: number }).status === 429) {
+        set((prev) => ({
+          isRateLimited: {
+            ...prev.isRateLimited,
+            ['addFriend']: true,
+          },
+        }));
+        setTimeout(
+          () =>
+            set((prev) => ({
+              isRateLimited: {
+                ...prev.isRateLimited,
+                ['addFriend']: false,
+              },
+            })),
+          60000
+        );
+      } else {
+        set({
+          error: err instanceof Error ? err.message : 'An error occurred',
+        });
+      }
+    } finally {
       set({
-        error: err instanceof Error ? err.message : 'An error occurred',
         loading: false,
       });
     }

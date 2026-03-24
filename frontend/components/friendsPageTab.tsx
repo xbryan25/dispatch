@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import UserCard from './userCard';
 import LoadingSpinner from './loadingSpinner';
 
@@ -7,6 +6,7 @@ import { useFriendsStore } from '@/store/useFriendsStore';
 export default function FriendsPageTab() {
   const users = useFriendsStore((state) => state.users);
   const loading = useFriendsStore((state) => state.loading);
+  const isRateLimited = useFriendsStore((state) => state.isRateLimited);
   const userType = useFriendsStore((state) => state.userType);
   const searchQuery = useFriendsStore((state) => state.searchQuery);
 
@@ -34,17 +34,23 @@ export default function FriendsPageTab() {
     >
       {loading && <LoadingSpinner />}
 
-      {!loading && users.length == 0 && (
+      {!loading && users.length === 0 && (
         <div className="text-center">
-          <h2 className="text-2xl font-medium">{getNoUsersPlaceholderMessage()}</h2>
+          <h2 className="text-2xl font-medium">
+            {isRateLimited[userType]
+              ? 'Too many requests. Please try again in a minute.'
+              : getNoUsersPlaceholderMessage()}
+          </h2>
         </div>
       )}
 
       {!loading &&
+        !isRateLimited[userType] &&
         users.length > 0 &&
         users.map((userInfo) => <UserCard key={userInfo.userId} userInfo={userInfo} />)}
 
       {!loading &&
+        !isRateLimited[userType] &&
         users.length > 0 &&
         Array.from({ length: emptySlots }).map((_, index) => (
           <div key={`placeholder-${index}`} className=" w-80 md:w-full h-27 opacity-50"></div>

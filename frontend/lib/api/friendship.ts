@@ -10,7 +10,16 @@ export async function getCurrentFriends(sortState: string, searchQuery: string, 
     }
   );
 
-  if (!res.ok) throw new Error('Something went wrong when retrieving your current friends.');
+  if (!res.ok) {
+    const error = new Error(
+      'Something went wrong when retrieving your current friends.'
+    ) as Error & {
+      status: number;
+    };
+    error.status = res.status;
+    throw error;
+  }
+
   return res.json();
 }
 
@@ -24,8 +33,16 @@ export async function getSentRequestsProfile(sortState: string, searchQuery: str
     }
   );
 
-  if (!res.ok)
-    throw new Error('Something went wrong when retrieving the profiles of sent requests.');
+  if (!res.ok) {
+    const error = new Error(
+      'Something went wrong when retrieving the profiles of sent requests.'
+    ) as Error & {
+      status: number;
+    };
+    error.status = res.status;
+    throw error;
+  }
+
   return res.json();
 }
 
@@ -43,8 +60,16 @@ export async function getReceivedRequestsProfile(
     }
   );
 
-  if (!res.ok)
-    throw new Error('Something went wrong when retrieving the profiles of received requests.');
+  if (!res.ok) {
+    const error = new Error(
+      'Something went wrong when retrieving the profiles of received requests.'
+    ) as Error & {
+      status: number;
+    };
+    error.status = res.status;
+    throw error;
+  }
+
   return res.json();
 }
 
@@ -58,8 +83,16 @@ export async function getFormerFriends(sortState: string, searchQuery: string, p
     }
   );
 
-  if (!res.ok)
-    throw new Error('Something went wrong when retrieving the profiles of former friends.');
+  if (!res.ok) {
+    const error = new Error(
+      'Something went wrong when retrieving the profiles of former friends.'
+    ) as Error & {
+      status: number;
+    };
+    error.status = res.status;
+    throw error;
+  }
+
   return res.json();
 }
 
@@ -73,7 +106,16 @@ export async function getFriendSuggestions(sortState: string, searchQuery: strin
     }
   );
 
-  if (!res.ok) throw new Error('Something went wrong when retrieving the profiles other users.');
+  if (!res.ok) {
+    const error = new Error(
+      'Something went wrong when retrieving the profiles other users.'
+    ) as Error & {
+      status: number;
+    };
+    error.status = res.status;
+    throw error;
+  }
+
   return res.json();
 }
 

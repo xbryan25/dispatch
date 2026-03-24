@@ -25,6 +25,8 @@ export default function FriendsPageTabGroup() {
 
   const loadUsersData = useFriendsStore((state) => state.loadUsersData);
 
+  const isRateLimited = useFriendsStore((state) => state.isRateLimited);
+
   const [preDebouncedSearchQuery, setPreDebouncedSearchQuery] = useState<string>('');
 
   const userTypes: UserCategory[] = [
@@ -83,6 +85,7 @@ export default function FriendsPageTabGroup() {
                 setUserType(userType);
                 setPreDebouncedSearchQuery('');
               }}
+              disabled={isRateLimited[userType]}
             >
               {formatUserType(userType)}
             </TabsTrigger>
