@@ -10,14 +10,15 @@ import {
   getFriendSuggestions,
 } from '@/lib/api/friendship';
 
-import { SortState, UserCategory } from '@/types/friends';
-import { Factory } from 'lucide-react';
+import { SortState, UserCategory, ActionCategory } from '@/types/friends';
 
 interface FriendsState {
   users: UserInfo[];
   loading: boolean;
   error: string | null;
   isRateLimited: Record<UserCategory, boolean>;
+
+  isRateLimitedFromActions: Record<ActionCategory, boolean>;
 
   sortState: SortState;
   searchQuery: string;
@@ -37,6 +38,7 @@ interface FriendsState {
   setError: (state: string | null) => void;
 
   setIsRateLimited: (userCategory: UserCategory, state: boolean) => void;
+  setIsRateLimitedFromActions: (actionCategory: ActionCategory, state: boolean) => void;
 
   setSortState: (newSortState: 'ascending' | 'descending') => void;
   setSearchQuery: (newSearchQuery: string) => void;
@@ -93,6 +95,15 @@ export const useFriendsStore = create<FriendsState>()((set, get) => ({
     addFriend: false,
   },
 
+  isRateLimitedFromActions: {
+    createNewRequestAction: false,
+    cancelRequestAction: false,
+    acceptAction: false,
+    rejectAction: false,
+    unfriendAction: false,
+    reconnectRequestAction: false,
+  },
+
   sortState: 'ascending',
   searchQuery: '',
   userType: 'friends',
@@ -116,6 +127,17 @@ export const useFriendsStore = create<FriendsState>()((set, get) => ({
         [userCategory]: state,
       },
     })),
+
+  setIsRateLimitedFromActions: (actionCategory, state) => {
+    console.log('test');
+
+    set((prev) => ({
+      isRateLimitedFromActions: {
+        ...prev.isRateLimitedFromActions,
+        [actionCategory]: state,
+      },
+    }));
+  },
 
   setSortState: async (newSortState) => {
     set({ sortState: newSortState });

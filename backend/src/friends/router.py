@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request, Query
 from src.core import manager, get_db, limiter
 
 from src.auth.dependencies import get_current_user_id
@@ -227,13 +227,13 @@ async def create_new_friend_request(
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
-@router.delete("/friend-request/{target_user_id}")
+@router.delete("/friend-request/cancel")
 @limiter.limit("20/minute")
 async def cancel_friend_request(
     request: Request,
-    target_user_id: UUID,
     user_id: Annotated[UUID, Depends(get_current_user_id)],
     db: AsyncSession = Depends(get_db),
+    target_user_id: UUID = Query(...),
 ):
 
     try:
@@ -246,7 +246,7 @@ async def cancel_friend_request(
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
-@router.patch("/friend-request")
+@router.patch("/friend-request/accept")
 @limiter.limit("20/minute")
 async def accept_friend_request(
     request: Request,
@@ -287,13 +287,13 @@ async def accept_friend_request(
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
-@router.delete("/friend-request/reject/{target_user_id}")
+@router.delete("/friend-request/reject")
 @limiter.limit("20/minute")
 async def reject_friend_request(
     request: Request,
-    target_user_id: UUID,
     user_id: Annotated[UUID, Depends(get_current_user_id)],
     db: AsyncSession = Depends(get_db),
+    target_user_id: UUID = Query(...),
 ):
 
     try:

@@ -1,7 +1,5 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
-
 import { Button } from './ui/button';
 
 import { Spinner } from './ui/spinner';
@@ -24,38 +22,61 @@ import { useCancelFriendRequest } from '@/hooks/useFriendship';
 import { toast } from 'sonner';
 
 import { useFriendsStore } from '@/store/useFriendsStore';
+import { useState } from 'react';
 
 interface CancelFriendshipRequestDialogProps {
   username: string;
   receiverId: string;
+  isRateLimitedFromAction: boolean;
 }
 
 export default function CancelFriendshipRequestDialog({
   username,
   receiverId,
+  isRateLimitedFromAction,
 }: CancelFriendshipRequestDialogProps) {
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+
   const { cancelSentFriendRequest, loading } = useCancelFriendRequest();
 
   const loadUsersData = useFriendsStore((state) => state.loadUsersData);
 
   const cancelFriendRequest = async () => {
-    try {
-      await cancelSentFriendRequest(receiverId);
+    const { error, rateLimited } = await cancelSentFriendRequest(receiverId);
 
-      loadUsersData();
-
-      toast.success(`Cancelled the sent friend request to ${username}.`);
-    } catch {
-      toast.success(`Something went wrong when making a friend request.`);
+    if (error != null) {
+      toast.error(`Something went wrong when cancelling the friend request.`);
+      setIsOpen(false);
+      return;
+    } else if (rateLimited) {
+      toast.error('You have cancelled too many friend requests. Try again in 1 minute.');
+      setIsOpen(false);
+      return;
     }
+
+    setIsOpen(false);
+
+    loadUsersData();
+
+    toast.success(`Cancelled the sent friend request to ${username}.`);
   };
 
   return (
-    <Dialog>
+    <Dialog
+      open={isOpen}
+      onOpenChange={(value) => {
+        setIsOpen(value);
+      }}
+    >
       <Tooltip>
         <TooltipTrigger asChild>
           <DialogTrigger asChild>
-            <Button size="icon" className="h-9 w-9 shrink-0 cursor-pointer">
+            <Button
+              size="icon"
+              className="h-9 w-9 shrink-0 cursor-pointer"
+              disabled={isRateLimitedFromAction}
+              onClick={() => setIsOpen(true)}
+            >
               <Icon icon="material-symbols:cancel" className="size-6" />
             </Button>
           </DialogTrigger>
@@ -75,7 +96,7 @@ export default function CancelFriendshipRequestDialog({
             <Button
               className="flex-1 cursor-pointer text-md"
               onClick={cancelFriendRequest}
-              disabled={loading}
+              disabled={loading || isRateLimitedFromAction}
             >
               {loading && <Spinner data-icon="inline-start" />}
               Cancel friend request

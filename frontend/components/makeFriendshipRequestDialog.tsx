@@ -20,61 +20,68 @@ import { Icon } from '@iconify/react';
 import { toast } from 'sonner';
 
 import { useFriendsStore } from '@/store/useFriendsStore';
+import { useState } from 'react';
 
 interface MakeFriendshipRequestDialogProps {
   username: string;
   receiverId: string;
   requestType: 'new' | 'reconnect';
+  isRateLimitedFromAction: boolean;
 }
 
 export default function MakeFriendshipRequestDialog({
   username,
   receiverId,
   requestType,
+  isRateLimitedFromAction,
 }: MakeFriendshipRequestDialogProps) {
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+
   const { createFriendRequest, loading: createFriendRequestLoading } = useCreateNewFriendRequest();
+
   const { reconnectToFormerFriend, loading: reconnectToUserLoading } = useReconnectToUser();
 
   const loadUsersData = useFriendsStore((state) => state.loadUsersData);
 
-  const createNewFriendRequest = async () => {
-    try {
-      await createFriendRequest(receiverId);
-
-      loadUsersData();
-
-      toast.success(`Successfully sent a friend request to ${username}.`);
-    } catch {
-      toast.success(`Something went wrong when making a friend request.`);
-    }
-  };
-
-  const reconnectToUser = async () => {
-    try {
-      await reconnectToFormerFriend(receiverId);
-
-      loadUsersData();
-
-      toast.success(`Successfully sent a friend request to ${username}.`);
-    } catch {
-      toast.success(`Something went wrong when making a friend request.`);
-    }
-  };
-
   const requestHandler = async () => {
-    if (requestType === 'new') {
-      await createNewFriendRequest();
-    } else {
-      await reconnectToUser();
+    const { error, rateLimited } =
+      requestType === 'new'
+        ? await createFriendRequest(receiverId)
+        : await reconnectToFormerFriend(receiverId);
+
+    if (error != null) {
+      toast.error(`Something went wrong when making a friend request.`);
+      setIsOpen(false);
+      return;
+    } else if (rateLimited) {
+      toast.error('You have made too many friend requests. Try again in 1 minute.');
+      setIsOpen(false);
+      return;
     }
+
+    setIsOpen(false);
+
+    loadUsersData();
+
+    toast.success(`Successfully sent a friend request to ${username}.`);
   };
 
   return (
-    <Dialog>
+    <Dialog
+      open={isOpen}
+      onOpenChange={(value) => {
+        setIsOpen(value);
+      }}
+    >
       <Tooltip>
         <TooltipTrigger asChild>
           <DialogTrigger asChild>
-            <Button size="icon" className="h-9 w-9 shrink-0 cursor-pointer">
+            <Button
+              size="icon"
+              className="h-9 w-9 shrink-0 cursor-pointer"
+              disabled={isRateLimitedFromAction}
+              onClick={() => setIsOpen(true)}
+            >
               <Icon icon="material-symbols:person-add" className="size-6" />
             </Button>
           </DialogTrigger>
@@ -101,7 +108,9 @@ export default function MakeFriendshipRequestDialog({
             <Button
               className="flex-1 cursor-pointer text-md"
               onClick={requestHandler}
-              disabled={createFriendRequestLoading || reconnectToUserLoading}
+              disabled={
+                createFriendRequestLoading || reconnectToUserLoading || isRateLimitedFromAction
+              }
             >
               Make friend request
             </Button>

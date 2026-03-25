@@ -23,8 +23,8 @@ interface UserCardProps {
 
 export default function UserCard({ userInfo }: UserCardProps) {
   const userType = useFriendsStore((state) => state.userType);
+  const isRateLimitedFromActions = useFriendsStore((state) => state.isRateLimitedFromActions);
 
-  const [openUnfriendDialog, setOpenUnfriendDialog] = useState(false);
   return (
     <div className="md:w-full w-80 flex items-center bg-stone-200 dark:bg-stone-700 rounded-lg transition-transform duration-500 hover:scale-102 px-2 gap-2 h-27">
       <div className="relative w-22 h-22 shrink-0 overflow-hidden rounded-full ">
@@ -68,26 +68,10 @@ export default function UserCard({ userInfo }: UserCardProps) {
             />
           )}
 
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                size="icon"
-                className="h-9 w-9 shrink-0 cursor-pointer"
-                onClick={() => setOpenUnfriendDialog(true)}
-              >
-                <Icon icon="material-symbols:person-remove" className="size-6" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p className="font-medium font-sans">Unfriend {userInfo.username}?</p>
-            </TooltipContent>
-          </Tooltip>
-
           <UnfriendDialog
             username={userInfo.username}
             otherUserId={userInfo.userId}
-            open={openUnfriendDialog}
-            onClose={() => setOpenUnfriendDialog(false)}
+            isRateLimitedFromAction={isRateLimitedFromActions['unfriendAction']}
           />
         </div>
       )}
@@ -97,14 +81,23 @@ export default function UserCard({ userInfo }: UserCardProps) {
           <CancelFriendshipRequestDialog
             username={userInfo.username}
             receiverId={userInfo.userId}
+            isRateLimitedFromAction={isRateLimitedFromActions['cancelRequestAction']}
           />
         </div>
       )}
 
       {userType === 'requests' && (
         <div className="flex flex-col items-start justify-start gap-4">
-          <AcceptFriendshipDialog username={userInfo.username} receiverId={userInfo.userId} />
-          <RejectFriendshipDialog username={userInfo.username} senderId={userInfo.userId} />
+          <AcceptFriendshipDialog
+            username={userInfo.username}
+            receiverId={userInfo.userId}
+            isRateLimitedFromAction={isRateLimitedFromActions['acceptAction']}
+          />
+          <RejectFriendshipDialog
+            username={userInfo.username}
+            senderId={userInfo.userId}
+            isRateLimitedFromAction={isRateLimitedFromActions['rejectAction']}
+          />
         </div>
       )}
 
@@ -129,6 +122,7 @@ export default function UserCard({ userInfo }: UserCardProps) {
             username={userInfo.username}
             receiverId={userInfo.userId}
             requestType="reconnect"
+            isRateLimitedFromAction={isRateLimitedFromActions['reconnectRequestAction']}
           />
         </div>
       )}
@@ -139,6 +133,7 @@ export default function UserCard({ userInfo }: UserCardProps) {
             username={userInfo.username}
             receiverId={userInfo.userId}
             requestType="new"
+            isRateLimitedFromAction={isRateLimitedFromActions['createNewRequestAction']}
           />
         </div>
       )}
