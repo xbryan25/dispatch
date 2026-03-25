@@ -8,7 +8,7 @@ import { Search } from 'lucide-react';
 
 import { useFriendsStore } from '@/store/useFriendsStore';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 
 import FriendsPageTab from './friendsPageTab';
 
@@ -21,13 +21,11 @@ export default function FriendsPageTabGroup() {
   const searchQuery = useFriendsStore((state) => state.searchQuery);
   const setSearchQuery = useFriendsStore((state) => state.setSearchQuery);
 
-  const currentUserType = useFriendsStore((state) => state.userType);
   const setUserType = useFriendsStore((state) => state.setUserType);
 
   const loadUsersData = useFriendsStore((state) => state.loadUsersData);
 
   const isRateLimited = useFriendsStore((state) => state.isRateLimited);
-  const setIsRateLimited = useFriendsStore((state) => state.setIsRateLimited);
 
   const retryTimeout = useFriendsStore((state) => state.retryTimeout);
 

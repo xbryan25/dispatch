@@ -127,41 +127,82 @@ export async function createNewFriendRequest(targetUserId: string) {
     credentials: 'include',
   });
 
-  if (!res.ok) throw new Error('Something went wrong when creating a new friend request.');
+  if (!res.ok) {
+    const error = new Error(
+      'Something went wrong wrong when creating a new friend request.'
+    ) as Error & {
+      status: number;
+    };
+    error.status = res.status;
+    throw error;
+  }
+
   return res.json();
 }
 
 export async function cancelFriendRequest(targetUserId: string) {
-  const res = await fetch(`${fastapiServerUrl}/api/friends/friend-request/${targetUserId}`, {
-    method: 'DELETE',
-    headers: { 'Content-Type': 'application/json' },
-    credentials: 'include',
-  });
+  const res = await fetch(
+    `${fastapiServerUrl}/api/friends/friend-request/cancel?target_user_id=${targetUserId}`,
+    {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+    }
+  );
 
-  if (!res.ok) throw new Error('Something went wrong when deleting the friend request.');
+  if (!res.ok) {
+    const error = new Error(
+      'Something went wrong wrong when cancelling the friend request.'
+    ) as Error & {
+      status: number;
+    };
+    error.status = res.status;
+    throw error;
+  }
+
   return res.json();
 }
 
 export async function acceptFriendRequest(targetUserId: string) {
-  const res = await fetch(`${fastapiServerUrl}/api/friends/friend-request`, {
+  const res = await fetch(`${fastapiServerUrl}/api/friends/friend-request/accept`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ targetUserId }),
     credentials: 'include',
   });
 
-  if (!res.ok) throw new Error('Something went wrong when accepting a new friend request.');
+  if (!res.ok) {
+    const error = new Error(
+      'Something went wrong wrong when accepting a new friend request.'
+    ) as Error & {
+      status: number;
+    };
+    error.status = res.status;
+    throw error;
+  }
+
   return res.json();
 }
 
 export async function rejectFriendRequest(targetUserId: string) {
-  const res = await fetch(`${fastapiServerUrl}/api/friends/friend-request/reject/${targetUserId}`, {
-    method: 'DELETE',
-    headers: { 'Content-Type': 'application/json' },
-    credentials: 'include',
-  });
+  const res = await fetch(
+    `${fastapiServerUrl}/api/friends/friend-request/reject?target_user_id=${targetUserId}`,
+    {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+    }
+  );
 
-  if (!res.ok) throw new Error('Something went wrong when rejecting a friend request.');
+  if (!res.ok) {
+    const error = new Error(
+      'Something went wrong wrong when rejecting a friend request.'
+    ) as Error & {
+      status: number;
+    };
+    error.status = res.status;
+    throw error;
+  }
   return res.json();
 }
 
@@ -173,7 +214,14 @@ export async function unfriendUser(targetUserId: string) {
     credentials: 'include',
   });
 
-  if (!res.ok) throw new Error('Something went wrong when unfriending a user.');
+  if (!res.ok) {
+    const error = new Error('Something went wrong wrong when unfriending a user.') as Error & {
+      status: number;
+    };
+    error.status = res.status;
+    throw error;
+  }
+
   return res.json();
 }
 
@@ -185,7 +233,15 @@ export async function reconnectToUser(targetUserId: string) {
     credentials: 'include',
   });
 
-  if (!res.ok)
-    throw new Error('Something went wrong when attempting to resent a friend request to a user.');
+  if (!res.ok) {
+    const error = new Error(
+      'Something went wrong when attempting to resend a friend request to a user.'
+    ) as Error & {
+      status: number;
+    };
+    error.status = res.status;
+    throw error;
+  }
+
   return res.json();
 }

@@ -22,38 +22,61 @@ import { useRejectFriendRequest } from '@/hooks/useFriendship';
 import { toast } from 'sonner';
 
 import { useFriendsStore } from '@/store/useFriendsStore';
+import { useState } from 'react';
 
 interface RejectFriendshipDialogProps {
   username: string;
   senderId: string;
+  isRateLimitedFromAction: boolean;
 }
 
 export default function RejectFriendshipDialog({
   username,
   senderId,
+  isRateLimitedFromAction,
 }: RejectFriendshipDialogProps) {
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+
   const { rejectReceivedFriendRequest, loading } = useRejectFriendRequest();
 
   const loadUsersData = useFriendsStore((state) => state.loadUsersData);
 
   const rejectFriendRequest = async () => {
-    try {
-      await rejectReceivedFriendRequest(senderId);
+    const { error, rateLimited } = await rejectReceivedFriendRequest(senderId);
 
-      loadUsersData();
-
-      toast.success(`You have rejected the friend request of ${username}.`);
-    } catch {
-      toast.success(`Something went wrong when making a friend request.`);
+    if (error != null) {
+      toast.error(`Something went wrong when rejecting a friend request.`);
+      setIsOpen(false);
+      return;
+    } else if (rateLimited) {
+      toast.error('You have rejected too many friend requests. Try again in 1 minute.');
+      setIsOpen(false);
+      return;
     }
+
+    setIsOpen(false);
+
+    loadUsersData();
+
+    toast.success(`Successfully rejected the friend request of ${username}.`);
   };
 
   return (
-    <Dialog>
+    <Dialog
+      open={isOpen}
+      onOpenChange={(value) => {
+        setIsOpen(value);
+      }}
+    >
       <Tooltip>
         <TooltipTrigger asChild>
           <DialogTrigger asChild>
-            <Button size="icon" className="h-9 w-9 shrink-0 cursor-pointer">
+            <Button
+              size="icon"
+              className="h-9 w-9 shrink-0 cursor-pointer"
+              disabled={isRateLimitedFromAction}
+              onClick={() => setIsOpen(true)}
+            >
               <Icon icon="material-symbols:do-not-disturb-on" className="size-6" />
             </Button>
           </DialogTrigger>
@@ -70,7 +93,7 @@ export default function RejectFriendshipDialog({
             <Button
               className="flex-1 cursor-pointer text-md"
               onClick={rejectFriendRequest}
-              disabled={loading}
+              disabled={loading || isRateLimitedFromAction}
             >
               {loading && <Spinner data-icon="inline-start" />}
               Reject friend request
