@@ -9,7 +9,14 @@ export async function getUserConversationsList() {
     credentials: 'include',
   });
 
-  if (!res.ok) throw new Error('Something went wrong when retrieving conversations.');
+  if (!res.ok) {
+    const error = new Error('Something went wrong when retrieving conversations.') as Error & {
+      status: number;
+    };
+    error.status = res.status;
+    throw error;
+  }
+
   return res.json();
 }
 
@@ -49,7 +56,14 @@ export async function getPastMessagesFromConversation(query: string) {
       credentials: 'include',
     });
 
-    if (!res.ok) throw new Error('Something went wrong when retrieving past messages.');
+    if (!res.ok) {
+      const error = new Error('Something went wrong when retrieving past messages.') as Error & {
+        status: number;
+      };
+      error.status = res.status;
+      throw error;
+    }
+
     return res.json();
   } catch (err: unknown) {
     if (err == 'AbortError') return; // Silently ignore cancellations
@@ -64,7 +78,16 @@ export async function getOtherParticipantFromConversation(conversationId: string
     credentials: 'include',
   });
 
-  if (!res.ok) throw new Error('Something went wrong when retrieving past messages.');
+  if (!res.ok) {
+    const error = new Error(
+      'Something went wrong when retrieving the information of the other user.'
+    ) as Error & {
+      status: number;
+    };
+    error.status = res.status;
+    throw error;
+  }
+
   return res.json();
 }
 
@@ -76,7 +99,16 @@ export async function createDirectMessage(targetUserId: string) {
     credentials: 'include',
   });
 
-  if (!res.ok) throw new Error('Something went wrong when creating a new conversation.');
+  if (!res.ok) {
+    const error = new Error(
+      'Something went wrong when creating a direct message conversation.'
+    ) as Error & {
+      status: number;
+    };
+    error.status = res.status;
+    throw error;
+  }
+
   return res.json();
 }
 
@@ -90,7 +122,16 @@ export async function getConversationTheme(conversationId: string) {
     }
   );
 
-  if (!res.ok) throw new Error('Something went wrong when retrieving the conversation theme.');
+  if (!res.ok) {
+    const error = new Error(
+      'Something went wrong when retrieving the conversation theme.'
+    ) as Error & {
+      status: number;
+    };
+    error.status = res.status;
+    throw error;
+  }
+
   return res.json();
 }
 
@@ -102,7 +143,16 @@ export async function updateConversationTheme(conversationId: string, theme: str
     credentials: 'include',
   });
 
-  if (!res.ok) throw new Error('Something went wrong when updating the conversation theme.');
+  if (!res.ok) {
+    const error = new Error(
+      'Something went wrong when updating the conversation theme.'
+    ) as Error & {
+      status: number;
+    };
+    error.status = res.status;
+    throw error;
+  }
+
   return res.json();
 }
 
@@ -114,6 +164,15 @@ export async function markConversationAsRead(conversationId: string) {
     credentials: 'include',
   });
 
-  if (!res.ok) throw new Error('Something went wrong when creating marking conversation as read.');
+  if (!res.ok) {
+    const error = new Error(
+      'Something went wrong when creating marking conversation as read.'
+    ) as Error & {
+      status: number;
+    };
+    error.status = res.status;
+    throw error;
+  }
+
   return res.json();
 }

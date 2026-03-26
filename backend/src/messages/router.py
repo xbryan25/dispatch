@@ -323,6 +323,7 @@ async def get_conversation_theme(
 
 
 @router.patch("/update-theme", response_model=ConversationTheme)
+@limiter.limit("1/minute")
 async def update_conversation_theme(
     request: Request,
     payload: ConversationIdWithTheme,

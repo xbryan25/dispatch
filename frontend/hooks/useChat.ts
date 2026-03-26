@@ -210,6 +210,8 @@ export function useUpdateConversationTheme() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const [isRateLimited, setIsRateLimited] = useState(false);
+
   const setConversationTheme = useChatStore((state) => state.setConversationTheme);
   const setConversationThemeChangedAt = useChatStore(
     (state) => state.setConversationThemeChangedAt
@@ -229,18 +231,27 @@ export function useUpdateConversationTheme() {
       setConversationTheme(data.theme);
       setConversationThemeChangedAt(new Date(data.changedAt));
       setConversationThemeChangedBy(data.changedBy);
+      return { error: null, rateLimited: false };
     } catch (err: unknown) {
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError('An unexpected error occurred');
+      if (err instanceof Error && (err as Error & { status: number }).status === 429) {
+        setIsRateLimited(true);
+
+        setTimeout(() => setIsRateLimited(false), 60000);
+
+        return { error: null, rateLimited: true };
       }
+
+      const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred';
+
+      setError(errorMessage);
+
+      return { error: errorMessage, rateLimited: false };
     } finally {
       setLoading(false);
     }
   };
 
-  return { changeConversationTheme, loading, error };
+  return { changeConversationTheme, loading, error, isRateLimited };
 }
 
 export function useMarkConversationAsRead() {
