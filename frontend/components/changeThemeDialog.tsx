@@ -19,14 +19,14 @@ import { themes } from '@/lib/themes';
 import { useChatStore } from '@/store/useChatStore';
 import { useUpdateConversationTheme } from '@/hooks/useChat';
 import LoadingSpinner from './loadingSpinner';
+import { DialogTrigger } from '@radix-ui/react-dialog';
+import { Icon } from '@iconify/react';
 
-export default function ChangeThemeDialog({
-  open,
-  onClose,
-}: {
-  open: boolean;
-  onClose: () => void;
-}) {
+import { cn } from '@/lib/utils';
+
+export default function ChangeThemeDialog() {
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+
   const [selectedThemeId, setSelectedThemeId] = useState('default');
   const [localLoading, setLocalLoading] = useState<boolean>(false);
 
@@ -39,21 +39,24 @@ export default function ChangeThemeDialog({
 
   const selectedTheme = themes.find((theme) => theme.id == selectedThemeId);
 
-  const { changeConversationTheme, error } = useUpdateConversationTheme();
+  const { changeConversationTheme, isRateLimited } = useUpdateConversationTheme();
 
   const updateConversationTheme = async () => {
     setLocalLoading(true);
     if (conversationId) {
-      await changeConversationTheme(conversationId, selectedThemeId);
+      const { error, rateLimited } = await changeConversationTheme(conversationId, selectedThemeId);
 
-      if (error == null) {
-        onClose();
+      setIsOpen(false);
 
-        toast.success(`The theme for this conversation has been set to ${selectedTheme?.label}.`);
-      } else {
-        toast.error(`Something went wrong when changing the theme to ${selectedTheme?.label}.`);
-        setLocalLoading(false);
+      if (error != null) {
+        toast.error(`Something went wrong when unfriending a user.`);
+        return;
+      } else if (rateLimited) {
+        toast.error('You have tried to change the theme already. Try again in 1 minute.');
+        return;
       }
+
+      toast.success(`The theme for this conversation has been set to ${selectedTheme?.label}.`);
     }
   };
 
@@ -71,13 +74,33 @@ export default function ChangeThemeDialog({
   useEffect(() => {
     const updateLocalLoading = () => setLocalLoading(false);
 
-    if (open) {
+    if (isOpen) {
       updateLocalLoading();
     }
-  }, [open]);
+  }, [isOpen]);
 
   return (
-    <Dialog open={open} onOpenChange={onClose}>
+    <Dialog
+      open={isOpen}
+      onOpenChange={(value) => {
+        setIsOpen(value);
+      }}
+    >
+      <DialogTrigger asChild>
+        <button
+          className={cn(
+            'flex items-center gap-1 bg-white dark:bg-stone-900 hover:bg-stone-200 dark:hover:bg-stone-700 cursor-pointer rounded-md p-2 font-medium',
+            isRateLimited
+              ? 'cursor-not-allowed text-stone-400'
+              : ' hover:bg-stone-200 dark:hover:bg-stone-700 cursor-pointer'
+          )}
+          disabled={isRateLimited}
+          onClick={() => setIsOpen(true)}
+        >
+          <Icon icon="material-symbols:palette" className="size-7" />
+          Change theme
+        </button>
+      </DialogTrigger>
       <DialogContent className="flex flex-col h-125 min-w-175 overflow-hidden">
         <DialogHeader>
           <DialogTitle className="flex w-full justify-center">Change theme</DialogTitle>

@@ -21,8 +21,6 @@ export default function ConversationDetails({ onToggle }: ConversationDetailsPro
     (state) => state.setOtherParticipantFriendshipStatus
   );
 
-  const [openChangeThemeDialog, setOpenChangeThemeDialog] = useState(false);
-
   const [openUnfriendDialog, setOpenUnfriendDialog] = useState(false);
 
   const isRateLimitedFromActions = useFriendsStore((state) => state.isRateLimitedFromActions);
@@ -52,18 +50,7 @@ export default function ConversationDetails({ onToggle }: ConversationDetailsPro
       <div className="flex flex-col gap-2">
         <h2 className="font-bold text-xl">Conversation Settings</h2>
 
-        <button
-          className="flex items-center gap-1 bg-white dark:bg-stone-900 hover:bg-stone-200 dark:hover:bg-stone-700 cursor-pointer rounded-md p-2 font-medium"
-          onClick={() => setOpenChangeThemeDialog(true)}
-        >
-          <Icon icon="material-symbols:palette" className="size-7" />
-          Change theme
-        </button>
-
-        <ChangeThemeDialog
-          open={openChangeThemeDialog}
-          onClose={() => setOpenChangeThemeDialog(false)}
-        />
+        <ChangeThemeDialog />
 
         <button className="flex items-center gap-1 bg-white dark:bg-stone-900 hover:bg-stone-200 dark:hover:bg-stone-700 cursor-pointer rounded-md p-2 font-medium">
           <Icon icon="ic:baseline-notifications-off" className="size-7" />
