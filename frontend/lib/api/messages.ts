@@ -27,7 +27,14 @@ export async function sendMessage(
     credentials: 'include',
   });
 
-  if (!res.ok) throw new Error('Something went wrong when sending a message.');
+  if (!res.ok) {
+    const error = new Error('Something went wrong when sending a message.') as Error & {
+      status: number;
+    };
+    error.status = res.status;
+    throw error;
+  }
+
   return res.json();
 }
 

@@ -23,6 +23,8 @@ export function useSendMessage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const [isRateLimited, setIsRateLimited] = useState(false);
+
   const activeConversationId = useChatStore((state) => state.activeConversationId);
 
   const send = async (content: string, tempMessageId: string) => {
@@ -30,17 +32,27 @@ export function useSendMessage() {
     setError(null);
     try {
       await sendMessage(content, tempMessageId, activeConversationId);
-      return null;
+      return { error: null, rateLimited: false };
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'An unexpected error occurred';
-      setError(message);
-      return message;
+      if (err instanceof Error && (err as Error & { status: number }).status === 429) {
+        setIsRateLimited(true);
+
+        setTimeout(() => setIsRateLimited(false), 60000);
+
+        return { error: null, rateLimited: true };
+      }
+
+      const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred';
+
+      setError(errorMessage);
+
+      return { error: errorMessage, rateLimited: false };
     } finally {
       setLoading(false);
     }
   };
 
-  return { send, loading, error };
+  return { send, loading, error, isRateLimited };
 }
 
 export function useGetPastMessagesFromConversation() {
