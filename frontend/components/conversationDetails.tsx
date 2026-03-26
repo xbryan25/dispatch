@@ -7,6 +7,9 @@ import { useChatStore } from '@/store/useChatStore';
 import ChangeThemeDialog from './changeThemeDialog';
 import { useState } from 'react';
 import UnfriendDialog from './unfriendDialog';
+import { useFriendsStore } from '@/store/useFriendsStore';
+
+import { cn } from '@/lib/utils';
 
 interface ConversationDetailsProps {
   onToggle: (newVal?: boolean) => void; // This is a function prop
@@ -21,6 +24,8 @@ export default function ConversationDetails({ onToggle }: ConversationDetailsPro
   const [openChangeThemeDialog, setOpenChangeThemeDialog] = useState(false);
 
   const [openUnfriendDialog, setOpenUnfriendDialog] = useState(false);
+
+  const isRateLimitedFromActions = useFriendsStore((state) => state.isRateLimitedFromActions);
 
   return (
     <div className="flex-1 flex flex-col items-teo justify-start gap-10 bg-white dark:bg-stone-900  rounded-xl p-5">
@@ -71,10 +76,16 @@ export default function ConversationDetails({ onToggle }: ConversationDetailsPro
         </button>
 
         <button
-          className="flex items-center gap-1 bg-white dark:bg-stone-900 hover:bg-stone-200 dark:hover:bg-stone-700 cursor-pointer rounded-md p-2 font-medium"
+          className={cn(
+            'flex items-center gap-1 bg-white dark:bg-stone-900 hover:bg-stone-200 dark:hover:bg-stone-700 cursor-pointer rounded-md p-2 font-medium',
+            isRateLimitedFromActions['unfriendAction']
+              ? 'cursor-not-allowed text-stone-400'
+              : ' hover:bg-stone-200 dark:hover:bg-stone-700 cursor-pointer'
+          )}
+          disabled={isRateLimitedFromActions['unfriendAction']}
           onClick={() => setOpenUnfriendDialog(true)}
         >
-          <Icon icon="material-symbols:palette" className="size-7" />
+          <Icon icon="material-symbols:person-remove" className="size-7" />
           Unfriend {otherParticipantDetails?.username}
         </button>
 
@@ -89,6 +100,7 @@ export default function ConversationDetails({ onToggle }: ConversationDetailsPro
             onToggle(false);
             setOtherParticipantFriendshipStatus('unfriended');
           }}
+          isRateLimitedFromAction={isRateLimitedFromActions['unfriendAction']}
         />
       </div>
     </div>
