@@ -26,16 +26,20 @@ import { Icon } from '@iconify/react';
 interface UnfriendDialogProps {
   username: string;
   otherUserId: string;
+  open: boolean;
+  onClose: () => void;
+  onSuccess?: () => void;
   isRateLimitedFromAction: boolean;
 }
 
 export default function UnfriendDialog({
   username,
   otherUserId,
+  open,
+  onClose,
+  onSuccess,
   isRateLimitedFromAction,
 }: UnfriendDialogProps) {
-  const [isOpen, setIsOpen] = useState<boolean>(false);
-
   const { unfriendSelectedUser, loading } = useUnfriendUser();
 
   const loadUsersData = useFriendsStore((state) => state.loadUsersData);
@@ -45,11 +49,11 @@ export default function UnfriendDialog({
 
     if (error != null) {
       toast.error(`Something went wrong when unfriending a user.`);
-      setIsOpen(false);
+      onClose();
       return;
     } else if (rateLimited) {
       toast.error('You have unfriended too many users. Try again in 1 minute.');
-      setIsOpen(false);
+      onClose();
       return;
     }
 
@@ -60,32 +64,16 @@ export default function UnfriendDialog({
     toast.info(
       `You have unfriended ${username}. ${isViewingConversations ? 'Your conversation with them is set to read-only.' : ''}`
     );
+
+    onClose();
+
+    if (onSuccess) {
+      onSuccess();
+    }
   };
 
   return (
-    <Dialog
-      open={isOpen}
-      onOpenChange={(value) => {
-        setIsOpen(value);
-      }}
-    >
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <DialogTrigger asChild>
-            <Button
-              size="icon"
-              className="h-9 w-9 shrink-0 cursor-pointer"
-              disabled={isRateLimitedFromAction}
-              onClick={() => setIsOpen(true)}
-            >
-              <Icon icon="material-symbols:person-remove" className="size-6" />
-            </Button>
-          </DialogTrigger>
-        </TooltipTrigger>
-        <TooltipContent>
-          <p className="font-medium font-sans">Unfriend {username}?</p>
-        </TooltipContent>
-      </Tooltip>
+    <Dialog open={open} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Are you sure you want to unfriend {username}?</DialogTitle>
