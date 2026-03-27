@@ -3,3 +3,4 @@
 *.py[cod]
 /.ruff_cache
 .env
+.env.local
