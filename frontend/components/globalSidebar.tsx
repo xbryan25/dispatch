@@ -22,6 +22,12 @@ export default function GlobalSidebar() {
             <Icon icon="material-symbols:supervised-user-circle" className="w-4 h-4" />
           </Button>
         </Link>
+
+        <Link href="/notifications">
+          <Button className="cursor-pointer">
+            <Icon icon="material-symbols:notifications-rounded" className="w-4 h-4" />
+          </Button>
+        </Link>
       </div>
 
       <div className="flex flex-col gap-2">
