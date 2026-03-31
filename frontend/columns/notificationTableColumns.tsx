@@ -15,6 +15,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import NotificationDetailsDialog from '@/components/notificationDetailsDialog';
 
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
@@ -59,11 +60,18 @@ export const notificationTableColumns: ColumnDef<Notification>[] = [
   {
     accessorKey: 'type',
     header: 'Type',
-    size: 70,
+    size: 40,
   },
   {
     accessorKey: 'message',
     header: 'Message',
+    cell: ({ row }) => (
+      <NotificationDetailsDialog
+        type={row.original.type}
+        content={row.original.message}
+        dateStr={formatter.format(row.original.date)}
+      />
+    ),
   },
   {
     accessorKey: 'date',
