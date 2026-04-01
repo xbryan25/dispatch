@@ -56,3 +56,12 @@ class UserProfile(Base):
     received_friendships = relationship(
         "Friendship", foreign_keys="Friendship.user_id_b", back_populates="receiver"
     )
+
+    sent_notifications = relationship(
+        "Notification", foreign_keys="Notification.sender_id", back_populates="sender"
+    )
+    received_notifications = relationship(
+        "Notification",
+        foreign_keys="Notification.receiver_id",
+        back_populates="receiver",
+    )

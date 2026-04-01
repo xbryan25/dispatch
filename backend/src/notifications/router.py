@@ -1,11 +1,26 @@
-from fastapi import APIRouter, Depends, HTTPException, Request
-from src.core import limiter
+from fastapi import (
+    APIRouter,
+    Depends,
+    HTTPException,
+    Request,
+)
+from src.core import get_db, limiter
 
 from src.auth.dependencies import get_current_user_id
 
+from .services import NotificationsService
+from .schemas import NotificationsWithPaginationDetails
+
+
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from uuid import UUID
 
 import traceback
+from typing import Annotated
 
+
+import math
 
 router = APIRouter(
     prefix="/api/notifications",
@@ -14,15 +29,37 @@ router = APIRouter(
 )
 
 
-@router.get("")
+@router.get("", response_model=NotificationsWithPaginationDetails)
 @limiter.limit("30/minute")
-async def test_route(
+async def get_notifications(
     request: Request,
+    user_id: Annotated[UUID, Depends(get_current_user_id)],
+    sort_state: str = "ascending",
+    page: int = 1,
+    limit: int = 24,
+    db: AsyncSession = Depends(get_db),
 ):
 
     try:
+        result = await NotificationsService.get_notifications(
+            db, user_id, sort_state, page, limit
+        )
 
-        return {"status": "successfully added notification"}
+        total_notifications = result[1] if result[1] else 0
+        total_pages = math.ceil(total_notifications / limit)
+
+        pagination_details = {
+            "total_notifications": total_notifications,
+            "total_pages": total_pages,
+            "current_page": page,
+            "page_size": limit,
+        }
+
+        print()
+        print(result[0])
+        print()
+
+        return {"notifications": result[0], "pagination": pagination_details}
 
     except Exception:
         traceback.print_exc()
