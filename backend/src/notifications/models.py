@@ -24,7 +24,7 @@ class Notification(Base):
         String, unique=False, nullable=False, index=False
     )
 
-    status: Mapped[NotificationTypeEnum | None] = mapped_column(
+    type: Mapped[NotificationTypeEnum | None] = mapped_column(
         ENUM(
             NotificationTypeEnum,
             name="notification_type_enum",
