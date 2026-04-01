@@ -9,6 +9,9 @@ from src.auth.schemas import TargetUserId
 from .schemas import UsersWithPaginationDetails
 
 from src.auth.services import AuthService
+from src.notifications.services import NotificationsService
+
+from src.notifications.constants import NotificationMessages, NotificationTypeEnum
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
@@ -214,6 +217,24 @@ async def create_new_friend_request(
             db, user_id, formatted_target_user_id
         )
 
+        user_details = await AuthService.get_user_details(db, user_id)
+
+        if user_details:
+
+            notification_message = NotificationMessages.format(
+                NotificationTypeEnum.friend_request_received,
+                username=user_details.username,
+            )
+
+            await NotificationsService.create_notification(
+                db,
+                NotificationTypeEnum.friend_request_received,
+                notification_message,
+                user_id,
+                user_details.username,
+                formatted_target_user_id,
+            )
+
         return {"status": "success"}
 
     except IntegrityError:
@@ -262,12 +283,26 @@ async def accept_friend_request(
             db, user_id, formatted_target_user_id
         )
 
-        target_user_details = await AuthService.get_user_details(db, user_id)
+        user_details = await AuthService.get_user_details(db, user_id)
 
-        if target_user_details:
+        if user_details:
+            notification_message = NotificationMessages.format(
+                NotificationTypeEnum.friend_request_accepted,
+                username=user_details.username,
+            )
+
+            await NotificationsService.create_notification(
+                db,
+                NotificationTypeEnum.friend_request_accepted,
+                notification_message,
+                user_id,
+                user_details.username,
+                formatted_target_user_id,
+            )
+
             friendship_status_dict = {
                 "friendshipStatus": "accepted",
-                "otherParticipantUsername": target_user_details.username,
+                "otherParticipantUsername": user_details.username,
             }
 
             event_data = {"type": "UPDATE_CONVERSATION", "data": friendship_status_dict}
@@ -360,6 +395,24 @@ async def reconnect_to_former_friend(
         await FriendsService.create_new_friend_request(
             db, user_id, formatted_target_user_id
         )
+
+        user_details = await AuthService.get_user_details(db, user_id)
+
+        if user_details:
+
+            notification_message = NotificationMessages.format(
+                NotificationTypeEnum.friend_request_resent,
+                username=user_details.username,
+            )
+
+            await NotificationsService.create_notification(
+                db,
+                NotificationTypeEnum.friend_request_resent,
+                notification_message,
+                user_id,
+                user_details.username,
+                formatted_target_user_id,
+            )
 
         return {"status": "success"}
 

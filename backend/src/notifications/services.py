@@ -1,11 +1,57 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from .queries import NotificationsQueries
+from .models import Notification
+
+from src.core import manager
 
 from uuid import UUID
 
+import traceback
+
 
 class NotificationsService:
+
+    @staticmethod
+    async def create_notification(
+        db: AsyncSession,
+        notification_type,
+        content: str,
+        sender_id: UUID,
+        sender_username: str,
+        receiver_id: UUID,
+    ):
+
+        try:
+            notification_data = {
+                "type": notification_type,
+                "content": content,
+                "sender_id": sender_id,
+                "receiver_id": receiver_id,
+            }
+
+            db_message = Notification(**notification_data)
+
+            db.add(db_message)
+            await db.commit()
+            await db.refresh(db_message)
+
+            event_data = {
+                "type": "NEW_NOTIFICATION",
+                "data": {
+                    "notificationId": str(db_message.notification_id),
+                    "type": db_message.type,
+                    "content": db_message.content,
+                    "isSeenByReceiver": db_message.is_seen_by_receiver,
+                    "senderUsername": sender_username,
+                    "createdAt": db_message.created_at.isoformat(),
+                },
+            }
+
+            await manager.send_to_user(receiver_id, event_data)
+
+        except Exception:
+            traceback.print_exc()
 
     @staticmethod
     async def get_notifications(

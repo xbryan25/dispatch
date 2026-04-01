@@ -400,6 +400,8 @@ export const useInitializeWebsocket = () => {
         } else {
           setOtherParticipantLastReadMessageAt(null);
         }
+      } else if (eventData.type === 'NEW_NOTIFICATION') {
+        console.log(eventData);
       }
     };
 
