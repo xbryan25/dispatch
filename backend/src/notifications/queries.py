@@ -6,7 +6,6 @@ from sqlalchemy import (
 )
 
 
-
 from .models import Notification
 
 from src.auth.models import UserProfile
