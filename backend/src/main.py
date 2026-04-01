@@ -11,6 +11,7 @@ from .auth import public_router as auth_public_router
 
 from .messages import router as messages_router
 from .friends import router as friends_router
+from .notifications import router as notifications_router
 
 
 def create_app():
@@ -36,6 +37,7 @@ def create_app():
     app.include_router(auth_public_router)
     app.include_router(messages_router)
     app.include_router(friends_router)
+    app.include_router(notifications_router)
 
     return app
 
