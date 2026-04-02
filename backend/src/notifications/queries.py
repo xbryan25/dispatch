@@ -1,9 +1,4 @@
-from sqlalchemy import (
-    literal_column,
-    select,
-    func,
-    Select,
-)
+from sqlalchemy import literal_column, select, func, Select, Delete, delete
 
 
 from .models import Notification
@@ -37,6 +32,15 @@ class NotificationsQueries:
         #     stmt = stmt.filter(
         #         func.lower(UserProfile.username).contains(search_query.lower())
         #     )
+
+        return stmt
+
+    @staticmethod
+    def delete_notification_stmt(notification_id: UUID) -> Delete:
+
+        stmt = delete(Notification).where(
+            Notification.notification_id == notification_id,
+        )
 
         return stmt
 

@@ -1,9 +1,4 @@
-from fastapi import (
-    APIRouter,
-    Depends,
-    HTTPException,
-    Request,
-)
+from fastapi import APIRouter, Depends, HTTPException, Request, Query
 from src.core import get_db, limiter
 
 from src.auth.dependencies import get_current_user_id
@@ -55,11 +50,25 @@ async def get_notifications(
             "page_size": limit,
         }
 
-        print()
-        print(result[0])
-        print()
-
         return {"notifications": result[0], "pagination": pagination_details}
+
+    except Exception:
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+
+@router.delete("")
+@limiter.limit("20/minute")
+async def delete_notification(
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+    notification_id: UUID = Query(...),
+):
+
+    try:
+        await NotificationsService.delete_notification(db, notification_id)
+
+        return {"status": "success"}
 
     except Exception:
         traceback.print_exc()
