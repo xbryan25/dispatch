@@ -25,3 +25,7 @@ class PaginationDetails(BaseSchema):
 class NotificationsWithPaginationDetails(BaseSchema):
     notifications: list[Notification]
     pagination: PaginationDetails
+
+
+class NotificationIdsList(BaseSchema):
+    notification_ids: list[UUID]

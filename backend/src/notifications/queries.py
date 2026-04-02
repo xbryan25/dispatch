@@ -36,10 +36,13 @@ class NotificationsQueries:
         return stmt
 
     @staticmethod
-    def delete_notification_stmt(notification_id: UUID) -> Delete:
+    def delete_notifications_stmt(
+        current_user_id: UUID, notification_ids: list[UUID]
+    ) -> Delete:
 
         stmt = delete(Notification).where(
-            Notification.notification_id == notification_id,
+            Notification.notification_id.in_(notification_ids),
+            Notification.receiver_id == current_user_id,
         )
 
         return stmt
