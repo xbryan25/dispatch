@@ -95,9 +95,13 @@ class NotificationsService:
         return output, total_count
 
     @staticmethod
-    async def delete_notification(db: AsyncSession, notification_id: UUID):
+    async def delete_notifications(
+        db: AsyncSession, current_user_id: UUID, notification_ids: list[UUID]
+    ):
 
-        stmt = NotificationsQueries.delete_notification_stmt(notification_id)
+        stmt = NotificationsQueries.delete_notifications_stmt(
+            current_user_id, notification_ids
+        )
 
         await db.execute(stmt)
         await db.commit()
