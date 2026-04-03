@@ -48,7 +48,7 @@ export const useNotificationsStore = create<NotificationsState>()((set, get) => 
 
   isRateLimited: false,
 
-  notificationsToShow: 10,
+  notificationsToShow: 1,
   sortState: 'ascending',
   searchQuery: '',
 
@@ -88,7 +88,13 @@ export const useNotificationsStore = create<NotificationsState>()((set, get) => 
     set({ totalNotifications: newTotalNotifications }),
 
   setTotalPages: (newTotalPages: number) => set({ totalPages: newTotalPages }),
-  setCurrentPage: (newCurrentPage: number) => set({ currentPage: newCurrentPage }),
+  setCurrentPage: async (newCurrentPage: number) => {
+    console.log('click');
+
+    set({ currentPage: newCurrentPage });
+
+    await get().getNotifications();
+  },
 
   getNotifications: async (isRetry: boolean = false) => {
     set({ loading: true, error: null });

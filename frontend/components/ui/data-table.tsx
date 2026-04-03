@@ -24,7 +24,7 @@ import {
 } from '@/components/ui/table';
 
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { useNotificationsStore } from '@/store/useNotificationsStore';
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -35,6 +35,11 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
   const [sorting, setSorting] = useState<SortingState>([]);
   const [rowSelection, setRowSelection] = useState({});
 
+  const currentPage = useNotificationsStore((state) => state.currentPage);
+  const totalPages = useNotificationsStore((state) => state.totalPages);
+
+  const setCurrentPage = useNotificationsStore((state) => state.setCurrentPage);
+
   const table = useReactTable({
     data,
     columns,
@@ -44,15 +49,17 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     onRowSelectionChange: setRowSelection,
+    manualPagination: true,
+    pageCount: totalPages,
     state: {
       rowSelection,
       sorting,
-    },
-    initialState: {
       pagination: {
-        pageSize: 20, // ← change this to whatever you want
+        pageIndex: currentPage - 1, // ← TanStack is 0-based, your API is 1-based
+        pageSize: 1,
       },
     },
+    onPaginationChange: () => {}, // Tells TanStack that own code will control pagination
   });
 
   return (
@@ -103,7 +110,7 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
         <Button
           variant="outline"
           size="sm"
-          onClick={() => table.previousPage()}
+          onClick={() => setCurrentPage(currentPage - 1)}
           disabled={!table.getCanPreviousPage()}
         >
           Previous
@@ -111,7 +118,7 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
         <Button
           variant="outline"
           size="sm"
-          onClick={() => table.nextPage()}
+          onClick={() => setCurrentPage(currentPage + 1)}
           disabled={!table.getCanNextPage()}
         >
           Next
