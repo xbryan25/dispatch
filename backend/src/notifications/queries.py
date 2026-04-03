@@ -1,4 +1,13 @@
-from sqlalchemy import literal_column, select, func, Select, Delete, delete
+from sqlalchemy import (
+    literal_column,
+    select,
+    func,
+    Select,
+    Delete,
+    delete,
+    update,
+    Update,
+)
 
 
 from .models import Notification
@@ -43,6 +52,22 @@ class NotificationsQueries:
         stmt = delete(Notification).where(
             Notification.notification_id.in_(notification_ids),
             Notification.receiver_id == current_user_id,
+        )
+
+        return stmt
+
+    @staticmethod
+    def mark_notifications_as_read_stmt(
+        current_user_id: UUID, notification_ids: list[UUID]
+    ) -> Update:
+
+        stmt = (
+            update(Notification)
+            .where(
+                Notification.notification_id.in_(notification_ids),
+                Notification.receiver_id == current_user_id,
+            )
+            .values(is_seen_by_receiver=True)
         )
 
         return stmt
