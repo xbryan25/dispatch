@@ -10,7 +10,8 @@ import {
   getFriendSuggestions,
 } from '@/lib/api/friendship';
 
-import { SortState, UserCategory, ActionCategory } from '@/types/friends';
+import { UserCategory, ActionCategory } from '@/types/friends';
+import { SortState } from '@/types/global';
 
 interface FriendsState {
   users: UserInfo[];
@@ -446,7 +447,7 @@ export const useFriendsStore = create<FriendsState>()((set, get) => ({
       };
 
       await apiMap[userType]();
-    } catch (err) {
+    } catch {
       set({ error: 'Failed to load data' });
     } finally {
       set({ loading: false });

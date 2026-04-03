@@ -15,14 +15,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+
 import NotificationDetailsDialog from '@/components/notificationDetailsDialog';
 
-export type Notification = {
-  notificationId: string;
-  type: string;
-  message: string;
-  date: Date;
-};
+import { Notification } from '@/types/notifications';
 
 const formatter = new Intl.DateTimeFormat('en-US', {
   day: 'numeric',
@@ -66,8 +62,8 @@ export const notificationTableColumns: ColumnDef<Notification>[] = [
     cell: ({ row }) => (
       <NotificationDetailsDialog
         type={row.original.type}
-        content={row.original.message}
-        dateStr={formatter.format(row.original.date)}
+        content={row.original.content}
+        dateStr={formatter.format(new Date(row.original.createdAt))}
       />
     ),
   },
@@ -85,7 +81,9 @@ export const notificationTableColumns: ColumnDef<Notification>[] = [
         </Button>
       );
     },
-    cell: ({ row }) => <p className="max-w-10">{formatter.format(row.original.date)}</p>,
+    cell: ({ row }) => (
+      <p className="max-w-10">{formatter.format(new Date(row.original.createdAt))}</p>
+    ),
   },
   {
     id: 'actions',
