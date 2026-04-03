@@ -1,99 +1,24 @@
-import { notificationTableColumns, Notification } from '@/columns/notificationTableColumns';
+'use client';
+
+import { notificationTableColumns } from '@/columns/notificationTableColumns';
 import { DataTable } from '@/components/ui/data-table';
+import { Notification } from '@/types/notifications';
 
-function getData(): Notification[] {
-  // Fetch data from your API here.
+import { useEffect, useState } from 'react';
 
-  return [
-    {
-      notificationId: '728ed52f',
-      message: 'test',
-      type: 'Friend Request',
-      date: new Date(),
-    },
-    {
-      notificationId: '728ed52g',
-      message: 'test2',
-      type: 'System',
-      date: new Date(1),
-    },
-    {
-      notificationId: '728ed52g',
-      message: 'test2',
-      type: 'System',
-      date: new Date(1),
-    },
-    {
-      notificationId: '728ed52g',
-      message: 'test2',
-      type: 'System',
-      date: new Date(1),
-    },
-    {
-      notificationId: '728ed52g',
-      message: 'test2',
-      type: 'System',
-      date: new Date(1),
-    },
-    {
-      notificationId: '728ed52g',
-      message: 'test2',
-      type: 'System',
-      date: new Date(1),
-    },
-    {
-      notificationId: '728ed52g',
-      message: 'test2',
-      type: 'System',
-      date: new Date(1),
-    },
-    {
-      notificationId: '728ed52g',
-      message: 'test2',
-      type: 'System',
-      date: new Date(1),
-    },
-    {
-      notificationId: '728ed52g',
-      message: 'test2',
-      type: 'System',
-      date: new Date(1),
-    },
-    {
-      notificationId: '728ed52g',
-      message: 'test2',
-      type: 'System',
-      date: new Date(1),
-    },
-    {
-      notificationId: '728ed52g',
-      message: 'test2',
-      type: 'System',
-      date: new Date(1),
-    },
-    {
-      notificationId: '728ed52g',
-      message: 'test2',
-      type: 'System',
-      date: new Date(1),
-    },
-    {
-      notificationId: '728ed52g',
-      message: 'test2',
-      type: 'System',
-      date: new Date(1),
-    },
-    {
-      notificationId: '728ed52g',
-      message: 'test2',
-      type: 'System',
-      date: new Date(1),
-    },
-  ];
-}
+import LoadingSpinner from '@/components/loadingSpinner';
+
+import { useNotificationsStore } from '@/store/useNotificationsStore';
 
 export default function NotificationsPage() {
-  const data = getData();
+  const notifications = useNotificationsStore((state) => state.notifications);
+  const loading = useNotificationsStore((state) => state.loading);
+
+  const getNotifications = useNotificationsStore((state) => state.getNotifications);
+
+  useEffect(() => {
+    getNotifications();
+  }, []);
 
   return (
     <div className="flex min-h-screen gap-6 bg-zinc-200 dark:bg-stone-800 font-sans p-4">
@@ -102,7 +27,11 @@ export default function NotificationsPage() {
           <h2 className="font-bold text-2xl">Notifications</h2>
         </div>
 
-        <DataTable columns={notificationTableColumns} data={data} />
+        {loading ? (
+          <LoadingSpinner />
+        ) : (
+          <DataTable columns={notificationTableColumns} data={notifications} />
+        )}
       </div>
     </div>
   );
