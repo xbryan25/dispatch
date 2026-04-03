@@ -107,3 +107,17 @@ class NotificationsService:
         await db.commit()
 
         return None
+
+    @staticmethod
+    async def mark_notifications_as_read(
+        db: AsyncSession, current_user_id: UUID, notification_ids: list[UUID]
+    ):
+
+        stmt = NotificationsQueries.mark_notifications_as_read_stmt(
+            current_user_id, notification_ids
+        )
+
+        await db.execute(stmt)
+        await db.commit()
+
+        return None

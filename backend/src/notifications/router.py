@@ -95,3 +95,24 @@ async def bulk_delete_notifications(
     except Exception:
         traceback.print_exc()
         raise HTTPException(status_code=500, detail="Internal Server Error")
+
+
+@router.patch("/read")
+@limiter.limit("20/minute")
+async def mark_notifications_as_read(
+    request: Request,
+    data: NotificationIdsList,
+    user_id: Annotated[UUID, Depends(get_current_user_id)],
+    db: AsyncSession = Depends(get_db),
+):
+
+    try:
+        await NotificationsService.mark_notifications_as_read(
+            db, user_id, data.notification_ids
+        )
+
+        return {"status": "success"}
+
+    except Exception:
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail="Internal Server Error")
