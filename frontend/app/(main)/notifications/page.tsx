@@ -10,11 +10,26 @@ import LoadingSpinner from '@/components/loadingSpinner';
 
 import { useNotificationsStore } from '@/store/useNotificationsStore';
 
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { SortState } from '@/types/global';
+import { Skeleton } from '@/components/ui/skeleton';
+
 export default function NotificationsPage() {
   const notifications = useNotificationsStore((state) => state.notifications);
   const loading = useNotificationsStore((state) => state.loading);
+  const isInitialLoad = useNotificationsStore((state) => state.isInitialLoad);
 
   const getNotifications = useNotificationsStore((state) => state.getNotifications);
+
+  const sortState = useNotificationsStore((state) => state.sortState);
+  const setSortState = useNotificationsStore((state) => state.setSortState);
 
   useEffect(() => {
     getNotifications();
@@ -25,6 +40,27 @@ export default function NotificationsPage() {
       <div className="flex-1 flex flex-col items-center gap-4 bg-white dark:bg-stone-900 rounded-xl p-5 min-h-screen min-w-0">
         <div className="flex justify-between w-full">
           <h2 className="font-bold text-2xl">Notifications</h2>
+
+          <div>
+            {isInitialLoad ? (
+              <Skeleton className="h-9 w-43 rounded-sm" />
+            ) : (
+              <Select
+                onValueChange={(newSortState: SortState) => setSortState(newSortState)}
+                value={sortState ?? 'ascending'}
+              >
+                <SelectTrigger className="w-full max-w-48">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectItem value="ascending">Show Newest First</SelectItem>
+                    <SelectItem value="descending">Show Latest First</SelectItem>
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            )}
+          </div>
         </div>
 
         {loading ? (
