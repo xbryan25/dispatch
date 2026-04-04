@@ -7,6 +7,7 @@ import { SortState } from '@/types/global';
 
 interface NotificationsState {
   notifications: Notification[];
+  isInitialLoad: boolean;
   loading: boolean;
   error: string | null;
   isRateLimited: boolean;
@@ -43,13 +44,14 @@ interface NotificationsState {
 
 export const useNotificationsStore = create<NotificationsState>()((set, get) => ({
   notifications: [],
+  isInitialLoad: true,
   loading: true,
   error: '',
 
   isRateLimited: false,
 
   notificationsToShow: 1,
-  sortState: 'ascending',
+  sortState: 'ascending' as SortState,
   searchQuery: '',
 
   totalNotifications: 0,
@@ -89,8 +91,6 @@ export const useNotificationsStore = create<NotificationsState>()((set, get) => 
 
   setTotalPages: (newTotalPages: number) => set({ totalPages: newTotalPages }),
   setCurrentPage: async (newCurrentPage: number) => {
-    console.log('click');
-
     set({ currentPage: newCurrentPage });
 
     await get().getNotifications();
@@ -100,7 +100,7 @@ export const useNotificationsStore = create<NotificationsState>()((set, get) => 
     set({ loading: true, error: null });
 
     try {
-      const { currentPage, sortState, notificationsToShow } = get();
+      const { currentPage, sortState, notificationsToShow, isInitialLoad } = get();
 
       const data = await getUserNotifications(sortState, currentPage, notificationsToShow);
 
@@ -111,6 +111,10 @@ export const useNotificationsStore = create<NotificationsState>()((set, get) => 
         currentPage: data.pagination.currentPage,
         loading: false,
       });
+
+      if (isInitialLoad) {
+        set({ isInitialLoad: false });
+      }
     } catch (err: unknown) {
       if (err instanceof Error && (err as Error & { status: number }).status === 429) {
         set({ isRateLimited: false, notifications: [] });

@@ -2,7 +2,7 @@ const fastapiServerUrl = process.env.NEXT_PUBLIC_FASTAPI_SERVER_URL;
 
 export async function getUserNotifications(sortState: string, page: number, limit: number) {
   const res = await fetch(
-    `${fastapiServerUrl}/api/notifications?sortState=${sortState}&page=${page}&limit=${limit}`,
+    `${fastapiServerUrl}/api/notifications?sort_state=${sortState}&page=${page}&limit=${limit}`,
     {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
