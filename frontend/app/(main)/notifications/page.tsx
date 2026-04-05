@@ -2,7 +2,7 @@
 
 import { notificationTableColumns } from '@/columns/notificationTableColumns';
 import { DataTable } from '@/components/ui/data-table';
-import { NotificationsToShow, ReadState } from '@/types/notifications';
+import { NotificationsToShow, ReadStateForSelect } from '@/types/notifications';
 
 import { useEffect } from 'react';
 
@@ -22,6 +22,7 @@ import { SortState } from '@/types/global';
 import { Skeleton } from '@/components/ui/skeleton';
 
 import { Notification } from '@/types/notifications';
+import { Button } from '@/components/ui/button';
 
 export default function NotificationsPage() {
   const notifications = useNotificationsStore((state) => state.notifications);
@@ -29,6 +30,9 @@ export default function NotificationsPage() {
   const isInitialLoad = useNotificationsStore((state) => state.isInitialLoad);
 
   const getNotifications = useNotificationsStore((state) => state.getNotifications);
+  const updateNotificationsReadStatus = useNotificationsStore(
+    (state) => state.updateNotificationsReadStatus
+  );
 
   const readState = useNotificationsStore((state) => state.readState);
   const setReadState = useNotificationsStore((state) => state.setReadState);
@@ -54,7 +58,7 @@ export default function NotificationsPage() {
               <Skeleton className="h-9 w-43 rounded-sm" />
             ) : (
               <Select
-                onValueChange={(newReadState: ReadState) => setReadState(newReadState)}
+                onValueChange={(newReadState: ReadStateForSelect) => setReadState(newReadState)}
                 value={readState ?? 'all'}
               >
                 <SelectTrigger className="w-full max-w-48">
@@ -110,6 +114,12 @@ export default function NotificationsPage() {
                 </SelectContent>
               </Select>
             )}
+
+            {isInitialLoad ? (
+              <Skeleton className="h-9 w-20 rounded-sm" />
+            ) : (
+              <Button>Mark as read</Button>
+            )}
           </div>
         </div>
 
@@ -117,7 +127,7 @@ export default function NotificationsPage() {
           <LoadingSpinner />
         ) : (
           <DataTable
-            columns={notificationTableColumns}
+            columns={notificationTableColumns(updateNotificationsReadStatus)}
             data={notifications}
             getRowClassName={(row: Notification) =>
               row.isReadByReceiver ? 'bg-stone-100 dark:bg-stone-800' : ''

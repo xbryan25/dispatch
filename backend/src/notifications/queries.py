@@ -66,9 +66,11 @@ class NotificationsQueries:
         return stmt
 
     @staticmethod
-    def mark_notifications_as_read_stmt(
-        current_user_id: UUID, notification_ids: list[UUID]
+    def mark_notifications_as_read_or_unread_stmt(
+        current_user_id: UUID, notification_ids: list[UUID], read_state: str
     ) -> Update:
+        
+        is_read_by_receiver = True if read_state == 'read' else False
 
         stmt = (
             update(Notification)
@@ -76,7 +78,7 @@ class NotificationsQueries:
                 Notification.notification_id.in_(notification_ids),
                 Notification.receiver_id == current_user_id,
             )
-            .values(is_read_by_receiver=True)
+            .values(is_read_by_receiver=is_read_by_receiver)
         )
 
         return stmt

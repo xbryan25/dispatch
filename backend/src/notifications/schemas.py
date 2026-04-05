@@ -29,3 +29,7 @@ class NotificationsWithPaginationDetails(BaseSchema):
 
 class NotificationIdsList(BaseSchema):
     notification_ids: list[UUID]
+
+
+class NotificationIdsListWithReadState(NotificationIdsList):
+    read_state: str
