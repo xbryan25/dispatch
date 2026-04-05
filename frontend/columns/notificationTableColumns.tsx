@@ -18,7 +18,8 @@ import {
 
 import NotificationDetailsDialog from '@/components/notificationDetailsDialog';
 
-import { Notification } from '@/types/notifications';
+import { Notification, ReadState } from '@/types/notifications';
+import { Icon } from '@iconify/react';
 
 const formatter = new Intl.DateTimeFormat('en-US', {
   day: 'numeric',
@@ -28,7 +29,9 @@ const formatter = new Intl.DateTimeFormat('en-US', {
   hour12: true,
 });
 
-export const notificationTableColumns: ColumnDef<Notification>[] = [
+export const notificationTableColumns = (
+  updateNotificationReadStatus: (notificationIds: string[], readState: ReadState) => void
+): ColumnDef<Notification>[] => [
   {
     id: 'select',
     header: ({ table }) => (
@@ -69,7 +72,7 @@ export const notificationTableColumns: ColumnDef<Notification>[] = [
   },
   {
     accessorKey: 'date',
-    size: 70,
+    size: 20,
     header: 'Date',
     cell: ({ row }) => (
       <p className="max-w-10">{formatter.format(new Date(row.original.createdAt))}</p>
@@ -79,27 +82,31 @@ export const notificationTableColumns: ColumnDef<Notification>[] = [
     id: 'actions',
     size: 10,
     cell: ({ row }) => {
-      const notification = row.original;
-
       return (
-        <div className="w-8">
+        <div className="flex justify-end">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
+
               <DropdownMenuItem
-                onClick={() => navigator.clipboard.writeText(notification.notificationId)}
+                onClick={() =>
+                  updateNotificationReadStatus(
+                    [row.original.notificationId],
+                    row.original.isReadByReceiver ? 'unread' : 'read'
+                  )
+                }
               >
-                Copy payment ID
+                <Icon icon="material-symbols:check" className="w-4 h-4" /> Mark as{' '}
+                {row.original.isReadByReceiver ? 'unread' : 'read'}
               </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>View customer</DropdownMenuItem>
-              <DropdownMenuItem>View payment details</DropdownMenuItem>
+              <DropdownMenuItem>
+                <Icon icon="material-symbols:delete" className="w-4 h-4" /> Delete
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

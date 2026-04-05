@@ -4,7 +4,7 @@ from src.core import get_db, limiter
 from src.auth.dependencies import get_current_user_id
 
 from .services import NotificationsService
-from .schemas import NotificationsWithPaginationDetails, NotificationIdsList
+from .schemas import NotificationsWithPaginationDetails, NotificationIdsList, NotificationIdsListWithReadState
 
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -98,18 +98,18 @@ async def bulk_delete_notifications(
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
-@router.patch("/read")
+@router.patch("/read-status")
 @limiter.limit("20/minute")
-async def mark_notifications_as_read(
+async def mark_notifications_as_read_or_unread(
     request: Request,
-    data: NotificationIdsList,
+    data: NotificationIdsListWithReadState,
     user_id: Annotated[UUID, Depends(get_current_user_id)],
     db: AsyncSession = Depends(get_db),
 ):
 
     try:
-        await NotificationsService.mark_notifications_as_read(
-            db, user_id, data.notification_ids
+        await NotificationsService.mark_notifications_as_read_or_unread(
+            db, user_id, data.notification_ids, data.read_state
         )
 
         return {"status": "success"}

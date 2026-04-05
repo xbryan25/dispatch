@@ -112,12 +112,12 @@ class NotificationsService:
         return None
 
     @staticmethod
-    async def mark_notifications_as_read(
-        db: AsyncSession, current_user_id: UUID, notification_ids: list[UUID]
+    async def mark_notifications_as_read_or_unread(
+        db: AsyncSession, current_user_id: UUID, notification_ids: list[UUID], read_state: str
     ):
 
-        stmt = NotificationsQueries.mark_notifications_as_read_stmt(
-            current_user_id, notification_ids
+        stmt = NotificationsQueries.mark_notifications_as_read_or_unread_stmt(
+            current_user_id, notification_ids, read_state
         )
 
         await db.execute(stmt)

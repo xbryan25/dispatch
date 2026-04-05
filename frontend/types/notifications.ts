@@ -8,4 +8,5 @@ export type Notification = {
 };
 
 export type NotificationsToShow = 10 | 25 | 50;
-export type ReadState = 'unread' | 'read' | 'all';
+export type ReadState = 'unread' | 'read';
+export type ReadStateForSelect = ReadState | 'all';
