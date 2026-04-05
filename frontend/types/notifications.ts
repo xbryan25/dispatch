@@ -6,3 +6,6 @@ export type Notification = {
   isSeenByReceiver: boolean;
   senderUsername: string;
 };
+
+export type NotificationsToShow = 10 | 25 | 50;
+export type ReadState = 'unread' | 'read';

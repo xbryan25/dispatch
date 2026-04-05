@@ -2,9 +2,9 @@
 
 import { notificationTableColumns } from '@/columns/notificationTableColumns';
 import { DataTable } from '@/components/ui/data-table';
-import { Notification } from '@/types/notifications';
+import { NotificationsToShow } from '@/types/notifications';
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 
 import LoadingSpinner from '@/components/loadingSpinner';
 
@@ -31,6 +31,9 @@ export default function NotificationsPage() {
   const sortState = useNotificationsStore((state) => state.sortState);
   const setSortState = useNotificationsStore((state) => state.setSortState);
 
+  const notificationsToShow = useNotificationsStore((state) => state.notificationsToShow);
+  const setNotificationsToShow = useNotificationsStore((state) => state.setNotificationsToShow);
+
   useEffect(() => {
     getNotifications();
   }, []);
@@ -41,7 +44,7 @@ export default function NotificationsPage() {
         <div className="flex justify-between w-full">
           <h2 className="font-bold text-2xl">Notifications</h2>
 
-          <div>
+          <div className="flex gap-2">
             {isInitialLoad ? (
               <Skeleton className="h-9 w-43 rounded-sm" />
             ) : (
@@ -56,6 +59,28 @@ export default function NotificationsPage() {
                   <SelectGroup>
                     <SelectItem value="ascending">Show Newest First</SelectItem>
                     <SelectItem value="descending">Show Latest First</SelectItem>
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            )}
+
+            {isInitialLoad ? (
+              <Skeleton className="h-9 w-20 rounded-sm" />
+            ) : (
+              <Select
+                onValueChange={(newNotificationsToShow: string) =>
+                  setNotificationsToShow(Number(newNotificationsToShow) as NotificationsToShow)
+                }
+                value={String(notificationsToShow) ?? '10'}
+              >
+                <SelectTrigger className="w-full max-w-48">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectItem value="10">10</SelectItem>
+                    <SelectItem value="25">25</SelectItem>
+                    <SelectItem value="50">50</SelectItem>
                   </SelectGroup>
                 </SelectContent>
               </Select>
