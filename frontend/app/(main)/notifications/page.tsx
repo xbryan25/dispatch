@@ -2,13 +2,15 @@
 
 import { notificationTableColumns } from '@/columns/notificationTableColumns';
 import { DataTable } from '@/components/ui/data-table';
-import { NotificationsToShow, ReadStateForSelect } from '@/types/notifications';
+import { NotificationsToShow, ReadState, ReadStateForSelect } from '@/types/notifications';
 
-import { useEffect } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import LoadingSpinner from '@/components/loadingSpinner';
 
 import { useNotificationsStore } from '@/store/useNotificationsStore';
+
+import { Row } from '@tanstack/react-table';
 
 import {
   Select,
@@ -18,16 +20,26 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+
 import { SortState } from '@/types/global';
 import { Skeleton } from '@/components/ui/skeleton';
 
 import { Notification } from '@/types/notifications';
 import { Button } from '@/components/ui/button';
+import { Spinner } from '@/components/ui/spinner';
 
 export default function NotificationsPage() {
+  const [selectedRows, setSelectedRows] = useState<Notification[]>([]);
+  const [readStateMajority, setReadStateMajority] = useState<ReadState>('read');
+
+  const tableRef = useRef<{ resetSelection: () => void } | null>(null);
+
   const notifications = useNotificationsStore((state) => state.notifications);
   const loading = useNotificationsStore((state) => state.loading);
   const isInitialLoad = useNotificationsStore((state) => state.isInitialLoad);
+
+  const markLoading = useNotificationsStore((state) => state.markLoading);
+  const setMarkLoading = useNotificationsStore((state) => state.setMarkLoading);
 
   const getNotifications = useNotificationsStore((state) => state.getNotifications);
   const updateNotificationsReadStatus = useNotificationsStore(
@@ -45,6 +57,19 @@ export default function NotificationsPage() {
 
   useEffect(() => {
     getNotifications();
+  }, []);
+
+  const handleSelectionChange = useCallback((rows: Row<Notification>[]) => {
+    const selectedNotifications = rows.map((row) => row.original);
+
+    setSelectedRows(selectedNotifications);
+
+    const readCount = selectedNotifications.reduce(
+      (acc, notif) => (notif.isReadByReceiver ? acc + 1 : acc),
+      0
+    );
+
+    setReadStateMajority(readCount > selectedNotifications.length / 2 ? 'unread' : 'read');
   }, []);
 
   return (
@@ -115,10 +140,22 @@ export default function NotificationsPage() {
               </Select>
             )}
 
-            {isInitialLoad ? (
-              <Skeleton className="h-9 w-20 rounded-sm" />
-            ) : (
-              <Button>Mark as read</Button>
+            {selectedRows.length > 1 && (
+              <Button
+                className="cursor-pointer"
+                disabled={markLoading}
+                onClick={async () => {
+                  await updateNotificationsReadStatus(
+                    selectedRows.map((row) => row.notificationId),
+                    readStateMajority
+                  );
+                  tableRef.current?.resetSelection();
+                  setMarkLoading(false);
+                }}
+              >
+                {markLoading && <Spinner data-icon="inline-start" />}
+                Mark as read
+              </Button>
             )}
           </div>
         </div>
@@ -129,9 +166,11 @@ export default function NotificationsPage() {
           <DataTable
             columns={notificationTableColumns(updateNotificationsReadStatus)}
             data={notifications}
+            onSelectionChange={handleSelectionChange}
             getRowClassName={(row: Notification) =>
               row.isReadByReceiver ? 'bg-stone-100 dark:bg-stone-800' : ''
             }
+            tableRef={tableRef}
           />
         )}
       </div>

@@ -92,8 +92,8 @@ export const useNotificationsStore = create<NotificationsState>()((set, get) => 
   setError: (state: string | null) => set({ error: state }),
   setIsRateLimited: (state: boolean) => set({ isRateLimited: state }),
 
-  setMarkLoading: (state: boolean) => set({ loading: state }),
-  setMarkIsRateLimited: (state: boolean) => set({ isRateLimited: state }),
+  setMarkLoading: (state: boolean) => set({ markLoading: state }),
+  setMarkIsRateLimited: (state: boolean) => set({ markIsRateLimited: state }),
 
   setNotificationsToShow: async (newNotificationsToShow: NotificationsToShow) => {
     set({ notificationsToShow: newNotificationsToShow });
@@ -193,7 +193,7 @@ export const useNotificationsStore = create<NotificationsState>()((set, get) => 
       set((state) => ({
         notifications: state.notifications.map((notif) =>
           notificationIds.includes(notif.notificationId)
-            ? { ...notif, isReadByReceiver: readState == 'read' }
+            ? { ...notif, isReadByReceiver: readState === 'read' }
             : notif
         ),
       }));
