@@ -11,7 +11,7 @@ class Notification(BaseSchema):
     created_at: datetime
     content: str
     type: NotificationTypeEnum
-    is_seen_by_receiver: bool
+    is_read_by_receiver: bool
     sender_username: str
 
 

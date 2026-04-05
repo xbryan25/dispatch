@@ -70,17 +70,7 @@ export const notificationTableColumns: ColumnDef<Notification>[] = [
   {
     accessorKey: 'date',
     size: 70,
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-        >
-          Date
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      );
-    },
+    header: 'Date',
     cell: ({ row }) => (
       <p className="max-w-10">{formatter.format(new Date(row.original.createdAt))}</p>
     ),

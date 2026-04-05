@@ -33,7 +33,7 @@ class Notification(Base):
         nullable=False,
     )
 
-    is_seen_by_receiver: Mapped[bool] = mapped_column(
+    is_read_by_receiver: Mapped[bool] = mapped_column(
         Boolean, server_default="false", nullable=False, index=True
     )
 

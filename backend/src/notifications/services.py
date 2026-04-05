@@ -42,7 +42,7 @@ class NotificationsService:
                     "notificationId": str(db_message.notification_id),
                     "type": db_message.type,
                     "content": db_message.content,
-                    "isSeenByReceiver": db_message.is_seen_by_receiver,
+                    "isReadByReceiver": db_message.is_read_by_receiver,
                     "senderUsername": sender_username,
                     "createdAt": db_message.created_at.isoformat(),
                 },
@@ -57,12 +57,15 @@ class NotificationsService:
     async def get_notifications(
         db: AsyncSession,
         current_user_id: UUID,
+        read_state: str,
         sort_state: str,
         page: int,
         limit: int,
     ):
 
-        stmt = NotificationsQueries.get_notifications_stmt(current_user_id, sort_state)
+        stmt = NotificationsQueries.get_notifications_stmt(
+            current_user_id, read_state, sort_state
+        )
 
         count_stmt = NotificationsQueries.get_total_count_of_notifications(stmt)
         total_count = await db.scalar(count_stmt)
@@ -87,7 +90,7 @@ class NotificationsService:
                     "created_at": notification.created_at,
                     "content": notification.content,
                     "type": notification.type,
-                    "isSeenByReceiver": notification.is_seen_by_receiver,
+                    "isReadByReceiver": notification.is_read_by_receiver,
                     "senderUsername": sender_username,
                 }
             )

@@ -3,9 +3,9 @@ export type Notification = {
   type: string;
   content: string;
   createdAt: string;
-  isSeenByReceiver: boolean;
+  isReadByReceiver: boolean;
   senderUsername: string;
 };
 
 export type NotificationsToShow = 10 | 25 | 50;
-export type ReadState = 'unread' | 'read';
+export type ReadState = 'unread' | 'read' | 'all';

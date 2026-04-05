@@ -29,6 +29,7 @@ router = APIRouter(
 async def get_notifications(
     request: Request,
     user_id: Annotated[UUID, Depends(get_current_user_id)],
+    read_state: str = "all",
     sort_state: str = "ascending",
     page: int = 1,
     limit: int = 24,
@@ -37,7 +38,7 @@ async def get_notifications(
 
     try:
         result = await NotificationsService.get_notifications(
-            db, user_id, sort_state, page, limit
+            db, user_id, read_state, sort_state, page, limit
         )
 
         total_notifications = result[1] if result[1] else 0

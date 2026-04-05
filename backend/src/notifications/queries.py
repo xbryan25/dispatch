@@ -19,7 +19,9 @@ from uuid import UUID
 
 class NotificationsQueries:
     @staticmethod
-    def get_notifications_stmt(current_user_id: UUID, sort_state: str) -> Select:
+    def get_notifications_stmt(
+        current_user_id: UUID, read_state: str, sort_state: str
+    ) -> Select:
 
         stmt = (
             select(Notification, UserProfile.username)
@@ -36,6 +38,13 @@ class NotificationsQueries:
                 )
             )
         )
+
+        if read_state != "all":
+            stmt = stmt.where(
+                Notification.is_read_by_receiver.is_(True)
+                if read_state == "read"
+                else Notification.is_read_by_receiver.is_(True)
+            )
 
         # if search_query.strip():
         #     stmt = stmt.filter(
@@ -67,7 +76,7 @@ class NotificationsQueries:
                 Notification.notification_id.in_(notification_ids),
                 Notification.receiver_id == current_user_id,
             )
-            .values(is_seen_by_receiver=True)
+            .values(is_read_by_receiver=True)
         )
 
         return stmt
