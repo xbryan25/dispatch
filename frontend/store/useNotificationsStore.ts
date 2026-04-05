@@ -2,7 +2,7 @@ import { create } from 'zustand';
 
 import { getUserNotifications } from '@/lib/api/notifications';
 
-import { Notification } from '@/types/notifications';
+import { Notification, NotificationsToShow } from '@/types/notifications';
 import { SortState } from '@/types/global';
 
 interface NotificationsState {
@@ -31,7 +31,7 @@ interface NotificationsState {
 
   setIsRateLimited: (state: boolean) => void;
 
-  setNotificationsToShow: (newNotificationsToShow: number) => void;
+  setNotificationsToShow: (newNotificationsToShow: NotificationsToShow) => void;
   setSortState: (newSortState: SortState) => void;
   setSearchQuery: (newSearchQuery: string) => void;
 
@@ -50,7 +50,7 @@ export const useNotificationsStore = create<NotificationsState>()((set, get) => 
 
   isRateLimited: false,
 
-  notificationsToShow: 1,
+  notificationsToShow: 10,
   sortState: 'ascending' as SortState,
   searchQuery: '',
 
@@ -68,7 +68,7 @@ export const useNotificationsStore = create<NotificationsState>()((set, get) => 
 
   setIsRateLimited: (state: boolean) => set({ isRateLimited: state }),
 
-  setNotificationsToShow: async (newNotificationsToShow: number) => {
+  setNotificationsToShow: async (newNotificationsToShow: NotificationsToShow) => {
     set({ notificationsToShow: newNotificationsToShow });
 
     await get().getNotifications();
