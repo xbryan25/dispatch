@@ -2,7 +2,7 @@ import { create } from 'zustand';
 
 import { getUserNotifications } from '@/lib/api/notifications';
 
-import { Notification, NotificationsToShow } from '@/types/notifications';
+import { Notification, NotificationsToShow, ReadState } from '@/types/notifications';
 import { SortState } from '@/types/global';
 
 interface NotificationsState {
@@ -14,6 +14,7 @@ interface NotificationsState {
 
   notificationsToShow: number;
   sortState: SortState;
+  readState: ReadState;
   searchQuery: string;
 
   totalNotifications: number;
@@ -33,6 +34,7 @@ interface NotificationsState {
 
   setNotificationsToShow: (newNotificationsToShow: NotificationsToShow) => void;
   setSortState: (newSortState: SortState) => void;
+  setReadState: (setReadState: ReadState) => void;
   setSearchQuery: (newSearchQuery: string) => void;
 
   setTotalNotifications: (newTotalUsers: number) => void;
@@ -52,6 +54,7 @@ export const useNotificationsStore = create<NotificationsState>()((set, get) => 
 
   notificationsToShow: 10,
   sortState: 'ascending' as SortState,
+  readState: 'all' as ReadState,
   searchQuery: '',
 
   totalNotifications: 0,
@@ -74,8 +77,14 @@ export const useNotificationsStore = create<NotificationsState>()((set, get) => 
     await get().getNotifications();
   },
 
-  setSortState: async (newSortState) => {
+  setSortState: async (newSortState: SortState) => {
     set({ sortState: newSortState });
+
+    await get().getNotifications();
+  },
+
+  setReadState: async (newReadState: ReadState) => {
+    set({ readState: newReadState });
 
     await get().getNotifications();
   },
@@ -100,9 +109,14 @@ export const useNotificationsStore = create<NotificationsState>()((set, get) => 
     set({ loading: true, error: null });
 
     try {
-      const { currentPage, sortState, notificationsToShow, isInitialLoad } = get();
+      const { currentPage, readState, sortState, notificationsToShow, isInitialLoad } = get();
 
-      const data = await getUserNotifications(sortState, currentPage, notificationsToShow);
+      const data = await getUserNotifications(
+        readState,
+        sortState,
+        currentPage,
+        notificationsToShow
+      );
 
       set({
         notifications: data.notifications,

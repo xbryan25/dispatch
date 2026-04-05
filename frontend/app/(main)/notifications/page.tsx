@@ -2,7 +2,7 @@
 
 import { notificationTableColumns } from '@/columns/notificationTableColumns';
 import { DataTable } from '@/components/ui/data-table';
-import { NotificationsToShow } from '@/types/notifications';
+import { NotificationsToShow, ReadState } from '@/types/notifications';
 
 import { useEffect } from 'react';
 
@@ -21,12 +21,17 @@ import {
 import { SortState } from '@/types/global';
 import { Skeleton } from '@/components/ui/skeleton';
 
+import { Notification } from '@/types/notifications';
+
 export default function NotificationsPage() {
   const notifications = useNotificationsStore((state) => state.notifications);
   const loading = useNotificationsStore((state) => state.loading);
   const isInitialLoad = useNotificationsStore((state) => state.isInitialLoad);
 
   const getNotifications = useNotificationsStore((state) => state.getNotifications);
+
+  const readState = useNotificationsStore((state) => state.readState);
+  const setReadState = useNotificationsStore((state) => state.setReadState);
 
   const sortState = useNotificationsStore((state) => state.sortState);
   const setSortState = useNotificationsStore((state) => state.setSortState);
@@ -45,6 +50,26 @@ export default function NotificationsPage() {
           <h2 className="font-bold text-2xl">Notifications</h2>
 
           <div className="flex gap-2">
+            {isInitialLoad ? (
+              <Skeleton className="h-9 w-43 rounded-sm" />
+            ) : (
+              <Select
+                onValueChange={(newReadState: ReadState) => setReadState(newReadState)}
+                value={readState ?? 'all'}
+              >
+                <SelectTrigger className="w-full max-w-48">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectItem value="all">Show All</SelectItem>
+                    <SelectItem value="read">Show Only Read</SelectItem>
+                    <SelectItem value="unread">Show Only Unread</SelectItem>
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            )}
+
             {isInitialLoad ? (
               <Skeleton className="h-9 w-43 rounded-sm" />
             ) : (
@@ -91,7 +116,13 @@ export default function NotificationsPage() {
         {loading ? (
           <LoadingSpinner />
         ) : (
-          <DataTable columns={notificationTableColumns} data={notifications} />
+          <DataTable
+            columns={notificationTableColumns}
+            data={notifications}
+            getRowClassName={(row: Notification) =>
+              row.isReadByReceiver ? 'bg-stone-100 dark:bg-stone-800' : ''
+            }
+          />
         )}
       </div>
     </div>
