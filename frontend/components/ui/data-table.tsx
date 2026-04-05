@@ -1,10 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useImperativeHandle, useState } from 'react';
 
 import {
   ColumnDef,
   ColumnFiltersState,
+  Row,
   SortingState,
   flexRender,
   getCoreRowModel,
@@ -30,13 +31,17 @@ import { cn } from '@/lib/utils';
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  onSelectionChange: (rows: Row<TData>[]) => void;
   getRowClassName?: (row: TData) => string;
+  tableRef?: React.RefObject<{ resetSelection: () => void } | null>;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
+  onSelectionChange,
   getRowClassName,
+  tableRef,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [rowSelection, setRowSelection] = useState({});
@@ -67,6 +72,14 @@ export function DataTable<TData, TValue>({
     },
     onPaginationChange: () => {}, // Tells TanStack that own code will control pagination
   });
+
+  useEffect(() => {
+    onSelectionChange?.(table.getFilteredSelectedRowModel().rows);
+  }, [onSelectionChange, table, rowSelection]);
+
+  useImperativeHandle(tableRef, () => ({
+    resetSelection: () => table.resetRowSelection(),
+  }));
 
   return (
     <div>
