@@ -52,3 +52,26 @@ export async function updateNotificationReadStatus(
 
   return res.json();
 }
+
+export async function deleteNotification(notificationId: string) {
+  const res = await fetch(
+    `${fastapiServerUrl}/api/notifications?notification_id=${notificationId}`,
+    {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+    }
+  );
+
+  if (!res.ok) {
+    const error = new Error(
+      'Something went wrong when updating the conversation theme.'
+    ) as Error & {
+      status: number;
+    };
+    error.status = res.status;
+    throw error;
+  }
+
+  return res.json();
+}

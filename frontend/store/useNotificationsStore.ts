@@ -1,6 +1,10 @@
 import { create } from 'zustand';
 
-import { getUserNotifications, updateNotificationReadStatus } from '@/lib/api/notifications';
+import {
+  deleteNotification,
+  getUserNotifications,
+  updateNotificationReadStatus,
+} from '@/lib/api/notifications';
 
 import {
   Notification,
@@ -22,6 +26,9 @@ interface NotificationsState {
 
   markLoading: boolean;
   markIsRateLimited: boolean;
+
+  deleteLoading: boolean;
+  deleteIsRateLimited: boolean;
 
   notificationsToShow: number;
   sortState: SortState;
@@ -45,6 +52,9 @@ interface NotificationsState {
   setMarkLoading: (state: boolean) => void;
   setMarkIsRateLimited: (state: boolean) => void;
 
+  setDeleteLoading: (state: boolean) => void;
+  setDeleteIsRateLimited: (state: boolean) => void;
+
   setNotificationsToShow: (newNotificationsToShow: NotificationsToShow) => void;
   setSortState: (newSortState: SortState) => void;
   setReadState: (setReadState: ReadStateForSelect) => void;
@@ -55,11 +65,14 @@ interface NotificationsState {
   setCurrentPage: (newCurrentPage: number) => void;
 
   getNotifications: (isRetry?: boolean) => Promise<void>;
+
   updateNotificationsReadStatus: (
     notificationIds: string[],
     readState: ReadState,
     isRetry?: boolean
   ) => Promise<void>;
+
+  deleteNotification: (notificationId: string, isRetry?: boolean) => Promise<void>;
 }
 
 export const useNotificationsStore = create<NotificationsState>()((set, get) => ({
@@ -71,8 +84,10 @@ export const useNotificationsStore = create<NotificationsState>()((set, get) => 
   isRateLimited: false,
 
   markLoading: false,
-  markError: '',
   markIsRateLimited: false,
+
+  deleteLoading: false,
+  deleteIsRateLimited: false,
 
   notificationsToShow: 10,
   sortState: 'ascending' as SortState,
@@ -94,6 +109,9 @@ export const useNotificationsStore = create<NotificationsState>()((set, get) => 
 
   setMarkLoading: (state: boolean) => set({ markLoading: state }),
   setMarkIsRateLimited: (state: boolean) => set({ markIsRateLimited: state }),
+
+  setDeleteLoading: (state: boolean) => set({ deleteLoading: state }),
+  setDeleteIsRateLimited: (state: boolean) => set({ deleteIsRateLimited: state }),
 
   setNotificationsToShow: async (newNotificationsToShow: NotificationsToShow) => {
     set({ notificationsToShow: newNotificationsToShow });
@@ -155,7 +173,7 @@ export const useNotificationsStore = create<NotificationsState>()((set, get) => 
       }
     } catch (err: unknown) {
       if (err instanceof Error && (err as Error & { status: number }).status === 429) {
-        set({ isRateLimited: false, notifications: [] });
+        set({ isRateLimited: true, notifications: [] });
 
         if (!isRetry) {
           setTimeout(() => {
@@ -185,7 +203,7 @@ export const useNotificationsStore = create<NotificationsState>()((set, get) => 
     readState: ReadState,
     isRetry: boolean = false
   ) => {
-    set({ markLoading: true });
+    set({ deleteLoading: true });
 
     try {
       await updateNotificationReadStatus(notificationIds, readState);
@@ -199,15 +217,15 @@ export const useNotificationsStore = create<NotificationsState>()((set, get) => 
       }));
     } catch (err: unknown) {
       if (err instanceof Error && (err as Error & { status: number }).status === 429) {
-        set({ isRateLimited: false, notifications: [] });
+        set({ markIsRateLimited: true });
 
         if (!isRetry) {
           setTimeout(() => {
-            set({ isRateLimited: false });
+            set({ markIsRateLimited: false });
           }, 60000);
 
           const timeout = setTimeout(() => {
-            get().getNotifications(true);
+            get().updateNotificationsReadStatus(notificationIds, readState, true);
           }, 60000);
 
           set({ retryTimeout: timeout });
@@ -217,7 +235,39 @@ export const useNotificationsStore = create<NotificationsState>()((set, get) => 
       }
     } finally {
       set({
-        loading: false,
+        markLoading: false,
+      });
+    }
+  },
+
+  deleteNotification: async (notificationId: string, isRetry: boolean = false) => {
+    set({ deleteLoading: true });
+
+    try {
+      await deleteNotification(notificationId);
+
+      await get().getNotifications();
+    } catch (err: unknown) {
+      if (err instanceof Error && (err as Error & { status: number }).status === 429) {
+        set({ deleteIsRateLimited: true });
+
+        if (!isRetry) {
+          setTimeout(() => {
+            set({ deleteIsRateLimited: false });
+          }, 60000);
+
+          const timeout = setTimeout(() => {
+            get().deleteNotification(notificationId, true);
+          }, 60000);
+
+          set({ retryTimeout: timeout });
+        }
+      } else {
+        toast.error(`Failed to delete notification.`);
+      }
+    } finally {
+      set({
+        deleteLoading: false,
       });
     }
   },
