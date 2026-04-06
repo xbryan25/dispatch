@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 
 import {
-  deleteNotification,
+  bulkDeleteNotifications,
   getUserNotifications,
   updateNotificationReadStatus,
 } from '@/lib/api/notifications';
@@ -72,7 +72,7 @@ interface NotificationsState {
     isRetry?: boolean
   ) => Promise<void>;
 
-  deleteNotification: (notificationId: string, isRetry?: boolean) => Promise<void>;
+  bulkDeleteNotifications: (notificationId: string[], isRetry?: boolean) => Promise<void>;
 }
 
 export const useNotificationsStore = create<NotificationsState>()((set, get) => ({
@@ -240,11 +240,11 @@ export const useNotificationsStore = create<NotificationsState>()((set, get) => 
     }
   },
 
-  deleteNotification: async (notificationId: string, isRetry: boolean = false) => {
+  bulkDeleteNotifications: async (notificationIds: string[], isRetry: boolean = false) => {
     set({ deleteLoading: true });
 
     try {
-      await deleteNotification(notificationId);
+      await bulkDeleteNotifications(notificationIds);
 
       await get().getNotifications();
     } catch (err: unknown) {
@@ -257,7 +257,7 @@ export const useNotificationsStore = create<NotificationsState>()((set, get) => 
           }, 60000);
 
           const timeout = setTimeout(() => {
-            get().deleteNotification(notificationId, true);
+            get().bulkDeleteNotifications(notificationIds, true);
           }, 60000);
 
           set({ retryTimeout: timeout });

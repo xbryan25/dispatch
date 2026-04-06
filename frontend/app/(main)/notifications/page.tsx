@@ -27,6 +27,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Notification } from '@/types/notifications';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
+import DeleteNotificationDialog from '@/components/deleteNotificationDialog';
 
 export default function NotificationsPage() {
   const [selectedRows, setSelectedRows] = useState<Notification[]>([]);
@@ -41,13 +42,14 @@ export default function NotificationsPage() {
   const markLoading = useNotificationsStore((state) => state.markLoading);
   const setMarkLoading = useNotificationsStore((state) => state.setMarkLoading);
 
-  // const deleteLoading = useNotificationsStore((state) => state.deleteLoading);
-  // const setDeleteIsRateLimited = useNotificationsStore((state) => state.setDeleteIsRateLimited);
+  const deleteLoading = useNotificationsStore((state) => state.deleteLoading);
+  const setDeleteLoading = useNotificationsStore((state) => state.setDeleteLoading);
 
   const getNotifications = useNotificationsStore((state) => state.getNotifications);
   const updateNotificationsReadStatus = useNotificationsStore(
     (state) => state.updateNotificationsReadStatus
   );
+  const bulkDeleteNotifications = useNotificationsStore((state) => state.bulkDeleteNotifications);
 
   const readState = useNotificationsStore((state) => state.readState);
   const setReadState = useNotificationsStore((state) => state.setReadState);
@@ -57,6 +59,9 @@ export default function NotificationsPage() {
 
   const notificationsToShow = useNotificationsStore((state) => state.notificationsToShow);
   const setNotificationsToShow = useNotificationsStore((state) => state.setNotificationsToShow);
+
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   useEffect(() => {
     getNotifications();
@@ -146,7 +151,7 @@ export default function NotificationsPage() {
             {selectedRows.length > 1 && (
               <Button
                 className="cursor-pointer"
-                disabled={markLoading}
+                disabled={markLoading || deleteLoading}
                 onClick={async () => {
                   await updateNotificationsReadStatus(
                     selectedRows.map((row) => row.notificationId),
@@ -161,23 +166,18 @@ export default function NotificationsPage() {
               </Button>
             )}
 
-            {/* {selectedRows.length > 1 && (
+            {selectedRows.length > 1 && (
               <Button
                 className="cursor-pointer"
-                disabled={deleteLoading}
-                onClick={async () => {
-                  await deleteNotification(
-                    selectedRows.map((row) => row.notificationId),
-                    readStateMajority
-                  );
-                  tableRef.current?.resetSelection();
-                  setMarkLoading(false);
+                disabled={markLoading || deleteLoading}
+                onClick={() => {
+                  setDialogOpen(true);
                 }}
               >
-                {markLoading && <Spinner data-icon="inline-start" />}
+                {deleteLoading && <Spinner data-icon="inline-start" />}
                 Delete
               </Button>
-            )} */}
+            )}
           </div>
         </div>
 
@@ -195,6 +195,16 @@ export default function NotificationsPage() {
           />
         )}
       </div>
+
+      <DeleteNotificationDialog
+        isOpen={dialogOpen}
+        onOpenChange={(open) => {
+          setDialogOpen(open);
+          if (!open) setDropdownOpen(false);
+        }}
+        onSuccess={() => tableRef.current?.resetSelection()}
+        notificationIds={selectedRows.map((row) => row.notificationId)}
+      />
     </div>
   );
 }

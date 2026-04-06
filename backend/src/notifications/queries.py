@@ -69,8 +69,8 @@ class NotificationsQueries:
     def mark_notifications_as_read_or_unread_stmt(
         current_user_id: UUID, notification_ids: list[UUID], read_state: str
     ) -> Update:
-        
-        is_read_by_receiver = True if read_state == 'read' else False
+
+        is_read_by_receiver = True if read_state == "read" else False
 
         stmt = (
             update(Notification)
