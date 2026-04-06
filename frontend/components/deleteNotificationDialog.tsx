@@ -17,15 +17,17 @@ import { useNotificationsStore } from '@/store/useNotificationsStore';
 interface DeleteNotificationDialogProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  notificationId: string;
+  onSuccess?: () => void;
+  notificationIds: string[];
 }
 
 export default function DeleteNotificationDialog({
   isOpen,
   onOpenChange,
-  notificationId,
+  onSuccess,
+  notificationIds,
 }: DeleteNotificationDialogProps) {
-  const deleteNotification = useNotificationsStore((state) => state.deleteNotification);
+  const bulkDeleteNotifications = useNotificationsStore((state) => state.bulkDeleteNotifications);
 
   const deleteLoading = useNotificationsStore((state) => state.deleteLoading);
   const deleteIsRateLimited = useNotificationsStore((state) => state.deleteIsRateLimited);
@@ -36,21 +38,28 @@ export default function DeleteNotificationDialog({
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Delete Notification</DialogTitle>
-          <DialogDescription>Are you sure you want to remove this notification?</DialogDescription>
+          <DialogTitle>Delete notification{notificationIds.length > 1 ? 's' : ''}</DialogTitle>
+          <DialogDescription>
+            Are you sure you want to remove{' '}
+            {notificationIds.length > 1
+              ? `${notificationIds.length} notifications`
+              : 'this notification'}
+            ?
+          </DialogDescription>
 
           <div className="flex w-full gap-2 pt-2">
             <Button
               className="flex-1 cursor-pointer text-md"
               onClick={async () => {
-                await deleteNotification(notificationId);
+                await bulkDeleteNotifications(notificationIds);
                 setDeleteLoading(false);
                 onOpenChange(false);
+                onSuccess?.();
               }}
               disabled={deleteLoading || deleteIsRateLimited}
             >
               {deleteLoading && <Spinner data-icon="inline-start" />}
-              Delete notification
+              Confirm deletion
             </Button>
           </div>
         </DialogHeader>

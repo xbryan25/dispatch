@@ -2,7 +2,6 @@
 
 import { Button } from './ui/button';
 
-import { ArrowUpDown } from 'lucide-react';
 import { MoreHorizontal } from 'lucide-react';
 
 import {
@@ -73,7 +72,7 @@ export default function NotificationRowActions({ notification }: NotificationRow
           setDialogOpen(open);
           if (!open) setDropdownOpen(false);
         }}
-        notificationId={notification.notificationId}
+        notificationIds={[notification.notificationId]}
       />
     </div>
   );

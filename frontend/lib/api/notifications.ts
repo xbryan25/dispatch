@@ -42,7 +42,7 @@ export async function updateNotificationReadStatus(
 
   if (!res.ok) {
     const error = new Error(
-      'Something went wrong when updating the conversation theme.'
+      'Something went wrong when trying to update the read status.'
     ) as Error & {
       status: number;
     };
@@ -53,19 +53,17 @@ export async function updateNotificationReadStatus(
   return res.json();
 }
 
-export async function deleteNotification(notificationId: string) {
-  const res = await fetch(
-    `${fastapiServerUrl}/api/notifications?notification_id=${notificationId}`,
-    {
-      method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
-    }
-  );
+export async function bulkDeleteNotifications(notificationIds: string[]) {
+  const res = await fetch(`${fastapiServerUrl}/api/notifications/bulk`, {
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ notificationIds }),
+    credentials: 'include',
+  });
 
   if (!res.ok) {
     const error = new Error(
-      'Something went wrong when updating the conversation theme.'
+      'Something went wrong when trying to delete multiple notifications.'
     ) as Error & {
       status: number;
     };

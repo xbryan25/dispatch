@@ -1,10 +1,14 @@
-from fastapi import APIRouter, Depends, HTTPException, Request, Query
+from fastapi import APIRouter, Depends, HTTPException, Request
 from src.core import get_db, limiter
 
 from src.auth.dependencies import get_current_user_id
 
 from .services import NotificationsService
-from .schemas import NotificationsWithPaginationDetails, NotificationIdsList, NotificationIdsListWithReadState
+from .schemas import (
+    NotificationsWithPaginationDetails,
+    NotificationIdsList,
+    NotificationIdsListWithReadState,
+)
 
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -52,25 +56,6 @@ async def get_notifications(
         }
 
         return {"notifications": result[0], "pagination": pagination_details}
-
-    except Exception:
-        traceback.print_exc()
-        raise HTTPException(status_code=500, detail="Internal Server Error")
-
-
-@router.delete("")
-@limiter.limit("20/minute")
-async def delete_notification(
-    request: Request,
-    user_id: Annotated[UUID, Depends(get_current_user_id)],
-    db: AsyncSession = Depends(get_db),
-    notification_id: UUID = Query(...),
-):
-
-    try:
-        await NotificationsService.delete_notifications(db, user_id, [notification_id])
-
-        return {"status": "success"}
 
     except Exception:
         traceback.print_exc()
