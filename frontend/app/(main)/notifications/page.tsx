@@ -41,6 +41,9 @@ export default function NotificationsPage() {
   const markLoading = useNotificationsStore((state) => state.markLoading);
   const setMarkLoading = useNotificationsStore((state) => state.setMarkLoading);
 
+  // const deleteLoading = useNotificationsStore((state) => state.deleteLoading);
+  // const setDeleteIsRateLimited = useNotificationsStore((state) => state.setDeleteIsRateLimited);
+
   const getNotifications = useNotificationsStore((state) => state.getNotifications);
   const updateNotificationsReadStatus = useNotificationsStore(
     (state) => state.updateNotificationsReadStatus
@@ -157,6 +160,24 @@ export default function NotificationsPage() {
                 Mark as read
               </Button>
             )}
+
+            {/* {selectedRows.length > 1 && (
+              <Button
+                className="cursor-pointer"
+                disabled={deleteLoading}
+                onClick={async () => {
+                  await deleteNotification(
+                    selectedRows.map((row) => row.notificationId),
+                    readStateMajority
+                  );
+                  tableRef.current?.resetSelection();
+                  setMarkLoading(false);
+                }}
+              >
+                {markLoading && <Spinner data-icon="inline-start" />}
+                Delete
+              </Button>
+            )} */}
           </div>
         </div>
 
@@ -164,7 +185,7 @@ export default function NotificationsPage() {
           <LoadingSpinner />
         ) : (
           <DataTable
-            columns={notificationTableColumns(updateNotificationsReadStatus)}
+            columns={notificationTableColumns()}
             data={notifications}
             onSelectionChange={handleSelectionChange}
             getRowClassName={(row: Notification) =>

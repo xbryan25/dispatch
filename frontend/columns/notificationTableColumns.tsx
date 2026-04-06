@@ -1,25 +1,14 @@
 'use client';
 
 import { ColumnDef } from '@tanstack/react-table';
-import { ArrowUpDown } from 'lucide-react';
-import { MoreHorizontal } from 'lucide-react';
 
-import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 
 import NotificationDetailsDialog from '@/components/notificationDetailsDialog';
 
-import { Notification, ReadState } from '@/types/notifications';
-import { Icon } from '@iconify/react';
+import { Notification } from '@/types/notifications';
+
+import NotificationRowActions from '@/components/notificationRowActions';
 
 const formatter = new Intl.DateTimeFormat('en-US', {
   day: 'numeric',
@@ -29,9 +18,7 @@ const formatter = new Intl.DateTimeFormat('en-US', {
   hour12: true,
 });
 
-export const notificationTableColumns = (
-  updateNotificationReadStatus: (notificationIds: string[], readState: ReadState) => void
-): ColumnDef<Notification>[] => [
+export const notificationTableColumns = (): ColumnDef<Notification>[] => [
   {
     id: 'select',
     header: ({ table }) => (
@@ -82,35 +69,7 @@ export const notificationTableColumns = (
     id: 'actions',
     size: 10,
     cell: ({ row }) => {
-      return (
-        <div className="flex justify-end">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-
-              <DropdownMenuItem
-                onClick={() =>
-                  updateNotificationReadStatus(
-                    [row.original.notificationId],
-                    row.original.isReadByReceiver ? 'unread' : 'read'
-                  )
-                }
-              >
-                <Icon icon="material-symbols:check" className="w-4 h-4" /> Mark as{' '}
-                {row.original.isReadByReceiver ? 'unread' : 'read'}
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Icon icon="material-symbols:delete" className="w-4 h-4" /> Delete
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      );
+      return <NotificationRowActions notification={row.original} />;
     },
   },
 ];
