@@ -64,7 +64,7 @@ interface NotificationsState {
   setTotalPages: (newTotalPages: number) => void;
   setCurrentPage: (newCurrentPage: number) => void;
 
-  getNotifications: (isRetry?: boolean) => Promise<void>;
+  getNotifications: (isRetry?: boolean, isSilentFetch?: boolean) => Promise<void>;
 
   updateNotificationsReadStatus: (
     notificationIds: string[],
@@ -147,8 +147,12 @@ export const useNotificationsStore = create<NotificationsState>()((set, get) => 
     await get().getNotifications();
   },
 
-  getNotifications: async (isRetry: boolean = false) => {
-    set({ loading: true, error: null });
+  getNotifications: async (isRetry: boolean = false, isSilentFetch: boolean = false) => {
+    if (!isSilentFetch) {
+      set({ loading: true });
+    }
+
+    set({ error: null });
 
     try {
       const { currentPage, readState, sortState, notificationsToShow, isInitialLoad } = get();
