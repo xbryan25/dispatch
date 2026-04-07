@@ -43,13 +43,11 @@ export default function NotificationsPage() {
   const setMarkLoading = useNotificationsStore((state) => state.setMarkLoading);
 
   const deleteLoading = useNotificationsStore((state) => state.deleteLoading);
-  const setDeleteLoading = useNotificationsStore((state) => state.setDeleteLoading);
 
   const getNotifications = useNotificationsStore((state) => state.getNotifications);
   const updateNotificationsReadStatus = useNotificationsStore(
     (state) => state.updateNotificationsReadStatus
   );
-  const bulkDeleteNotifications = useNotificationsStore((state) => state.bulkDeleteNotifications);
 
   const readState = useNotificationsStore((state) => state.readState);
   const setReadState = useNotificationsStore((state) => state.setReadState);
@@ -60,8 +58,7 @@ export default function NotificationsPage() {
   const notificationsToShow = useNotificationsStore((state) => state.notificationsToShow);
   const setNotificationsToShow = useNotificationsStore((state) => state.setNotificationsToShow);
 
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [dialogOpen, setDialogOpen] = useState(false);
+  const unreadNotifications = useNotificationsStore((state) => state.unreadNotifications);
 
   useEffect(() => {
     getNotifications();
@@ -84,7 +81,10 @@ export default function NotificationsPage() {
     <div className="flex min-h-screen gap-6 bg-zinc-200 dark:bg-stone-800 font-sans p-4">
       <div className="flex-1 flex flex-col items-center gap-4 bg-white dark:bg-stone-900 rounded-xl p-5 min-h-screen min-w-0">
         <div className="flex justify-between w-full">
-          <h2 className="font-bold text-2xl">Notifications</h2>
+          <div className="flex items-center gap-2">
+            <h2 className="font-bold text-2xl">Notifications</h2>
+            {unreadNotifications > 0 && <p className="text-lg">({unreadNotifications} unread)</p>}
+          </div>
 
           <div className="flex gap-2">
             {isInitialLoad ? (
@@ -167,13 +167,7 @@ export default function NotificationsPage() {
             )}
 
             {selectedRows.length > 1 && (
-              <Button
-                className="cursor-pointer"
-                disabled={markLoading || deleteLoading}
-                onClick={() => {
-                  setDialogOpen(true);
-                }}
-              >
+              <Button className="cursor-pointer" disabled={markLoading || deleteLoading}>
                 {deleteLoading && <Spinner data-icon="inline-start" />}
                 Delete
               </Button>
@@ -195,16 +189,6 @@ export default function NotificationsPage() {
           />
         )}
       </div>
-
-      <DeleteNotificationDialog
-        isOpen={dialogOpen}
-        onOpenChange={(open) => {
-          setDialogOpen(open);
-          if (!open) setDropdownOpen(false);
-        }}
-        onSuccess={() => tableRef.current?.resetSelection()}
-        notificationIds={selectedRows.map((row) => row.notificationId)}
-      />
     </div>
   );
 }

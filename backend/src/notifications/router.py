@@ -45,6 +45,10 @@ async def get_notifications(
             db, user_id, read_state, sort_state, page, limit
         )
 
+        unread_notifications_count = (
+            await NotificationsService.get_unread_notifications_count(db, user_id)
+        )
+
         total_notifications = result[1] if result[1] else 0
         total_pages = math.ceil(total_notifications / limit)
 
@@ -55,7 +59,11 @@ async def get_notifications(
             "page_size": limit,
         }
 
-        return {"notifications": result[0], "pagination": pagination_details}
+        return {
+            "notifications": result[0],
+            "pagination": pagination_details,
+            "unread_notifications_count": unread_notifications_count,
+        }
 
     except Exception:
         traceback.print_exc()

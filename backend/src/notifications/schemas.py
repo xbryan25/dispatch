@@ -25,6 +25,7 @@ class PaginationDetails(BaseSchema):
 class NotificationsWithPaginationDetails(BaseSchema):
     notifications: list[Notification]
     pagination: PaginationDetails
+    unread_notifications_count: int
 
 
 class NotificationIdsList(BaseSchema):

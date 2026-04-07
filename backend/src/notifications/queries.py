@@ -84,6 +84,20 @@ class NotificationsQueries:
         return stmt
 
     @staticmethod
+    def get_unread_notifications_count(current_user_id: UUID) -> Select:
+
+        stmt = (
+            select(func.count())
+            .select_from(Notification)
+            .where(
+                Notification.is_read_by_receiver.is_(False),
+                Notification.receiver_id == current_user_id,
+            )
+        )
+
+        return stmt
+
+    @staticmethod
     def get_total_count_of_notifications(stmt: Select):
         """
         Wraps a SQLAlchemy Select statement to return a count of total records.
