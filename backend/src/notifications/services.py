@@ -38,14 +38,6 @@ class NotificationsService:
 
             event_data = {
                 "type": "NEW_NOTIFICATION",
-                "data": {
-                    "notificationId": str(db_message.notification_id),
-                    "type": db_message.type,
-                    "content": db_message.content,
-                    "isReadByReceiver": db_message.is_read_by_receiver,
-                    "senderUsername": sender_username,
-                    "createdAt": db_message.created_at.isoformat(),
-                },
             }
 
             await manager.send_to_user(receiver_id, event_data)

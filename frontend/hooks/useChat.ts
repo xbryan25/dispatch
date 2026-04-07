@@ -16,6 +16,7 @@ import {
   getConversationTheme,
   markConversationAsRead,
 } from '@/lib/api/messages';
+import { useNotificationsStore } from '@/store/useNotificationsStore';
 
 const fastapiWebsocketUrl = process.env.NEXT_PUBLIC_FASTAPI_WEBSOCKET_URL;
 
@@ -116,10 +117,7 @@ export function useGetOtherParticipantFromConversation() {
 
     try {
       if (conversationId) {
-        console.log(`here ${conversationId}`);
         const data = await getOtherParticipantFromConversation(conversationId);
-
-        console.log(data);
 
         setOtherParticipantDetails(data);
       } else {
@@ -321,6 +319,8 @@ export const useInitializeWebsocket = () => {
 
   const updateHasSeenLatestMessage = useSidebarStore((state) => state.updateHasSeenLatestMessage);
 
+  const getNotifications = useNotificationsStore((state) => state.getNotifications);
+
   const { markAsRead } = useMarkConversationAsRead();
 
   useEffect(() => {
@@ -401,7 +401,7 @@ export const useInitializeWebsocket = () => {
           setOtherParticipantLastReadMessageAt(null);
         }
       } else if (eventData.type === 'NEW_NOTIFICATION') {
-        console.log(eventData);
+        getNotifications(false, true);
       }
     };
 
