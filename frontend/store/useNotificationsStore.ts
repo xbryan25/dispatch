@@ -35,6 +35,8 @@ interface NotificationsState {
   readState: ReadStateForSelect;
   searchQuery: string;
 
+  unreadNotifications: number;
+
   totalNotifications: number;
   totalPages: number;
   currentPage: number;
@@ -59,6 +61,8 @@ interface NotificationsState {
   setSortState: (newSortState: SortState) => void;
   setReadState: (setReadState: ReadStateForSelect) => void;
   setSearchQuery: (newSearchQuery: string) => void;
+
+  setUnreadNotifications: (newUnreadNotifications: number) => void;
 
   setTotalNotifications: (newTotalUsers: number) => void;
   setTotalPages: (newTotalPages: number) => void;
@@ -93,6 +97,8 @@ export const useNotificationsStore = create<NotificationsState>()((set, get) => 
   sortState: 'ascending' as SortState,
   readState: 'all' as ReadState,
   searchQuery: '',
+
+  unreadNotifications: 0,
 
   totalNotifications: 0,
   totalPages: 0,
@@ -137,6 +143,9 @@ export const useNotificationsStore = create<NotificationsState>()((set, get) => 
     await get().getNotifications();
   },
 
+  setUnreadNotifications: async (newUnreadNotifications) =>
+    set({ unreadNotifications: newUnreadNotifications }),
+
   setTotalNotifications: (newTotalNotifications: number) =>
     set({ totalNotifications: newTotalNotifications }),
 
@@ -166,6 +175,7 @@ export const useNotificationsStore = create<NotificationsState>()((set, get) => 
 
       set({
         notifications: data.notifications,
+        unreadNotifications: data.unreadNotificationsCount,
         totalNotifications: data.pagination.totalUsers,
         totalPages: data.pagination.totalPages,
         currentPage: data.pagination.currentPage,
@@ -219,6 +229,16 @@ export const useNotificationsStore = create<NotificationsState>()((set, get) => 
             : notif
         ),
       }));
+
+      if (readState === 'unread') {
+        set({
+          unreadNotifications: get().unreadNotifications + 1,
+        });
+      } else if (readState === 'read') {
+        set({
+          unreadNotifications: get().unreadNotifications - 1,
+        });
+      }
     } catch (err: unknown) {
       if (err instanceof Error && (err as Error & { status: number }).status === 429) {
         set({ markIsRateLimited: true });

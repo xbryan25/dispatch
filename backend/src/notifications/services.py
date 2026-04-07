@@ -119,3 +119,15 @@ class NotificationsService:
         await db.commit()
 
         return None
+
+    @staticmethod
+    async def get_unread_notifications_count(
+        db: AsyncSession,
+        current_user_id: UUID,
+    ):
+
+        stmt = NotificationsQueries.get_unread_notifications_count(current_user_id)
+
+        result = await db.execute(stmt)
+
+        return result.scalar()
