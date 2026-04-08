@@ -45,14 +45,25 @@ export const notificationTableColumns = (): ColumnDef<Notification>[] => [
     accessorKey: 'type',
     header: 'Type',
     size: 40,
+    cell: ({ row }) => (
+      <NotificationDetailsDialog
+        notificationId={row.original.notificationId}
+        type={row.original.type}
+        content={row.original.content}
+        toShowInCell="type"
+        dateStr={formatter.format(new Date(row.original.createdAt))}
+      />
+    ),
   },
   {
     accessorKey: 'message',
     header: 'Message',
     cell: ({ row }) => (
       <NotificationDetailsDialog
+        notificationId={row.original.notificationId}
         type={row.original.type}
         content={row.original.content}
+        toShowInCell="content"
         dateStr={formatter.format(new Date(row.original.createdAt))}
       />
     ),
