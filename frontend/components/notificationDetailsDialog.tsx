@@ -11,8 +11,7 @@ import {
 
 import { Separator } from '@/components/ui/separator';
 import { useNotificationsStore } from '@/store/useNotificationsStore';
-
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 
 interface NotificationDetailsDialogProps {
   notificationId: string;
@@ -29,11 +28,13 @@ export default function NotificationDetailsDialog({
   toShowInCell,
   dateStr,
 }: NotificationDetailsDialogProps) {
-  const updateNotificationsReadStatus = useNotificationsStore(
-    (state) => state.updateNotificationsReadStatus
-  );
+  const markAsReadSilently = useNotificationsStore((state) => state.markAsReadSilently);
 
-  const [isOpen, setIsOpen] = useState<boolean>(false);
+  const openDialogNotificationId = useNotificationsStore((state) => state.openDialogNotificationId);
+
+  const setOpenDialogNotificationId = useNotificationsStore(
+    (state) => state.setOpenDialogNotificationId
+  );
 
   const toTitleCase = (str: string) =>
     str
@@ -41,16 +42,17 @@ export default function NotificationDetailsDialog({
       .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
       .join(' ');
 
+  const isOpen = openDialogNotificationId === notificationId;
+
   const wasOpened = useRef(false);
 
   useEffect(() => {
     if (isOpen) {
       wasOpened.current = true;
+      markAsReadSilently(notificationId);
     }
 
-    // TODO: Table should be updated when opening dialog, not when closing it
     if (!isOpen && wasOpened.current) {
-      updateNotificationsReadStatus([notificationId], 'read');
       wasOpened.current = false;
     }
   }, [isOpen]);
@@ -59,7 +61,7 @@ export default function NotificationDetailsDialog({
     <Dialog
       open={isOpen}
       onOpenChange={(value) => {
-        setIsOpen(value);
+        setOpenDialogNotificationId(value ? notificationId : null);
       }}
     >
       <DialogTrigger asChild className="cursor-pointer">
