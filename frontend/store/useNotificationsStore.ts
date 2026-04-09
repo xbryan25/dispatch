@@ -43,6 +43,8 @@ interface NotificationsState {
 
   retryTimeout: ReturnType<typeof setTimeout> | null;
 
+  openDialogNotificationId: string | null;
+
   // Actions
   setNotifications: (newNotifications: Notification[]) => void;
   clearNotifications: () => void;
@@ -68,6 +70,8 @@ interface NotificationsState {
   setTotalPages: (newTotalPages: number) => void;
   setCurrentPage: (newCurrentPage: number) => void;
 
+  setOpenDialogNotificationId: (notificationId: string | null) => void;
+
   getNotifications: (isRetry?: boolean, isSilentFetch?: boolean) => Promise<void>;
 
   updateNotificationsReadStatus: (
@@ -75,6 +79,8 @@ interface NotificationsState {
     readState: ReadState,
     isRetry?: boolean
   ) => Promise<void>;
+
+  markAsReadSilently: (notificationId: string, isRetry?: boolean) => Promise<void>;
 
   bulkDeleteNotifications: (notificationId: string[], isRetry?: boolean) => Promise<void>;
 }
@@ -105,6 +111,8 @@ export const useNotificationsStore = create<NotificationsState>()((set, get) => 
   currentPage: 1,
 
   retryTimeout: null,
+
+  openDialogNotificationId: null,
 
   setNotifications: (newNotifications: Notification[]) => set({ notifications: newNotifications }),
   clearNotifications: () => set({ notifications: [] }),
@@ -155,6 +163,9 @@ export const useNotificationsStore = create<NotificationsState>()((set, get) => 
 
     await get().getNotifications();
   },
+
+  setOpenDialogNotificationId: (notificationId: string | null) =>
+    set({ openDialogNotificationId: notificationId }),
 
   getNotifications: async (isRetry: boolean = false, isSilentFetch: boolean = false) => {
     if (!isSilentFetch) {
@@ -256,6 +267,36 @@ export const useNotificationsStore = create<NotificationsState>()((set, get) => 
         }
       } else {
         toast.error(`Failed to mark as ${readState === 'read' ? 'read' : 'unread'}.`);
+      }
+    } finally {
+      set({
+        markLoading: false,
+      });
+    }
+  },
+
+  markAsReadSilently: async (notificationId: string, isRetry: boolean = false) => {
+    set({ deleteLoading: true });
+
+    try {
+      await updateNotificationReadStatus([notificationId], 'read');
+    } catch (err: unknown) {
+      if (err instanceof Error && (err as Error & { status: number }).status === 429) {
+        set({ markIsRateLimited: true });
+
+        if (!isRetry) {
+          setTimeout(() => {
+            set({ markIsRateLimited: false });
+          }, 60000);
+
+          const timeout = setTimeout(() => {
+            get().markAsReadSilently(notificationId, true);
+          }, 60000);
+
+          set({ retryTimeout: timeout });
+        }
+      } else {
+        toast.error(`Failed to mark as read.`);
       }
     } finally {
       set({
