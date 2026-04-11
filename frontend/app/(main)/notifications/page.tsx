@@ -33,7 +33,6 @@ export default function NotificationsPage() {
   const [selectedRows, setSelectedRows] = useState<Notification[]>([]);
   const [readStateMajority, setReadStateMajority] = useState<ReadState>('read');
 
-  const [dropdownOpen, setDropdownOpen] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
 
   const tableRef = useRef<{ resetSelection: () => void } | null>(null);
@@ -64,8 +63,6 @@ export default function NotificationsPage() {
 
   const unreadNotifications = useNotificationsStore((state) => state.unreadNotifications);
 
-  const bulkDeleteNotifications = useNotificationsStore((state) => state.bulkDeleteNotifications);
-
   useEffect(() => {
     getNotifications();
   }, []);
@@ -92,104 +89,108 @@ export default function NotificationsPage() {
             {unreadNotifications > 0 && <p className="text-lg">({unreadNotifications} unread)</p>}
           </div>
 
-          <div className="flex gap-2">
-            {isInitialLoad ? (
-              <Skeleton className="h-9 w-43 rounded-sm" />
-            ) : (
-              <Select
-                onValueChange={(newReadState: ReadStateForSelect) => setReadState(newReadState)}
-                value={readState ?? 'all'}
-              >
-                <SelectTrigger className="w-full max-w-48">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    <SelectItem value="all">Show All</SelectItem>
-                    <SelectItem value="read">Show Only Read</SelectItem>
-                    <SelectItem value="unread">Show Only Unread</SelectItem>
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-            )}
+          {notifications.length > 0 && (
+            <div className="flex gap-2">
+              {isInitialLoad ? (
+                <Skeleton className="h-9 w-43 rounded-sm" />
+              ) : (
+                <Select
+                  onValueChange={(newReadState: ReadStateForSelect) => setReadState(newReadState)}
+                  value={readState ?? 'all'}
+                >
+                  <SelectTrigger className="w-full max-w-48">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectItem value="all">Show All</SelectItem>
+                      <SelectItem value="read">Show Only Read</SelectItem>
+                      <SelectItem value="unread">Show Only Unread</SelectItem>
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              )}
 
-            {isInitialLoad ? (
-              <Skeleton className="h-9 w-43 rounded-sm" />
-            ) : (
-              <Select
-                onValueChange={(newSortState: SortState) => setSortState(newSortState)}
-                value={sortState ?? 'ascending'}
-              >
-                <SelectTrigger className="w-full max-w-48">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    <SelectItem value="ascending">Show Newest First</SelectItem>
-                    <SelectItem value="descending">Show Latest First</SelectItem>
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-            )}
+              {isInitialLoad ? (
+                <Skeleton className="h-9 w-43 rounded-sm" />
+              ) : (
+                <Select
+                  onValueChange={(newSortState: SortState) => setSortState(newSortState)}
+                  value={sortState ?? 'ascending'}
+                >
+                  <SelectTrigger className="w-full max-w-48">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectItem value="ascending">Show Newest First</SelectItem>
+                      <SelectItem value="descending">Show Latest First</SelectItem>
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              )}
 
-            {isInitialLoad ? (
-              <Skeleton className="h-9 w-20 rounded-sm" />
-            ) : (
-              <Select
-                onValueChange={(newNotificationsToShow: string) =>
-                  setNotificationsToShow(Number(newNotificationsToShow) as NotificationsToShow)
-                }
-                value={String(notificationsToShow) ?? '10'}
-              >
-                <SelectTrigger className="w-full max-w-48">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    <SelectItem value="10">10</SelectItem>
-                    <SelectItem value="25">25</SelectItem>
-                    <SelectItem value="50">50</SelectItem>
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-            )}
+              {isInitialLoad ? (
+                <Skeleton className="h-9 w-20 rounded-sm" />
+              ) : (
+                <Select
+                  onValueChange={(newNotificationsToShow: string) =>
+                    setNotificationsToShow(Number(newNotificationsToShow) as NotificationsToShow)
+                  }
+                  value={String(notificationsToShow) ?? '10'}
+                >
+                  <SelectTrigger className="w-full max-w-48">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectItem value="10">10</SelectItem>
+                      <SelectItem value="25">25</SelectItem>
+                      <SelectItem value="50">50</SelectItem>
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              )}
 
-            {selectedRows.length > 1 && (
-              <Button
-                className="cursor-pointer"
-                disabled={markLoading || deleteLoading}
-                onClick={async () => {
-                  await updateNotificationsReadStatus(
-                    selectedRows.map((row) => row.notificationId),
-                    readStateMajority
-                  );
-                  tableRef.current?.resetSelection();
-                  setMarkLoading(false);
-                }}
-              >
-                {markLoading && <Spinner data-icon="inline-start" />}
-                Mark as read
-              </Button>
-            )}
+              {selectedRows.length > 1 && (
+                <Button
+                  className="cursor-pointer"
+                  disabled={markLoading || deleteLoading}
+                  onClick={async () => {
+                    await updateNotificationsReadStatus(
+                      selectedRows.map((row) => row.notificationId),
+                      readStateMajority
+                    );
+                    tableRef.current?.resetSelection();
+                    setMarkLoading(false);
+                  }}
+                >
+                  {markLoading && <Spinner data-icon="inline-start" />}
+                  Mark as read
+                </Button>
+              )}
 
-            {selectedRows.length > 1 && (
-              <Button
-                className="cursor-pointer"
-                disabled={markLoading || deleteLoading}
-                onClick={async () => {
-                  setDialogOpen(true);
-                }}
-              >
-                {deleteLoading && <Spinner data-icon="inline-start" />}
-                Delete
-              </Button>
-            )}
-          </div>
+              {selectedRows.length > 1 && (
+                <Button
+                  className="cursor-pointer"
+                  disabled={markLoading || deleteLoading}
+                  onClick={async () => {
+                    setDialogOpen(true);
+                  }}
+                >
+                  {deleteLoading && <Spinner data-icon="inline-start" />}
+                  Delete
+                </Button>
+              )}
+            </div>
+          )}
         </div>
 
         {loading ? (
-          <LoadingSpinner />
-        ) : (
+          <div className="flex h-full items-center">
+            <LoadingSpinner />
+          </div>
+        ) : notifications.length > 0 ? (
           <DataTable
             columns={notificationTableColumns()}
             data={notifications}
@@ -199,13 +200,16 @@ export default function NotificationsPage() {
             }
             tableRef={tableRef}
           />
+        ) : (
+          <div className="flex h-full items-center">
+            <h2 className="font-semibold text-2xl">No notifications to show.</h2>
+          </div>
         )}
 
         <DeleteNotificationDialog
           isOpen={dialogOpen}
           onOpenChange={(open) => {
             setDialogOpen(open);
-            if (!open) setDropdownOpen(false);
             tableRef.current?.resetSelection();
             setDeleteLoading(false);
           }}
