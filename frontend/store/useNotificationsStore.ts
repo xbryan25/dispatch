@@ -46,6 +46,7 @@ interface NotificationsState {
   openDialogNotificationId: string | null;
 
   // Actions
+
   setNotifications: (newNotifications: Notification[]) => void;
   clearNotifications: () => void;
 
