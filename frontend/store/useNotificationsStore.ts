@@ -228,7 +228,7 @@ export const useNotificationsStore = create<NotificationsState>()((set, get) => 
     readState: ReadState,
     isRetry: boolean = false
   ) => {
-    set({ deleteLoading: true });
+    set({ markLoading: true });
 
     try {
       await updateNotificationReadStatus(notificationIds, readState);

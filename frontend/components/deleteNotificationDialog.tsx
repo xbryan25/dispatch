@@ -42,7 +42,7 @@ export default function DeleteNotificationDialog({
           <DialogDescription>
             Are you sure you want to remove{' '}
             {notificationIds.length > 1
-              ? `${notificationIds.length} notifications`
+              ? `the ${notificationIds.length} selected notifications`
               : 'this notification'}
             ?
           </DialogDescription>
