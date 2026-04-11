@@ -33,6 +33,9 @@ export default function NotificationsPage() {
   const [selectedRows, setSelectedRows] = useState<Notification[]>([]);
   const [readStateMajority, setReadStateMajority] = useState<ReadState>('read');
 
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
+
   const tableRef = useRef<{ resetSelection: () => void } | null>(null);
 
   const notifications = useNotificationsStore((state) => state.notifications);
@@ -43,6 +46,7 @@ export default function NotificationsPage() {
   const setMarkLoading = useNotificationsStore((state) => state.setMarkLoading);
 
   const deleteLoading = useNotificationsStore((state) => state.deleteLoading);
+  const setDeleteLoading = useNotificationsStore((state) => state.setDeleteLoading);
 
   const getNotifications = useNotificationsStore((state) => state.getNotifications);
   const updateNotificationsReadStatus = useNotificationsStore(
@@ -59,6 +63,8 @@ export default function NotificationsPage() {
   const setNotificationsToShow = useNotificationsStore((state) => state.setNotificationsToShow);
 
   const unreadNotifications = useNotificationsStore((state) => state.unreadNotifications);
+
+  const bulkDeleteNotifications = useNotificationsStore((state) => state.bulkDeleteNotifications);
 
   useEffect(() => {
     getNotifications();
@@ -167,7 +173,13 @@ export default function NotificationsPage() {
             )}
 
             {selectedRows.length > 1 && (
-              <Button className="cursor-pointer" disabled={markLoading || deleteLoading}>
+              <Button
+                className="cursor-pointer"
+                disabled={markLoading || deleteLoading}
+                onClick={async () => {
+                  setDialogOpen(true);
+                }}
+              >
                 {deleteLoading && <Spinner data-icon="inline-start" />}
                 Delete
               </Button>
@@ -188,6 +200,17 @@ export default function NotificationsPage() {
             tableRef={tableRef}
           />
         )}
+
+        <DeleteNotificationDialog
+          isOpen={dialogOpen}
+          onOpenChange={(open) => {
+            setDialogOpen(open);
+            if (!open) setDropdownOpen(false);
+            tableRef.current?.resetSelection();
+            setDeleteLoading(false);
+          }}
+          notificationIds={selectedRows.map((row) => row.notificationId)}
+        />
       </div>
     </div>
   );
