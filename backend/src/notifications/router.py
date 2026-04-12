@@ -1,4 +1,14 @@
 from fastapi import APIRouter, Depends, HTTPException, Request
+
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from uuid import UUID
+
+import traceback
+from typing import Annotated
+
+import math
+
 from src.core import get_db, limiter
 
 from src.auth.dependencies import get_current_user_id
@@ -9,17 +19,6 @@ from .schemas import (
     NotificationIdsList,
     NotificationIdsListWithReadState,
 )
-
-
-from sqlalchemy.ext.asyncio import AsyncSession
-
-from uuid import UUID
-
-import traceback
-from typing import Annotated
-
-
-import math
 
 router = APIRouter(
     prefix="/api/notifications",

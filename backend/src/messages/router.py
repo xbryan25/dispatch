@@ -7,6 +7,19 @@ from fastapi import (
     Query,
     Request,
 )
+
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from uuid import UUID
+import uuid
+
+import traceback
+from typing import Annotated
+
+from redis.asyncio import Redis
+
+from .exceptions import InvalidConversationID
+
 from src.core import manager, get_db, get_redis, limiter
 
 from src.auth.dependencies import get_current_user_id
@@ -26,18 +39,6 @@ from .schemas import (
 
 from src.auth.schemas import UserMinimalWithStatus, TargetUserId
 from src.auth.services import AuthService
-
-from sqlalchemy.ext.asyncio import AsyncSession
-
-from uuid import UUID
-import uuid
-
-import traceback
-from typing import Annotated
-
-from redis.asyncio import Redis
-
-from .exceptions import InvalidConversationID
 
 
 router = APIRouter(
