@@ -2,6 +2,14 @@ from fastapi import APIRouter, Depends, Query, HTTPException, Request
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from typing import Annotated
+from types_aiobotocore_s3 import S3Client
+
+from uuid import UUID
+import uuid
+
+import traceback
+
 from src.core import get_db, get_s3_client, settings, limiter
 
 from .dependencies import get_current_user_id
@@ -12,14 +20,6 @@ from .schemas import (
     UserUpdate,
     UserProfileImageUrl,
 )
-
-from typing import Annotated
-from types_aiobotocore_s3 import S3Client
-
-from uuid import UUID
-import uuid
-
-import traceback
 
 router = APIRouter(
     prefix="/api/auth", tags=["auth"], dependencies=[Depends(get_current_user_id)]

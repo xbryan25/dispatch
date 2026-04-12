@@ -1,4 +1,16 @@
 from fastapi import APIRouter, Depends, HTTPException, Request, Query
+
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.exc import IntegrityError
+
+from uuid import UUID
+import uuid
+
+import traceback
+from typing import Annotated
+
+import math
+
 from src.core import manager, get_db, limiter
 
 from src.auth.dependencies import get_current_user_id
@@ -12,17 +24,6 @@ from src.auth.services import AuthService
 from src.notifications.services import NotificationsService
 
 from src.notifications.constants import NotificationMessages, NotificationTypeEnum
-
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.exc import IntegrityError
-
-from uuid import UUID
-import uuid
-
-import traceback
-from typing import Annotated
-
-import math
 
 router = APIRouter(
     prefix="/api/friends",

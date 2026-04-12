@@ -1,9 +1,7 @@
 from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from sqlalchemy import select, update, func
 
-from .models import UserProfile
 from .schemas import UserUpdate
 
 from uuid import UUID
@@ -14,15 +12,16 @@ from types_aiobotocore_s3 import S3Client
 import botocore.exceptions
 
 from src.core import settings
+from .queries import AuthQueries
 
 
 class AuthService:
     @staticmethod
     async def check_username(db: AsyncSession, username: str):
 
-        query = select(UserProfile).where(UserProfile.username == username)
+        stmt = AuthQueries.get_user_using_username_stmt(username)
 
-        result = await db.execute(query)
+        result = await db.execute(stmt)
         user = result.scalar_one_or_none()
 
         return {"does_username_exist": user is not None}
@@ -30,80 +29,44 @@ class AuthService:
     @staticmethod
     async def get_user_details(db: AsyncSession, user_id: UUID):
 
-        try:
-            query = select(UserProfile).where(
-                UserProfile.user_id == user_id,
-            )
-            result = await db.execute(query)
-            return result.scalar_one_or_none()
-        except Exception:
-            traceback.print_exc()
+        stmt = AuthQueries.get_user_using_user_id_stmt(user_id)
+
+        result = await db.execute(stmt)
+
+        return result.scalar_one_or_none()
 
     @staticmethod
     async def update_participant_details(
         db: AsyncSession, user_id: UUID, payload: UserUpdate
     ):
 
-        try:
-            update_data = payload.model_dump(exclude_unset=True, exclude_none=True)
+        stmt = AuthQueries.update_user_details_stmt(user_id, payload)
 
-            update_data = {k: v for k, v in update_data.items() if v != ""}
+        await db.execute(stmt)
+        await db.commit()
 
-            if not update_data:
-                raise HTTPException(
-                    status_code=400, detail="No fields provided for update"
-                )
-
-            query = (
-                update(UserProfile)
-                .where(UserProfile.user_id == user_id)
-                .values(**update_data)
-                .execution_options(synchronize_session="fetch")
-            )
-
-            await db.execute(query)
-            await db.commit()
-
-            return {"message": "Profile updated successfully"}
-        except Exception:
-            traceback.print_exc()
+        return {"message": "Profile updated successfully"}
 
     @staticmethod
     async def update_user_profile_image_url(
         db: AsyncSession, user_id: UUID, image_url: str
     ):
 
-        try:
-            query = (
-                update(UserProfile)
-                .where(UserProfile.user_id == user_id)
-                .values(profile_image_url=image_url)
-            )
+        stmt = AuthQueries.update_user_profile_image_url_stmt(user_id, image_url)
 
-            await db.execute(query)
-            await db.commit()
+        await db.execute(stmt)
+        await db.commit()
 
-            return {"message": "Profile image URL updated successfully"}
-        except Exception:
-            traceback.print_exc()
+        return {"message": "Profile image URL updated successfully"}
 
     @staticmethod
     async def update_last_online(db: AsyncSession, user_id: UUID):
 
-        try:
-            query = (
-                update(UserProfile)
-                .where(UserProfile.user_id == user_id)
-                .values(last_online=func.now())
-                .returning(UserProfile.last_online)
-            )
+        stmt = AuthQueries.update_last_online_stmt(user_id)
 
-            result = await db.execute(query)
-            await db.commit()
-            return result.scalar_one()
-
-        except Exception:
-            traceback.print_exc()
+        result = await db.execute(stmt)
+        await db.commit()
+        return result.scalar_one()
 
     @staticmethod
     async def get_upload_url(s3: S3Client, file_key: str, file_type: str):
