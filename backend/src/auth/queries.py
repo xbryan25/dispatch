@@ -19,6 +19,7 @@ class AuthQueries:
 
     @staticmethod
     def get_user_using_username_stmt(username: str) -> Select:
+        """This statement retrieves the profile of a user using their username."""
 
         stmt = select(UserProfile).where(UserProfile.username == username)
 
@@ -26,6 +27,7 @@ class AuthQueries:
 
     @staticmethod
     def get_user_using_user_id_stmt(user_id: UUID) -> Select:
+        """This statement retrieves the profile of a user using the user_id."""
 
         stmt = select(UserProfile).where(UserProfile.user_id == user_id)
 
@@ -33,6 +35,7 @@ class AuthQueries:
 
     @staticmethod
     def update_user_details_stmt(user_id: UUID, payload: UserUpdate) -> Update:
+        """This statement updates the profile of a user."""
 
         update_data = payload.model_dump(exclude_unset=True, exclude_none=True)
 
@@ -50,6 +53,7 @@ class AuthQueries:
 
     @staticmethod
     def update_user_profile_image_url_stmt(user_id: UUID, image_url: str) -> Update:
+        """This statement updates the profile_image_url of the user after the image has been uploaded in Supabase Storage."""
 
         return (
             update(UserProfile)
@@ -59,6 +63,7 @@ class AuthQueries:
 
     @staticmethod
     def update_last_online_stmt(user_id: UUID) -> Update:
+        """This statement updates when the user was last online."""
 
         return (
             update(UserProfile)
