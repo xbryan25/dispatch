@@ -1,12 +1,13 @@
 from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
-
 from .schemas import UserUpdate
+from .models import UserProfile
 
 from uuid import UUID
 
 import traceback
+from typing import Any
 
 from types_aiobotocore_s3 import S3Client
 import botocore.exceptions
@@ -17,7 +18,7 @@ from .queries import AuthQueries
 
 class AuthService:
     @staticmethod
-    async def check_username(db: AsyncSession, username: str):
+    async def check_username(db: AsyncSession, username: str) -> dict[str, Any]:
 
         stmt = AuthQueries.get_user_using_username_stmt(username)
 
@@ -27,7 +28,7 @@ class AuthService:
         return {"does_username_exist": user is not None}
 
     @staticmethod
-    async def get_user_details(db: AsyncSession, user_id: UUID):
+    async def get_user_details(db: AsyncSession, user_id: UUID) -> UserProfile | None:
 
         stmt = AuthQueries.get_user_using_user_id_stmt(user_id)
 
@@ -38,7 +39,7 @@ class AuthService:
     @staticmethod
     async def update_participant_details(
         db: AsyncSession, user_id: UUID, payload: UserUpdate
-    ):
+    ) -> dict[str, str] | None:
 
         stmt = AuthQueries.update_user_details_stmt(user_id, payload)
 
@@ -50,7 +51,7 @@ class AuthService:
     @staticmethod
     async def update_user_profile_image_url(
         db: AsyncSession, user_id: UUID, image_url: str
-    ):
+    ) -> dict[str, str] | None:
 
         stmt = AuthQueries.update_user_profile_image_url_stmt(user_id, image_url)
 
@@ -60,16 +61,16 @@ class AuthService:
         return {"message": "Profile image URL updated successfully"}
 
     @staticmethod
-    async def update_last_online(db: AsyncSession, user_id: UUID):
+    async def update_last_online(db: AsyncSession, user_id: UUID) -> UserProfile | None:
 
         stmt = AuthQueries.update_last_online_stmt(user_id)
 
         result = await db.execute(stmt)
         await db.commit()
-        return result.scalar_one()
+        return result.scalar_one_or_none()
 
     @staticmethod
-    async def get_upload_url(s3: S3Client, file_key: str, file_type: str):
+    async def get_upload_url(s3: S3Client, file_key: str, file_type: str) -> str | None:
 
         try:
             upload_url = await s3.generate_presigned_url(
@@ -87,7 +88,7 @@ class AuthService:
             traceback.print_exc()
 
     @staticmethod
-    async def verify_image_existence(s3: S3Client, file_key: str):
+    async def verify_image_existence(s3: S3Client, file_key: str) -> None:
         try:
             # Doesn't raise exception if image exists
             await s3.head_object(
@@ -104,7 +105,9 @@ class AuthService:
             traceback.print_exc()
 
     @staticmethod
-    async def delete_user_profile_image(s3: S3Client, old_profile_image_url: str):
+    async def delete_user_profile_image(
+        s3: S3Client, old_profile_image_url: str
+    ) -> None:
         try:
 
             file_key = old_profile_image_url.split(

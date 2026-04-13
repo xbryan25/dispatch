@@ -8,7 +8,7 @@ from types_aiobotocore_s3 import S3Client
 s3_session = aioboto3.Session()
 
 
-def get_s3_config():
+def get_s3_config() -> Config:
     return Config(
         s3={"addressing_style": "path"},
         signature_version="s3v4",
