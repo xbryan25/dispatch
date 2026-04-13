@@ -1,13 +1,13 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from uuid import UUID
+
+import traceback
+
 from .queries import NotificationsQueries
 from .models import Notification
 
 from src.core import manager
-
-from uuid import UUID
-
-import traceback
 
 
 class NotificationsService:

@@ -4,10 +4,10 @@ from uuid import UUID
 
 from typing import Optional
 
+from pydantic import Field
+
 from src.messages.constants import MessageStatusEnum
 from src.core import BaseSchema
-
-from pydantic import Field
 
 
 class ConversationId(BaseSchema):

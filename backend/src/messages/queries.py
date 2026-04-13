@@ -4,13 +4,11 @@ from sqlalchemy.orm import joinedload
 
 from sqlalchemy.orm import aliased
 
+from uuid import UUID
 
 from .models import Conversation, ConversationParticipant
 
-
 from src.auth.models import UserProfile
-
-from uuid import UUID
 
 
 class MessagesQueries:

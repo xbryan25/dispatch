@@ -7,7 +7,7 @@ from uuid import UUID
 import uuid
 
 import traceback
-from typing import Annotated
+from typing import Annotated, Any
 
 import math
 
@@ -45,8 +45,10 @@ async def get_current_friends(
 ):
 
     try:
-        result = await FriendsService.get_current_friends(
-            db, user_id, sort_state, search_query, page, limit
+        result: tuple[list[dict[str, Any]], int | None] = (
+            await FriendsService.get_current_friends(
+                db, user_id, sort_state, search_query, page, limit
+            )
         )
 
         total_users = result[1] if result[1] else 0
@@ -79,8 +81,10 @@ async def get_sent_requests_profiles(
 ):
 
     try:
-        result = await FriendsService.get_sent_requests_profiles(
-            db, user_id, sort_state, search_query, page, limit
+        result: tuple[list[dict[str, Any]], int | None] = (
+            await FriendsService.get_sent_requests_profiles(
+                db, user_id, sort_state, search_query, page, limit
+            )
         )
 
         total_users = result[1] if result[1] else 0
@@ -113,8 +117,10 @@ async def get_received_requests_profiles(
 ):
 
     try:
-        result = await FriendsService.get_received_requests_profiles(
-            db, user_id, sort_state, search_query, page, limit
+        result: tuple[list[dict[str, Any]], int | None] = (
+            await FriendsService.get_received_requests_profiles(
+                db, user_id, sort_state, search_query, page, limit
+            )
         )
 
         total_users = result[1] if result[1] else 0
@@ -147,8 +153,10 @@ async def get_former_friends(
 ):
 
     try:
-        result = await FriendsService.get_former_friends(
-            db, user_id, sort_state, search_query, page, limit
+        result: tuple[list[dict[str, Any]], int | None] = (
+            await FriendsService.get_former_friends(
+                db, user_id, sort_state, search_query, page, limit
+            )
         )
 
         total_users = result[1] if result[1] else 0
@@ -181,8 +189,10 @@ async def get_friend_suggestions(
 ):
 
     try:
-        result = await FriendsService.get_friend_suggestions(
-            db, user_id, sort_state, search_query, page, limit
+        result: tuple[list[dict[str, Any]], int | None] = (
+            await FriendsService.get_friend_suggestions(
+                db, user_id, sort_state, search_query, page, limit
+            )
         )
 
         total_users = result[1] if result[1] else 0
