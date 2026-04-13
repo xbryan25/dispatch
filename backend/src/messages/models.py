@@ -3,11 +3,12 @@ from sqlalchemy.dialects.postgresql import UUID, ENUM
 from sqlalchemy.sql import func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from src.core.database import Base
-from src.messages.constants import MessageStatusEnum
 import uuid
 
 from datetime import datetime
+
+from src.core.database import Base
+from src.messages.constants import MessageStatusEnum
 
 
 class Message(Base):

@@ -392,7 +392,7 @@ class FriendsQueries:
         return stmt
 
     @staticmethod
-    def get_total_count_of_users(stmt: Select):
+    def get_total_count_of_users(stmt: Select) -> Select:
         """
         Wraps a SQLAlchemy Select statement to return a count of total records.
 
@@ -407,7 +407,9 @@ class FriendsQueries:
         return select(func.count()).select_from(inner_query)
 
     @staticmethod
-    def add_pagination_details_in_select_stmts(stmt: Select, page: int, limit: int):
+    def add_pagination_details_in_select_stmts(
+        stmt: Select, page: int, limit: int
+    ) -> Select:
         """
         Adds limit and offset to Select statements.
         """

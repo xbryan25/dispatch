@@ -9,12 +9,11 @@ from sqlalchemy import (
     Update,
 )
 
-
 from .models import Notification
 
-from src.auth.models import UserProfile
-
 from uuid import UUID
+
+from src.auth.models import UserProfile
 
 
 class NotificationsQueries:
@@ -45,11 +44,6 @@ class NotificationsQueries:
                 if read_state == "read"
                 else Notification.is_read_by_receiver.is_(True)
             )
-
-        # if search_query.strip():
-        #     stmt = stmt.filter(
-        #         func.lower(UserProfile.username).contains(search_query.lower())
-        #     )
 
         return stmt
 

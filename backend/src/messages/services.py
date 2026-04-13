@@ -2,13 +2,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, and_, func, update, or_
 from sqlalchemy.orm import selectinload
 
-from .schemas import MessageCreate
-from .models import Message, ConversationParticipant, Conversation
-from .queries import MessagesQueries
-
-from src.auth.models import UserProfile
-from src.friends.models import Friendship
-
 from uuid import UUID
 
 from typing import Optional, Any
@@ -16,6 +9,13 @@ from typing import Optional, Any
 import traceback
 
 from datetime import datetime, timezone
+
+from .schemas import MessageCreate
+from .models import Message, ConversationParticipant, Conversation
+from .queries import MessagesQueries
+
+from src.auth.models import UserProfile
+from src.friends.models import Friendship
 
 
 class MessagesService:

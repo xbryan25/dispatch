@@ -1,9 +1,8 @@
-from src.core import BaseSchema
-
 from uuid import UUID
 from datetime import datetime
 
 from .constants import NotificationTypeEnum
+from src.core import BaseSchema
 
 
 class Notification(BaseSchema):
