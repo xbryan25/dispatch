@@ -1,10 +1,10 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, and_, func, update, or_
+from sqlalchemy import select, and_, func, update, or_, RowMapping
 from sqlalchemy.orm import selectinload
 
 from uuid import UUID
 
-from typing import Optional, Any
+from typing import Optional, Any, Sequence
 
 import traceback
 
@@ -22,7 +22,7 @@ class MessagesService:
     @staticmethod
     async def create_message(
         db: AsyncSession, message_data: MessageCreate, sender_id: UUID
-    ):
+    ) -> Message | None:
 
         try:
             message_data_dict = MessageCreate.model_validate(message_data).model_dump(
@@ -46,7 +46,7 @@ class MessagesService:
     @staticmethod
     async def get_participants_details_in_conversation(
         db: AsyncSession, conversation_id: UUID
-    ):
+    ) -> Sequence[RowMapping] | None:
 
         try:
             query = (
@@ -70,7 +70,7 @@ class MessagesService:
     @staticmethod
     async def get_other_participants_details_in_conversation(
         db: AsyncSession, conversation_id: UUID, current_user_id: UUID
-    ):
+    ) -> Sequence[RowMapping] | None:
 
         try:
             query = (
@@ -111,7 +111,7 @@ class MessagesService:
     @staticmethod
     async def get_participant_ids_in_conversation(
         db: AsyncSession, conversation_id: UUID
-    ):
+    ) -> Sequence[UUID] | None:
 
         try:
             query = select(ConversationParticipant.user_id).where(
@@ -123,7 +123,9 @@ class MessagesService:
             traceback.print_exc()
 
     @staticmethod
-    async def get_conversation_by_id(db: AsyncSession, conversation_id: UUID):
+    async def get_conversation_by_id(
+        db: AsyncSession, conversation_id: UUID
+    ) -> Conversation | None:
 
         try:
             query = select(Conversation).where(
@@ -135,8 +137,9 @@ class MessagesService:
             traceback.print_exc()
 
     @staticmethod
-    async def get_conversations(db: AsyncSession, user_id: UUID):
-
+    async def get_conversations(
+        db: AsyncSession, user_id: UUID
+    ) -> list[dict[str, Any]] | None:
         # TODO: improve selectinload, find a better way to make it scalable
 
         try:
@@ -225,7 +228,7 @@ class MessagesService:
         conversation_id: UUID,
         limit: int,
         before_datetime: datetime | None,
-    ):
+    ) -> list[dict[str, Any]] | None:
         query = (
             select(Message, UserProfile.username)
             .join(UserProfile, UserProfile.user_id == Message.sender_id)
@@ -257,7 +260,7 @@ class MessagesService:
         return formatted_messages[::-1]
 
     @staticmethod
-    async def create_new_conversation(db: AsyncSession):
+    async def create_new_conversation(db: AsyncSession) -> UUID | None:
         try:
             conversation = Conversation()
 
@@ -272,7 +275,7 @@ class MessagesService:
     @staticmethod
     async def add_direct_message_participants(
         db: AsyncSession, conversation_id: UUID, user_id: UUID, target_user_id: UUID
-    ):
+    ) -> None:
         try:
             db.add_all(
                 [
@@ -292,7 +295,7 @@ class MessagesService:
     @staticmethod
     async def check_if_in_existing_direct_message_conversation(
         db: AsyncSession, user_id: UUID, target_user_id: UUID
-    ):
+    ) -> UUID | None:
         try:
             stmt = MessagesQueries.get_conversation_id_between_two_users(
                 user_id, target_user_id
@@ -306,7 +309,9 @@ class MessagesService:
             traceback.print_exc()
 
     @staticmethod
-    async def get_conversation_theme(db: AsyncSession, conversation_id: UUID):
+    async def get_conversation_theme(
+        db: AsyncSession, conversation_id: UUID
+    ) -> dict[str, Any] | None:
 
         stmt = MessagesQueries.get_conversation_by_id(conversation_id)
 
@@ -331,7 +336,7 @@ class MessagesService:
     @staticmethod
     async def update_conversation_theme(
         db: AsyncSession, conversation_id: UUID, theme: str, user_id: UUID
-    ):
+    ) -> None:
 
         stmt = MessagesQueries.update_conversation_theme_stmt(
             conversation_id, theme, user_id
@@ -339,8 +344,6 @@ class MessagesService:
 
         await db.execute(stmt)
         await db.commit()
-
-        return None
 
     @staticmethod
     async def mark_conversation_as_read(

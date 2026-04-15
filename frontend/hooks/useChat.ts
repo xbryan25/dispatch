@@ -327,7 +327,7 @@ export const useInitializeWebsocket = () => {
     if (!currentUserId) return;
 
     // Start new connection
-    const ws = new WebSocket(`${fastapiWebsocketUrl}/api/messages/ws`);
+    const ws = new WebSocket(`${fastapiWebsocketUrl}/api/websocket/ws`);
 
     ws.onopen = () => {
       console.log('Connected to:', currentUserId);

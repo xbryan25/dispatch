@@ -18,7 +18,7 @@ class MessagesQueries:
         current_user_id: UUID,
     ) -> ScalarSelect:
         """This sub statement retrieves the conversation_id of the direct message conversation shared between
-        the current user and another user (correlated from the outer query via UserProfile)..
+        the current user and another user (correlated from the outer query via UserProfile).
         """
 
         cp_profile = aliased(ConversationParticipant)
@@ -48,7 +48,7 @@ class MessagesQueries:
     def get_conversation_id_between_two_users(
         current_user_id: UUID, target_user_id: UUID
     ) -> Select:
-        """This statements gets the conversation_id between two users, if it exists."""
+        """This statement gets the conversation_id between two users, if it exists."""
 
         cp_target = aliased(ConversationParticipant)
         cp_current = aliased(ConversationParticipant)
