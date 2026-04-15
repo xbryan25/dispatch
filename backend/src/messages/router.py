@@ -1,7 +1,5 @@
 from fastapi import (
     APIRouter,
-    WebSocket,
-    WebSocketDisconnect,
     Depends,
     HTTPException,
     Query,
@@ -48,78 +46,6 @@ router = APIRouter(
 )
 
 
-@router.websocket("/ws")
-async def websocket_endpoint(
-    websocket: WebSocket,
-    user_id: Annotated[UUID, Depends(get_current_user_id)],
-    redis: Redis = Depends(get_redis),
-    db: AsyncSession = Depends(get_db),
-):
-
-    await manager.connect(websocket, user_id)
-
-    # online:{user_id} is for general online state, while online_users is for group operations
-
-    # Only store "1" in redis, it is just a placeholder to know if user is online
-    await redis.set(f"online:{user_id}", "1", ex=60)
-
-    await redis.sadd("online_users", str(user_id))  # type: ignore
-
-    try:
-        online_direct_message_participants = await redis.sinter(f"user:direct_message:{user_id}", "online_users")  # type: ignore
-
-        for online_direct_message_participant in online_direct_message_participants:
-            online_status_dict = {"isOnline": True}
-
-            event_data = {"type": "USER_ONLINE", "data": online_status_dict}
-
-            await manager.send_to_user(
-                UUID(online_direct_message_participant), event_data
-            )
-
-        while True:
-            data = await websocket.receive_json()
-
-            if data["type"] == "PING":
-                await redis.set(f"online:{user_id}", "1", ex=60)
-                await redis.sadd("online_users", str(user_id))  # type: ignore
-                await websocket.send_json({"type": "PONG"})
-
-    except InvalidConversationID:
-        traceback.print_exc()
-        await websocket.close(code=3001)
-    except WebSocketDisconnect:
-        traceback.print_exc()
-        manager.disconnect(websocket, user_id)
-
-        remaining_connections = manager.get_num_of_current_connections_for_a_user(
-            user_id
-        )
-
-        if remaining_connections == 0:
-            online_direct_message_participants = await redis.sinter(f"user:direct_message:{user_id}", "online_users")  # type: ignore
-
-            await redis.delete(f"online:{user_id}")
-            await redis.srem("online_users", str(user_id))  # type: ignore
-
-            last_online = await AuthService.update_last_online(db, user_id)
-
-            for online_direct_message_participant in online_direct_message_participants:
-                offline_status_dict = {
-                    "isOnline": False,
-                    "lastOnline": last_online.isoformat() if last_online else None,
-                }
-
-                event_data = {"type": "USER_OFFLINE", "data": offline_status_dict}
-
-                await manager.send_to_user(
-                    UUID(online_direct_message_participant), event_data
-                )
-
-    except Exception:
-        traceback.print_exc()
-
-
 @router.post("/send", response_model=MessageRead)
 @limiter.limit("30/minute")
 async def send_message(
@@ -128,10 +54,6 @@ async def send_message(
     user_id: Annotated[UUID, Depends(get_current_user_id)],
     db: AsyncSession = Depends(get_db),
 ):
-    """
-    Creates a new message. The user_id is automatically
-    extracted from the Supabase cookie.
-    """
 
     try:
         conversation_id = payload.conversation_id
@@ -189,9 +111,6 @@ async def get_conversation_list(
     user_id: Annotated[UUID, Depends(get_current_user_id)],
     db: AsyncSession = Depends(get_db),
 ):
-    """
-    add later
-    """
 
     try:
         formatted_conversations = await MessagesService.get_conversations(db, user_id)
@@ -269,9 +188,6 @@ async def create_direct_message(
     user_id: Annotated[UUID, Depends(get_current_user_id)],
     db: AsyncSession = Depends(get_db),
 ):
-    """
-    Creates a new conversation, and assigns the current user_id and the target_user_id as conversation participants. Returns conversation_id. If conversation between users already exists, the conversation_id of that conversation will be returned instead.
-    """
 
     try:
 
@@ -440,7 +356,6 @@ async def get_conversation_message_history(
 ):
 
     try:
-
         conversation = await MessagesService.get_conversation_by_id(db, conversation_id)
 
         if not conversation:
