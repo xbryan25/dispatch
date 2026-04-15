@@ -4,6 +4,8 @@ from uuid import UUID
 
 import traceback
 
+from typing import Any
+
 from .queries import NotificationsQueries
 from .models import Notification
 
@@ -20,7 +22,7 @@ class NotificationsService:
         sender_id: UUID,
         sender_username: str,
         receiver_id: UUID,
-    ):
+    ) -> None:
 
         try:
             notification_data = {
@@ -53,7 +55,7 @@ class NotificationsService:
         sort_state: str,
         page: int,
         limit: int,
-    ):
+    ) -> tuple[list[dict[str, Any]], int | None]:
 
         stmt = NotificationsQueries.get_notifications_stmt(
             current_user_id, read_state, sort_state
@@ -92,7 +94,7 @@ class NotificationsService:
     @staticmethod
     async def delete_notifications(
         db: AsyncSession, current_user_id: UUID, notification_ids: list[UUID]
-    ):
+    ) -> None:
 
         stmt = NotificationsQueries.delete_notifications_stmt(
             current_user_id, notification_ids
@@ -101,15 +103,13 @@ class NotificationsService:
         await db.execute(stmt)
         await db.commit()
 
-        return None
-
     @staticmethod
     async def mark_notifications_as_read_or_unread(
         db: AsyncSession,
         current_user_id: UUID,
         notification_ids: list[UUID],
         read_state: str,
-    ):
+    ) -> None:
 
         stmt = NotificationsQueries.mark_notifications_as_read_or_unread_stmt(
             current_user_id, notification_ids, read_state
@@ -118,13 +118,11 @@ class NotificationsService:
         await db.execute(stmt)
         await db.commit()
 
-        return None
-
     @staticmethod
     async def get_unread_notifications_count(
         db: AsyncSession,
         current_user_id: UUID,
-    ):
+    ) -> int | None:
 
         stmt = NotificationsQueries.get_unread_notifications_count(current_user_id)
 

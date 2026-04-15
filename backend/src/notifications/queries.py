@@ -21,6 +21,7 @@ class NotificationsQueries:
     def get_notifications_stmt(
         current_user_id: UUID, read_state: str, sort_state: str
     ) -> Select:
+        """This statement gets notifications of a user depending on the read_state."""
 
         stmt = (
             select(Notification, UserProfile.username)
@@ -51,6 +52,7 @@ class NotificationsQueries:
     def delete_notifications_stmt(
         current_user_id: UUID, notification_ids: list[UUID]
     ) -> Delete:
+        """This statement batch removes a user's notifications using the notification_id."""
 
         stmt = delete(Notification).where(
             Notification.notification_id.in_(notification_ids),
@@ -63,6 +65,7 @@ class NotificationsQueries:
     def mark_notifications_as_read_or_unread_stmt(
         current_user_id: UUID, notification_ids: list[UUID], read_state: str
     ) -> Update:
+        """This statement batch updates the read state of a user's notification using the notification_id."""
 
         is_read_by_receiver = True if read_state == "read" else False
 
@@ -79,6 +82,7 @@ class NotificationsQueries:
 
     @staticmethod
     def get_unread_notifications_count(current_user_id: UUID) -> Select:
+        """This statement retrieves the count of unread notifications."""
 
         stmt = (
             select(func.count())
