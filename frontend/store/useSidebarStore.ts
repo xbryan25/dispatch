@@ -1,9 +1,12 @@
 import { create } from 'zustand';
 import { ConversationSnippet, Message } from '@/types/chat';
+import { getUserConversationsList } from '@/lib/api/messages';
 
 interface SidebarState {
   conversationSnippets: ConversationSnippet[];
   isLoading: boolean;
+  isRateLimited: boolean;
+  error: string | null;
 
   // Actions
   setSnippets: (snippets: ConversationSnippet[]) => void;
@@ -15,11 +18,15 @@ interface SidebarState {
     latestMessageSenderId: string
   ) => void;
   setLoading: (value: boolean) => void;
+
+  getConversations: (isRetry?: boolean) => Promise<void>;
 }
 
-export const useSidebarStore = create<SidebarState>((set) => ({
+export const useSidebarStore = create<SidebarState>((set, get) => ({
   conversationSnippets: [],
   isLoading: true,
+  isRateLimited: false,
+  error: null,
 
   setSnippets: (snippets: ConversationSnippet[]) => set({ conversationSnippets: snippets }),
 
@@ -62,4 +69,38 @@ export const useSidebarStore = create<SidebarState>((set) => ({
     }),
 
   setLoading: (value: boolean) => set({ isLoading: value }),
+
+  getConversations: async (isRetry: boolean = false) => {
+    set({ isLoading: true, error: null });
+
+    try {
+      const data = await getUserConversationsList();
+
+      set({ conversationSnippets: data.conversations });
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred';
+
+      set({ error: errorMessage });
+
+      if (err instanceof Error && (err as Error & { status: number }).status === 429) {
+        set({ isRateLimited: true });
+
+        if (!isRetry) {
+          setTimeout(() => {
+            set({ isRateLimited: false });
+          }, 60000);
+
+          setTimeout(() => {
+            get().getConversations(true);
+          }, 60000);
+        }
+      } else {
+        set({
+          error: err instanceof Error ? err.message : 'An error occurred',
+        });
+      }
+    } finally {
+      set({ isLoading: false });
+    }
+  },
 }));

@@ -10,6 +10,7 @@ interface AuthState {
 
 export const useAuthStore = create<AuthState>()((set) => ({
   currentUserId: null,
+
   setCurrentUserId: (id) => set({ currentUserId: id }),
   clearCurrentUserId: () => set({ currentUserId: null }),
 }));

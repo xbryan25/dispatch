@@ -55,24 +55,28 @@ interface FriendsState {
     page: number,
     isRetry?: boolean
   ) => Promise<void>;
+
   getProfilesOfSentRequests: (
     sortState: string,
     searchQuery: string,
     page: number,
     isRetry?: boolean
   ) => Promise<void>;
+
   getProfilesOfReceivedRequests: (
     sortState: string,
     searchQuery: string,
     page: number,
     isRetry?: boolean
   ) => Promise<void>;
+
   getProfilesOfFormerFriends: (
     sortState: string,
     searchQuery: string,
     page: number,
     isRetry?: boolean
   ) => Promise<void>;
+
   getSuggestedProfiles: (
     sortState: string,
     searchQuery: string,
@@ -130,8 +134,6 @@ export const useFriendsStore = create<FriendsState>()((set, get) => ({
     })),
 
   setIsRateLimitedFromActions: (actionCategory, state) => {
-    console.log('test');
-
     set((prev) => ({
       isRateLimitedFromActions: {
         ...prev.isRateLimitedFromActions,
