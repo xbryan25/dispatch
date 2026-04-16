@@ -1,13 +1,20 @@
 'use client';
 
+import { useEffect } from 'react';
 import ConversationTab from './conversationTab';
 
-import { useConversationTabs } from '@/hooks/useConversationTabs';
-
 import LoadingSpinner from './loadingSpinner';
+import { useSidebarStore } from '@/store/useSidebarStore';
 
 export default function ChatList() {
-  const { conversationSnippets, isLoading } = useConversationTabs();
+  const conversationSnippets = useSidebarStore((state) => state.conversationSnippets);
+  const isLoading = useSidebarStore((state) => state.isLoading);
+
+  const getConversations = useSidebarStore((state) => state.getConversations);
+
+  useEffect(() => {
+    getConversations();
+  }, []);
 
   if (conversationSnippets.length == 0 && !isLoading) {
     return (
