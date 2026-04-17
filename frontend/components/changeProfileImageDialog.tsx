@@ -19,8 +19,6 @@ import { Icon } from '@iconify/react';
 
 import { useState } from 'react';
 
-import { useUpdateUserProfileImage } from '@/hooks/useAuth';
-
 import { FormEvent } from 'react';
 
 import { toast } from 'sonner';
@@ -32,13 +30,16 @@ import LoadingSpinner from './loadingSpinner';
 
 import { cn } from '@/lib/utils';
 
+import { useAuthStore } from '@/store/useAuthStore';
+
 export default function ChangeProfileImageDialog() {
-  const {
-    patchUserProfileImage,
-    loading: patchUserProfileImageLoading,
-    isRateLimitedPresignedURL: isGetPresignedURLRateLimited,
-    isRateLimitedUpdatingImage: isUpdateImageRateLimited,
-  } = useUpdateUserProfileImage();
+  const patchUserProfileImage = useAuthStore((state) => state.patchUserProfileImage);
+  const patchUserProfileImageLoading = useAuthStore((state) => state.patchUserProfileImageLoading);
+  const patchUserProfileImageError = useAuthStore((state) => state.patchUserProfileImageError);
+  const presignedURLIsRateLimited = useAuthStore((state) => state.presignedURLIsRateLimited);
+  const patchUserProfileImageIsRateLimited = useAuthStore(
+    (state) => state.patchUserProfileImageIsRateLimited
+  );
 
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [isSuccessfulUpdate, setIsSuccessfulUpdate] = useState<boolean>(false);
@@ -68,13 +69,13 @@ export default function ChangeProfileImageDialog() {
 
     setIsSuccessfulUpdate(true);
 
-    const { error, rateLimited } = await patchUserProfileImage(selectedImage);
+    await patchUserProfileImage(selectedImage);
 
-    if (error != null) {
+    if (patchUserProfileImageError != null) {
       toast.error('Profile image update has failed.');
       setIsOpen(false);
       return;
-    } else if (rateLimited) {
+    } else if (patchUserProfileImageIsRateLimited) {
       toast.error('You have made too many requests. Try again in 1 minute.');
       setIsOpen(false);
       return;
@@ -98,7 +99,7 @@ export default function ChangeProfileImageDialog() {
         <button
           className={cn(
             'flex items-center gap-1 bg-white dark:bg-stone-900  rounded-md p-2 font-medium',
-            isGetPresignedURLRateLimited || isUpdateImageRateLimited
+            presignedURLIsRateLimited || patchUserProfileImageIsRateLimited
               ? 'cursor-not-allowed text-stone-400'
               : ' hover:bg-stone-200 dark:hover:bg-stone-700  cursor-pointer'
           )}

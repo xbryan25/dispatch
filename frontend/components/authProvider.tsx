@@ -1,12 +1,11 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useInitCurrentUserId } from '@/hooks/useAuth';
 import { useAuthStore } from '@/store/useAuthStore';
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const { clearCurrentUserId } = useAuthStore();
-  const { initCurrentUserId } = useInitCurrentUserId();
+  const clearCurrentUserId = useAuthStore((state) => state.clearCurrentUserId);
+  const initCurrentUserId = useAuthStore((state) => state.getCurrentId);
 
   useEffect(() => {
     const verifySession = async () => {

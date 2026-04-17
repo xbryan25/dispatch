@@ -14,8 +14,9 @@ import { Icon } from '@iconify/react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
-import { useLogin, useInitCurrentUserId } from '@/hooks/useAuth';
 import { validateEmail } from '@/lib/validation';
+
+import { useAuthStore } from '@/store/useAuthStore';
 
 export default function LoginForm() {
   const router = useRouter();
@@ -25,8 +26,12 @@ export default function LoginForm() {
 
   const [isClickedLoginButton, setIsClickedLoginButton] = useState<boolean>(false);
 
-  const { loginUser, loading } = useLogin();
-  const { initCurrentUserId } = useInitCurrentUserId();
+  const loginUser = useAuthStore((state) => state.loginUser);
+  const loginLoading = useAuthStore((state) => state.loginLoading);
+  const loginError = useAuthStore((state) => state.loginError);
+
+  const initCurrentUserId = useAuthStore((state) => state.getCurrentId);
+  const initCurrentUserIdError = useAuthStore((state) => state.getCurrentIdError);
 
   const isEmailValid = validateEmail(email);
   const isFormEmpty = !email || !password;
@@ -36,12 +41,12 @@ export default function LoginForm() {
 
     setIsClickedLoginButton(true);
 
-    const { error: loginError } = await loginUser(email, password);
+    await loginUser(email, password);
 
     if (loginError) {
       toast.error(`Login failed. ${loginError}.`);
     } else {
-      const { error: initCurrentUserIdError } = await initCurrentUserId();
+      await initCurrentUserId();
 
       if (initCurrentUserIdError) {
         toast.error(`Login successful but failed to load your account. Please refresh.`);
@@ -100,7 +105,7 @@ export default function LoginForm() {
                 disabled={isClickedLoginButton || !isEmailValid || isFormEmpty}
                 className="w-full cursor-pointer text-lg"
               >
-                {loading && <Spinner />}
+                {loginLoading && <Spinner />}
                 Login
               </Button>
             </Field>
