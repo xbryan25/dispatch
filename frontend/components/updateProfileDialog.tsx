@@ -32,7 +32,6 @@ import { Icon } from '@iconify/react';
 
 import { useState } from 'react';
 
-import { useGetCurrentUserDetails, useUpdateCurrentUserDetails } from '@/hooks/useAuth';
 import { UserProfile } from '@/types/auth';
 
 import { FormEvent } from 'react';
@@ -43,17 +42,24 @@ import LoadingSpinner from './loadingSpinner';
 import { cn } from '@/lib/utils';
 import { Spinner } from './ui/spinner';
 
+import { useAuthStore } from '@/store/useAuthStore';
+
 export default function UpdateProfileDialog() {
-  const {
-    retrieveUserDetails,
-    loading: retrieveUserDetailsLoading,
-    isRateLimited: isGetUserDetailsRateLimited,
-  } = useGetCurrentUserDetails();
-  const {
-    patchUserDetails,
-    loading: patchUserDetailsLoading,
-    isRateLimited: isUpdatingUserDetailsRateLimited,
-  } = useUpdateCurrentUserDetails();
+  const currentUserDetails = useAuthStore((state) => state.currentUserDetails);
+
+  const retrieveUserDetails = useAuthStore((state) => state.getCurrentUserDetails);
+  const retrieveUserDetailsLoading = useAuthStore((state) => state.getCurrentUserDetailsLoading);
+  const retrieveUserDetailsError = useAuthStore((state) => state.getCurrentUserDetailsError);
+  const retrieveUserDetailsIsRateLimited = useAuthStore(
+    (state) => state.getCurrentUserDetailsIsRateLimited
+  );
+
+  const patchUserDetails = useAuthStore((state) => state.patchUserDetails);
+  const patchUserDetailsLoading = useAuthStore((state) => state.patchUserDetailsLoading);
+  const patchUserDetailsError = useAuthStore((state) => state.patchUserDetailsError);
+  const patchUserDetailsIsRateLimited = useAuthStore(
+    (state) => state.patchUserDetailsIsRateLimited
+  );
 
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [isSuccessfulUpdate, setIsSuccessfulUpdate] = useState<boolean>(false);
@@ -69,39 +75,41 @@ export default function UpdateProfileDialog() {
   const [userDetails, setUserDetails] = useState<UserProfile | null>(null);
 
   const getUserDetails = async () => {
-    const { data, error, rateLimited } = await retrieveUserDetails();
+    await retrieveUserDetails();
 
-    if (error != null) {
-      toast.error(error);
+    if (retrieveUserDetailsError != null) {
+      toast.error(retrieveUserDetailsError);
       setIsOpen(false);
       return;
-    } else if (rateLimited) {
+    } else if (retrieveUserDetailsIsRateLimited) {
       toast.error('You have made too many requests. Try again in 1 minute.');
       setIsOpen(false);
       return;
     }
 
-    setUserDetails(data);
+    setUserDetails(currentUserDetails);
 
-    const birthDate = data?.dateOfBirth ? new Date(data.dateOfBirth.replace(/-/g, '/')) : undefined;
+    const birthDate = currentUserDetails?.dateOfBirth
+      ? new Date(currentUserDetails.dateOfBirth.replace(/-/g, '/'))
+      : undefined;
     setOldDateOfBirth(birthDate);
   };
 
   const updateUserDetails = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const { error, rateLimited } = await patchUserDetails({
+    await patchUserDetails({
       dateOfBirth,
       fullName,
       gender,
       username,
     });
 
-    if (error != null) {
+    if (patchUserDetailsError != null) {
       toast.error('Profile update has failed.');
       setIsOpen(false);
       return;
-    } else if (rateLimited) {
+    } else if (patchUserDetailsIsRateLimited) {
       toast.error('You have made too many requests. Try again in 1 minute.');
       setIsOpen(false);
       return;
@@ -138,12 +146,12 @@ export default function UpdateProfileDialog() {
         <button
           className={cn(
             'flex items-center gap-1 bg-white dark:bg-stone-900  rounded-md p-2 font-medium',
-            isGetUserDetailsRateLimited || isUpdatingUserDetailsRateLimited
+            retrieveUserDetailsIsRateLimited || patchUserDetailsIsRateLimited
               ? 'cursor-not-allowed text-stone-400'
               : ' hover:bg-stone-200 dark:hover:bg-stone-700  cursor-pointer'
           )}
           onClick={getUserDetails}
-          disabled={isGetUserDetailsRateLimited || isUpdatingUserDetailsRateLimited}
+          disabled={retrieveUserDetailsIsRateLimited || patchUserDetailsIsRateLimited}
         >
           <Icon icon="material-symbols:person" className="size-4" />
           Update profile

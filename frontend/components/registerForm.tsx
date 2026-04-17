@@ -14,9 +14,10 @@ import { Icon } from '@iconify/react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
-import { useRegisterUser } from '@/hooks/useAuth';
 import { useUsernameCheck } from '@/hooks/useUsernameCheck';
 import { validatePassword, validateEmail } from '@/lib/validation';
+
+import { useAuthStore } from '@/store/useAuthStore';
 
 export default function RegisterForm() {
   const router = useRouter();
@@ -26,7 +27,10 @@ export default function RegisterForm() {
   const [password, setPassword] = useState<string>('');
   const [confirmPassword, setConfirmPassword] = useState<string>('');
 
-  const { registerUser, loading, error } = useRegisterUser();
+  const registerUser = useAuthStore((state) => state.registerUser);
+
+  const registerLoading = useAuthStore((state) => state.registerLoading);
+  const registerError = useAuthStore((state) => state.registerError);
 
   const {
     isUsernameTaken,
@@ -42,6 +46,7 @@ export default function RegisterForm() {
 
   const userSignup = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
     await registerUser(email, password, username);
 
     toast.success(
@@ -185,7 +190,7 @@ export default function RegisterForm() {
             <Button
               type="submit"
               disabled={
-                loading ||
+                registerLoading ||
                 isCheckingUsername ||
                 isUsernameTaken ||
                 passwordErrors.length > 0 ||
@@ -197,10 +202,10 @@ export default function RegisterForm() {
               }
               className="w-full cursor-pointer text-lg"
             >
-              {loading && <Spinner />}
+              {registerLoading && <Spinner />}
               Register
             </Button>
-            {error && <p className="text-xs text-red-400">{error}</p>}
+            {registerError && <p className="text-xs text-red-400">{registerError}</p>}
           </Field>
         </form>
       </div>

@@ -15,28 +15,27 @@ import {
 
 import { Icon } from '@iconify/react';
 
-import { useLogout } from '@/hooks/useAuth';
-
 import { useState } from 'react';
 
 import { toast } from 'sonner';
+
+import { useAuthStore } from '@/store/useAuthStore';
 
 export default function LogoutDialog() {
   const router = useRouter();
 
   const [isClickedLogoutButton, setIsClickedLogoutButton] = useState<boolean>(false);
 
-  const { logoutUser } = useLogout();
+  const logoutUser = useAuthStore((state) => state.logoutUser);
+  const logoutError = useAuthStore((state) => state.logoutError);
 
   const userLogout = async () => {
     setIsClickedLogoutButton(true);
 
-    const { error: loginError } = await logoutUser();
+    await logoutUser();
 
-    console.log(loginError);
-
-    if (loginError) {
-      toast.error(`Logout failed failed. ${loginError}.`);
+    if (logoutError) {
+      toast.error(`Logout failed failed. ${logoutError}.`);
     } else {
       toast.success('Logout successful. Thanks for using Dispatch!');
       router.push('/login');
