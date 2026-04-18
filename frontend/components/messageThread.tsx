@@ -5,7 +5,7 @@ import { useEffect, useRef, useMemo } from 'react';
 
 import { useAuthStore } from '@/store/useAuthStore';
 import { useChatStore } from '@/store/useChatStore';
-import { useGetPastMessagesFromConversation } from '@/hooks/useChat';
+
 import LoadingSpinner from './loadingSpinner';
 
 import { DateFormatters } from '@/types/chat';
@@ -30,13 +30,13 @@ export default function MessageThread() {
   const hasMorePastMessages = useChatStore((state) => state.hasMorePastMessages);
   const activeConversationId = useChatStore((state) => state.activeConversationId);
   const isInitialLoad = useChatStore((state) => state.isInitialLoad);
-  const isGetting = useChatStore((state) => state.isGetting);
+  const getPastMessagesLoading = useChatStore((state) => state.getPastMessagesLoading);
 
   const activeConversationThemeId = useChatStore((state) => state.conversationTheme);
   const activeConversationTheme =
     themes.find((theme) => theme.id == activeConversationThemeId) ?? themes[0];
 
-  const { getPastMessages } = useGetPastMessagesFromConversation();
+  const getPastMessages = useChatStore((state) => state.getPastMessages);
 
   const currentUserId = useAuthStore((state) => state.currentUserId);
 
@@ -106,7 +106,8 @@ export default function MessageThread() {
     // This useEffect activates getPastMessagesFromConversation() when sentinel is shown in viewport
     const container = containerRef.current;
 
-    if (!hasMorePastMessages || isGetting || !activeConversationId || !container) return;
+    if (!hasMorePastMessages || getPastMessagesLoading || !activeConversationId || !container)
+      return;
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -131,7 +132,7 @@ export default function MessageThread() {
     return () => observer.disconnect();
   }, [
     hasMorePastMessages,
-    isGetting,
+    getPastMessagesLoading,
     activeConversationId,
     getPastMessages,
     isInitialLoad,
@@ -143,7 +144,7 @@ export default function MessageThread() {
 
     const container = containerRef.current;
 
-    if (container && !isGetting && previousHeightRef.current > 0) {
+    if (container && !getPastMessagesLoading && previousHeightRef.current > 0) {
       const newHeight = container.scrollHeight;
       const jump = newHeight - previousHeightRef.current;
 
@@ -153,7 +154,7 @@ export default function MessageThread() {
 
       previousHeightRef.current = 0;
     }
-  }, [messages.length, isGetting]);
+  }, [messages.length, getPastMessagesLoading]);
 
   if (messages.length == 0) {
     return (
@@ -173,7 +174,7 @@ export default function MessageThread() {
         </div>
       )}
 
-      {isGetting && <LoadingSpinner />}
+      {getPastMessagesLoading && <LoadingSpinner />}
 
       {/* Top sentinel */}
       {hasMorePastMessages && activeConversationId && (
