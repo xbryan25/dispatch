@@ -1,6 +1,6 @@
 'use client';
 
-import { useInitializeWebsocket } from '@/hooks/useChat';
+import { useInitializeWebsocket } from '@/hooks/useWebsocket';
 
 export default function WebsocketProvider() {
   useInitializeWebsocket();
