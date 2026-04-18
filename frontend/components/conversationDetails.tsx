@@ -6,8 +6,8 @@ import { Icon } from '@iconify/react';
 import { useChatStore } from '@/store/useChatStore';
 import ChangeThemeDialog from './changeThemeDialog';
 import { useState } from 'react';
-import UnfriendDialog from './unfriendDialog';
-import { useFriendsStore } from '@/store/useFriendsStore';
+import UnfriendDialog from './dialogs/unfriendDialog';
+import { useFriendsStore } from '@/store/friends/useFriendsStore';
 
 import { cn } from '@/lib/utils';
 

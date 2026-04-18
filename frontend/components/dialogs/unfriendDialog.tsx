@@ -1,8 +1,8 @@
 'use client';
 
-import { Button } from './ui/button';
+import { Button } from '../ui/button';
 import { toast } from 'sonner';
-import { Spinner } from './ui/spinner';
+import { Spinner } from '../ui/spinner';
 
 import {
   Dialog,
@@ -10,18 +10,12 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui/dialog';
-
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-
-import { useUnfriendUser } from '@/hooks/useFriendship';
 
 import { useChatStore } from '@/store/useChatStore';
 
-import { useFriendsStore } from '@/store/useFriendsStore';
-import { useState } from 'react';
-import { Icon } from '@iconify/react';
+import { useFriendsStore } from '@/store/friends/useFriendsStore';
+import { useFriendsActionsStore } from '@/store/friends/useFriendsActionsStore';
 
 interface UnfriendDialogProps {
   username: string;
@@ -40,18 +34,24 @@ export default function UnfriendDialog({
   onSuccess,
   isRateLimitedFromAction,
 }: UnfriendDialogProps) {
-  const { unfriendSelectedUser, loading } = useUnfriendUser();
+  const doFriendsAction = useFriendsActionsStore((state) => state.doFriendsAction);
+
+  const loading = useFriendsActionsStore((state) => state.loading);
+  const error = useFriendsActionsStore((state) => state.error);
+  const isRateLimitedFromActions = useFriendsActionsStore(
+    (state) => state.isRateLimitedFromActions
+  );
 
   const loadUsersData = useFriendsStore((state) => state.loadUsersData);
 
   const unfriendUser = async () => {
-    const { error, rateLimited } = await unfriendSelectedUser(otherUserId);
+    await doFriendsAction(otherUserId, 'unfriendAction');
 
     if (error != null) {
       toast.error(`Something went wrong when unfriending a user.`);
       onClose();
       return;
-    } else if (rateLimited) {
+    } else if (isRateLimitedFromActions.unfriendAction) {
       toast.error('You have unfriended too many users. Try again in 1 minute.');
       onClose();
       return;

@@ -1,6 +1,6 @@
 'use client';
 
-import { Button } from './ui/button';
+import { Button } from '../ui/button';
 
 import {
   Dialog,
@@ -13,13 +13,13 @@ import {
 
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
-import { useCreateNewFriendRequest, useReconnectToUser } from '@/hooks/useFriendship';
-
 import { Icon } from '@iconify/react';
 
 import { toast } from 'sonner';
 
-import { useFriendsStore } from '@/store/useFriendsStore';
+import { useFriendsStore } from '@/store/friends/useFriendsStore';
+import { useFriendsActionsStore } from '@/store/friends/useFriendsActionsStore';
+
 import { useState } from 'react';
 
 interface MakeFriendshipRequestDialogProps {
@@ -37,23 +37,31 @@ export default function MakeFriendshipRequestDialog({
 }: MakeFriendshipRequestDialogProps) {
   const [isOpen, setIsOpen] = useState<boolean>(false);
 
-  const { createFriendRequest, loading: createFriendRequestLoading } = useCreateNewFriendRequest();
+  const doFriendsAction = useFriendsActionsStore((state) => state.doFriendsAction);
 
-  const { reconnectToFormerFriend, loading: reconnectToUserLoading } = useReconnectToUser();
+  const loading = useFriendsActionsStore((state) => state.loading);
+  const error = useFriendsActionsStore((state) => state.error);
+  const isRateLimitedFromActions = useFriendsActionsStore(
+    (state) => state.isRateLimitedFromActions
+  );
 
   const loadUsersData = useFriendsStore((state) => state.loadUsersData);
 
   const requestHandler = async () => {
-    const { error, rateLimited } =
-      requestType === 'new'
-        ? await createFriendRequest(receiverId)
-        : await reconnectToFormerFriend(receiverId);
+    if (requestType === 'new') {
+      await doFriendsAction(receiverId, 'createNewRequestAction');
+    } else {
+      await doFriendsAction(receiverId, 'reconnectRequestAction');
+    }
 
     if (error != null) {
       toast.error(`Something went wrong when making a friend request.`);
       setIsOpen(false);
       return;
-    } else if (rateLimited) {
+    } else if (
+      isRateLimitedFromActions.createNewRequestAction ||
+      isRateLimitedFromActions.reconnectRequestAction
+    ) {
       toast.error('You have made too many friend requests. Try again in 1 minute.');
       setIsOpen(false);
       return;
@@ -108,9 +116,7 @@ export default function MakeFriendshipRequestDialog({
             <Button
               className="flex-1 cursor-pointer text-md"
               onClick={requestHandler}
-              disabled={
-                createFriendRequestLoading || reconnectToUserLoading || isRateLimitedFromAction
-              }
+              disabled={loading || isRateLimitedFromAction}
             >
               Make friend request
             </Button>
