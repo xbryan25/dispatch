@@ -1,6 +1,6 @@
 'use client';
 
-import { useFriendsStore } from '@/store/useFriendsStore';
+import { useFriendsStore } from '@/store/friends/useFriendsStore';
 
 import PaginationButtons from '@/components/paginationButtons';
 import FriendsPageTabGroup from '@/components/friendsPageTabGroup';

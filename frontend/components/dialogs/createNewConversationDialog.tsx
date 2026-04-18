@@ -1,8 +1,8 @@
 'use client';
 
-import { Spinner } from './ui/spinner';
+import { Spinner } from '../ui/spinner';
 
-import { Button } from './ui/button';
+import { Button } from '../ui/button';
 
 import {
   Dialog,
@@ -17,11 +17,8 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 
 import { Icon } from '@iconify/react';
 
-import { useAcceptFriendRequest } from '@/hooks/useFriendship';
-
 import { toast } from 'sonner';
 
-import { useFriendsStore } from '@/store/useFriendsStore';
 import { useCreateDirectMessage } from '@/hooks/useChat';
 
 import { useRouter } from 'next/navigation';

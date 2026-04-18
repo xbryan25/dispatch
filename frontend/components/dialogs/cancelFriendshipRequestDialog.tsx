@@ -1,8 +1,8 @@
 'use client';
 
-import { Button } from './ui/button';
+import { Button } from '../ui/button';
 
-import { Spinner } from './ui/spinner';
+import { Spinner } from '../ui/spinner';
 
 import {
   Dialog,
@@ -17,11 +17,11 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 
 import { Icon } from '@iconify/react';
 
-import { useCancelFriendRequest } from '@/hooks/useFriendship';
-
 import { toast } from 'sonner';
 
-import { useFriendsStore } from '@/store/useFriendsStore';
+import { useFriendsStore } from '@/store/friends/useFriendsStore';
+import { useFriendsActionsStore } from '@/store/friends/useFriendsActionsStore';
+
 import { useState } from 'react';
 
 interface CancelFriendshipRequestDialogProps {
@@ -37,18 +37,24 @@ export default function CancelFriendshipRequestDialog({
 }: CancelFriendshipRequestDialogProps) {
   const [isOpen, setIsOpen] = useState<boolean>(false);
 
-  const { cancelSentFriendRequest, loading } = useCancelFriendRequest();
+  const doFriendsAction = useFriendsActionsStore((state) => state.doFriendsAction);
+
+  const loading = useFriendsActionsStore((state) => state.loading);
+  const error = useFriendsActionsStore((state) => state.error);
+  const isRateLimitedFromActions = useFriendsActionsStore(
+    (state) => state.isRateLimitedFromActions
+  );
 
   const loadUsersData = useFriendsStore((state) => state.loadUsersData);
 
   const cancelFriendRequest = async () => {
-    const { error, rateLimited } = await cancelSentFriendRequest(receiverId);
+    await doFriendsAction(receiverId, 'cancelRequestAction');
 
     if (error != null) {
       toast.error(`Something went wrong when cancelling the friend request.`);
       setIsOpen(false);
       return;
-    } else if (rateLimited) {
+    } else if (isRateLimitedFromActions.cancelRequestAction) {
       toast.error('You have cancelled too many friend requests. Try again in 1 minute.');
       setIsOpen(false);
       return;

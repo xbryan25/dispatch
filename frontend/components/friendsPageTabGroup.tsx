@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Icon } from '@iconify/react';
 import { Search } from 'lucide-react';
 
-import { useFriendsStore } from '@/store/useFriendsStore';
+import { useFriendsStore } from '@/store/friends/useFriendsStore';
 
 import { useState, useEffect } from 'react';
 

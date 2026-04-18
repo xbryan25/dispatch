@@ -1,8 +1,8 @@
 'use client';
 
-import { Spinner } from './ui/spinner';
+import { Spinner } from '../ui/spinner';
 
-import { Button } from './ui/button';
+import { Button } from '../ui/button';
 
 import {
   Dialog,
@@ -17,11 +17,11 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 
 import { Icon } from '@iconify/react';
 
-import { useRejectFriendRequest } from '@/hooks/useFriendship';
-
 import { toast } from 'sonner';
 
-import { useFriendsStore } from '@/store/useFriendsStore';
+import { useFriendsStore } from '@/store/friends/useFriendsStore';
+import { useFriendsActionsStore } from '@/store/friends/useFriendsActionsStore';
+
 import { useState } from 'react';
 
 interface RejectFriendshipDialogProps {
@@ -37,18 +37,24 @@ export default function RejectFriendshipDialog({
 }: RejectFriendshipDialogProps) {
   const [isOpen, setIsOpen] = useState<boolean>(false);
 
-  const { rejectReceivedFriendRequest, loading } = useRejectFriendRequest();
+  const doFriendsAction = useFriendsActionsStore((state) => state.doFriendsAction);
+
+  const loading = useFriendsActionsStore((state) => state.loading);
+  const error = useFriendsActionsStore((state) => state.error);
+  const isRateLimitedFromActions = useFriendsActionsStore(
+    (state) => state.isRateLimitedFromActions
+  );
 
   const loadUsersData = useFriendsStore((state) => state.loadUsersData);
 
   const rejectFriendRequest = async () => {
-    const { error, rateLimited } = await rejectReceivedFriendRequest(senderId);
+    await doFriendsAction(senderId, 'rejectAction');
 
     if (error != null) {
       toast.error(`Something went wrong when rejecting a friend request.`);
       setIsOpen(false);
       return;
-    } else if (rateLimited) {
+    } else if (isRateLimitedFromActions.rejectAction) {
       toast.error('You have rejected too many friend requests. Try again in 1 minute.');
       setIsOpen(false);
       return;
