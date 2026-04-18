@@ -1,5 +1,14 @@
 import { create } from 'zustand';
 import { Message, OtherParticipantDetails, TempMessage } from '@/types/chat';
+import {
+  createDirectMessage,
+  getConversationTheme,
+  getOtherParticipantFromConversation,
+  getPastMessagesFromConversation,
+  markConversationAsRead,
+  sendMessage,
+  updateConversationTheme,
+} from '@/lib/api/messages';
 
 interface ChatState {
   messages: Message[];
@@ -12,10 +21,7 @@ interface ChatState {
   hasMorePastMessages: boolean;
 
   isInitialLoad: boolean;
-  isGetting: boolean;
-  isSending: boolean;
 
-  isGettingOtherParticipant: boolean;
   otherParticipantFriendshipStatus: string | null;
   otherParticipantIsOnline: boolean;
   otherParticipantLastOnline: Date | null;
@@ -25,6 +31,34 @@ interface ChatState {
   conversationTheme: string;
   conversationThemeChangedAt: Date | null;
   conversationThemeChangedBy: string | null;
+
+  sendLoading: boolean;
+  sendError: string | null;
+  sendRateLimited: boolean;
+
+  getPastMessagesLoading: boolean;
+  getPastMessagesError: string | null;
+  getPastMessagesRateLimited: boolean;
+
+  getOtherParticipantLoading: boolean;
+  getOtherParticipantError: string | null;
+  getOtherParticipantRateLimited: boolean;
+
+  createNewDirectMessageLoading: boolean;
+  createNewDirectMessageError: string | null;
+  createNewDirectMessageRateLimited: boolean;
+
+  getActiveConversationThemeLoading: boolean;
+  getActiveConversationThemeError: string | null;
+  getActiveConversationThemeRateLimited: boolean;
+
+  changeConversationThemeLoading: boolean;
+  changeConversationThemeError: string | null;
+  changeConversationThemeRateLimited: boolean;
+
+  markAsReadLoading: boolean;
+  markAsReadError: string | null;
+  markAsReadRateLimited: boolean;
 
   // Actions
   addMessage: (newMessage: Message) => void;
@@ -39,9 +73,7 @@ interface ChatState {
   setActiveConversationId: (conversationId: string | null) => void;
   setOtherParticipantDetails: (newParticipantDetails: OtherParticipantDetails | null) => void;
   setIsInitialLoad: (newVal: boolean) => void;
-  setIsGetting: (newVal: boolean) => void;
-  setIsSending: (newVal: boolean) => void;
-  setIsGettingOtherParticipant: (newVal: boolean) => void;
+
   setOtherParticipantFriendshipStatus: (newVal: string) => void;
   setConversationTheme: (newVal: string) => void;
   setConversationThemeChangedAt: (newVal: Date | null) => void;
@@ -57,6 +89,18 @@ interface ChatState {
   clearChat: () => void;
 
   resetConversation: (conversationId?: string) => void;
+
+  // API-related actions
+
+  send: (content: string, tempMessageId: string) => Promise<void>;
+  getPastMessages: (conversationId: string) => Promise<void>;
+  getOtherParticipant: (conversationId: string) => Promise<void>;
+  createNewDirectMessage: (
+    targetUserId: string
+  ) => Promise<{ conversationId: string; conversationIdType: 'existing' | 'new' } | null>;
+  getActiveConversationTheme: (conversationId: string) => Promise<void>;
+  changeConversationTheme: (conversationId: string, theme: string) => Promise<void>;
+  markAsRead: (conversationId: string) => Promise<void>;
 }
 
 export const useChatStore = create<ChatState>((set, get) => ({
@@ -73,6 +117,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
   isSending: false,
   isGettingOtherParticipant: false,
   otherParticipantFriendshipStatus: null,
+
   conversationTheme: 'default',
   conversationThemeChangedAt: null,
   conversationThemeChangedBy: null,
@@ -81,6 +126,34 @@ export const useChatStore = create<ChatState>((set, get) => ({
   otherParticipantLastOnline: null,
   otherParticipantLastReadMessageId: null,
   otherParticipantLastReadMessageAt: null,
+
+  sendLoading: false,
+  sendError: null,
+  sendRateLimited: false,
+
+  getPastMessagesLoading: false,
+  getPastMessagesError: null,
+  getPastMessagesRateLimited: false,
+
+  getOtherParticipantLoading: false,
+  getOtherParticipantError: null,
+  getOtherParticipantRateLimited: false,
+
+  createNewDirectMessageLoading: false,
+  createNewDirectMessageError: null,
+  createNewDirectMessageRateLimited: false,
+
+  getActiveConversationThemeLoading: false,
+  getActiveConversationThemeError: null,
+  getActiveConversationThemeRateLimited: false,
+
+  changeConversationThemeLoading: false,
+  changeConversationThemeError: null,
+  changeConversationThemeRateLimited: false,
+
+  markAsReadLoading: false,
+  markAsReadError: null,
+  markAsReadRateLimited: false,
 
   addMessage: (newMessage) =>
     set((state) => {
@@ -188,12 +261,6 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
   setIsInitialLoad: (newVal: boolean) => set({ isInitialLoad: newVal }),
 
-  setIsGetting: (newVal: boolean) => set({ isGetting: newVal }),
-
-  setIsSending: (newVal: boolean) => set({ isSending: newVal }),
-
-  setIsGettingOtherParticipant: (newVal: boolean) => set({ isSending: newVal }),
-
   setOtherParticipantFriendshipStatus: (newVal: string) =>
     set({ otherParticipantFriendshipStatus: newVal }),
 
@@ -215,7 +282,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
       messages: [],
       hasMorePastMessages: true,
       isInitialLoad: true,
-      isGettingOtherParticipant: true,
+      getOtherParticipantLoading: true,
       otherParticipantFriendshipStatus: null,
     });
   },
@@ -230,4 +297,234 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
   setOtherParticipantLastReadMessageAt: (newVal: Date | null) =>
     set({ otherParticipantLastReadMessageAt: newVal }),
+
+  send: async (content: string, tempMessageId: string) => {
+    set({ sendLoading: true, sendError: null, sendRateLimited: false });
+    try {
+      const { activeConversationId } = get();
+
+      await sendMessage(content, tempMessageId, activeConversationId);
+    } catch (err: unknown) {
+      if (err instanceof Error && (err as Error & { status: number }).status === 429) {
+        set({ sendRateLimited: true });
+
+        setTimeout(() => set({ sendRateLimited: false }), 60000);
+      }
+
+      const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred';
+
+      set({ sendError: errorMessage });
+    } finally {
+      set({ sendLoading: false });
+    }
+  },
+
+  getPastMessages: async (conversationId: string) => {
+    const { prependPastMessages, messages, isInitialLoad } = get();
+
+    set({
+      getPastMessagesLoading: true,
+      getPastMessagesError: null,
+      getPastMessagesRateLimited: false,
+    });
+
+    try {
+      const query = `${conversationId}${messages[0]?.createdAt ? `?beforeDatetime=${messages[0].createdAt}` : ''}`;
+
+      const data = await getPastMessagesFromConversation(query);
+
+      if (isInitialLoad) {
+        set({
+          isInitialLoad: false,
+        });
+      }
+
+      prependPastMessages(data.pastMessages);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        set({ getPastMessagesError: err.message });
+      } else {
+        set({ getPastMessagesError: 'An unexpected error occurred' });
+      }
+    } finally {
+      set({ getPastMessagesLoading: false });
+    }
+  },
+
+  getOtherParticipant: async (conversationId: string) => {
+    const { setOtherParticipantDetails } = get();
+
+    set({
+      getOtherParticipantLoading: true,
+      getOtherParticipantError: null,
+      getOtherParticipantRateLimited: false,
+    });
+
+    try {
+      if (conversationId) {
+        const data = await getOtherParticipantFromConversation(conversationId);
+
+        setOtherParticipantDetails(data);
+      } else {
+        throw Error('No conversation ID');
+      }
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        set({
+          getOtherParticipantError: err.message,
+        });
+      } else {
+        set({
+          getOtherParticipantError: 'An unexpected error occurred',
+        });
+      }
+    } finally {
+      set({
+        getOtherParticipantLoading: false,
+      });
+    }
+  },
+
+  createNewDirectMessage: async (targetUserId: string) => {
+    set({
+      createNewDirectMessageLoading: true,
+      createNewDirectMessageError: null,
+      createNewDirectMessageRateLimited: false,
+    });
+
+    try {
+      const data: { conversationId: string; conversationIdType: 'existing' | 'new' } =
+        await createDirectMessage(targetUserId);
+
+      return data;
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        set({
+          createNewDirectMessageError: err.message,
+        });
+      } else {
+        set({
+          createNewDirectMessageError: 'An unexpected error occurred',
+        });
+      }
+
+      return null;
+    } finally {
+      set({
+        createNewDirectMessageLoading: false,
+      });
+    }
+  },
+
+  getActiveConversationTheme: async (conversationId: string) => {
+    set({
+      getActiveConversationThemeLoading: true,
+      getActiveConversationThemeError: null,
+      getActiveConversationThemeRateLimited: false,
+    });
+
+    try {
+      const data: { theme: string; changedBy: string; changedAt: Date } =
+        await getConversationTheme(conversationId);
+
+      set({
+        conversationTheme: data.theme,
+        conversationThemeChangedAt: new Date(data.changedAt),
+        conversationThemeChangedBy: data.changedBy,
+      });
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        set({
+          getActiveConversationThemeError: err.message,
+        });
+      } else {
+        set({
+          getActiveConversationThemeError: 'An unexpected error occurred',
+        });
+      }
+    } finally {
+      set({
+        getActiveConversationThemeLoading: false,
+      });
+    }
+  },
+
+  changeConversationTheme: async (conversationId: string, theme: string) => {
+    set({
+      changeConversationThemeLoading: true,
+      changeConversationThemeError: null,
+      changeConversationThemeRateLimited: false,
+    });
+
+    try {
+      const data: { theme: string; changedBy: string; changedAt: Date } =
+        await updateConversationTheme(conversationId, theme);
+
+      set({
+        conversationTheme: data.theme,
+        conversationThemeChangedAt: new Date(data.changedAt),
+        conversationThemeChangedBy: data.changedBy,
+      });
+    } catch (err: unknown) {
+      if (err instanceof Error && (err as Error & { status: number }).status === 429) {
+        set({
+          changeConversationThemeRateLimited: true,
+        });
+
+        setTimeout(
+          () =>
+            set({
+              changeConversationThemeRateLimited: false,
+            }),
+          60000
+        );
+      }
+
+      const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred';
+
+      set({
+        changeConversationThemeError: errorMessage,
+      });
+    } finally {
+      set({
+        changeConversationThemeLoading: false,
+      });
+    }
+  },
+
+  markAsRead: async (conversationId: string) => {
+    set({
+      markAsReadLoading: true,
+      markAsReadError: null,
+      markAsReadRateLimited: false,
+    });
+
+    try {
+      await markConversationAsRead(conversationId);
+    } catch (err: unknown) {
+      if (err instanceof Error && (err as Error & { status: number }).status === 429) {
+        set({
+          markAsReadRateLimited: true,
+        });
+
+        setTimeout(
+          () =>
+            set({
+              markAsReadRateLimited: false,
+            }),
+          60000
+        );
+      }
+
+      const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred';
+
+      set({
+        markAsReadError: errorMessage,
+      });
+    } finally {
+      set({
+        markAsReadLoading: false,
+      });
+    }
+  },
 }));

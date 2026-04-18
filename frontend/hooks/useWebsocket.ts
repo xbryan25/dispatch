@@ -3,8 +3,6 @@ import { useChatStore } from '@/store/useChatStore';
 import { useSidebarStore } from '@/store/useSidebarStore';
 import { useAuthStore } from '@/store/useAuthStore';
 
-import { useMarkConversationAsRead } from './useChat';
-
 import { toast } from 'sonner';
 
 import { themes } from '@/lib/themes';
@@ -27,6 +25,7 @@ export const useInitializeWebsocket = () => {
     setOtherParticipantLastReadMessageId,
     setOtherParticipantLastReadMessageAt,
     removeSendingMessage,
+    markAsRead,
   } = useChatStore();
 
   const currentUserId = useAuthStore((state) => state.currentUserId);
@@ -34,8 +33,6 @@ export const useInitializeWebsocket = () => {
   const { upsertSnippet, updateHasSeenLatestMessage } = useSidebarStore();
 
   const getNotifications = useNotificationsStore((state) => state.getNotifications);
-
-  const { markAsRead } = useMarkConversationAsRead();
 
   useEffect(() => {
     if (!currentUserId) return;
@@ -47,7 +44,7 @@ export const useInitializeWebsocket = () => {
       console.log('Connected to:', currentUserId);
     };
 
-    ws.onmessage = (event) => {
+    ws.onmessage = async (event) => {
       const eventData = JSON.parse(event.data);
 
       // getState() is used because onmessage is a callback function
@@ -60,7 +57,7 @@ export const useInitializeWebsocket = () => {
           if (eventData.data.senderId === currentUserId) {
             removeSendingMessage(eventData.data.tempMessageId);
           } else if (latestActiveConversationId) {
-            markAsRead(latestActiveConversationId);
+            await markAsRead(latestActiveConversationId);
           }
         }
         upsertSnippet(eventData.data);

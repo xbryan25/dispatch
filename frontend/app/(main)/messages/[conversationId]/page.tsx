@@ -9,26 +9,19 @@ import { useChatStore } from '@/store/useChatStore';
 import { useEffect, useState, useRef } from 'react';
 import LoadingSpinner from '@/components/loadingSpinner';
 
-import {
-  useGetConversationTheme,
-  useGetOtherParticipantFromConversation,
-  useMarkConversationAsRead,
-} from '@/hooks/useChat';
-import { useGetPastMessagesFromConversation } from '@/hooks/useChat';
-
 export default function SpecificConversationPage() {
   const params = useParams();
   const conversationId: string = params.conversationId as string;
 
   const resetConversation = useChatStore((state) => state.resetConversation);
 
-  const { getOtherParticipant } = useGetOtherParticipantFromConversation();
+  const getPastMessages = useChatStore((state) => state.getPastMessages);
 
-  const { getPastMessages } = useGetPastMessagesFromConversation();
+  const getOtherParticipant = useChatStore((state) => state.getOtherParticipant);
 
-  const { getActiveConversationTheme } = useGetConversationTheme();
+  const getActiveConversationTheme = useChatStore((state) => state.getActiveConversationTheme);
 
-  const { markAsRead } = useMarkConversationAsRead();
+  const markAsRead = useChatStore((state) => state.markAsRead);
 
   const otherParticipantDetails = useChatStore((state) => state.otherParticipantDetails);
 

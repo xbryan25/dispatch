@@ -17,7 +17,6 @@ import { useState, useEffect } from 'react';
 
 import { themes } from '@/lib/themes';
 import { useChatStore } from '@/store/useChatStore';
-import { useUpdateConversationTheme } from '@/hooks/useChat';
 import LoadingSpinner from './loadingSpinner';
 import { DialogTrigger } from '@radix-ui/react-dialog';
 import { Icon } from '@iconify/react';
@@ -39,19 +38,23 @@ export default function ChangeThemeDialog() {
 
   const selectedTheme = themes.find((theme) => theme.id == selectedThemeId);
 
-  const { changeConversationTheme, isRateLimited } = useUpdateConversationTheme();
+  const changeConversationTheme = useChatStore((state) => state.changeConversationTheme);
+  const changeConversationThemeError = useChatStore((state) => state.changeConversationThemeError);
+  const changeConversationThemeRateLimited = useChatStore(
+    (state) => state.changeConversationThemeRateLimited
+  );
 
   const updateConversationTheme = async () => {
     setLocalLoading(true);
     if (conversationId) {
-      const { error, rateLimited } = await changeConversationTheme(conversationId, selectedThemeId);
+      await changeConversationTheme(conversationId, selectedThemeId);
 
       setIsOpen(false);
 
-      if (error != null) {
+      if (changeConversationThemeError != null) {
         toast.error(`Something went wrong when unfriending a user.`);
         return;
-      } else if (rateLimited) {
+      } else if (changeConversationThemeRateLimited) {
         toast.error('You have tried to change the theme already. Try again in 1 minute.');
         return;
       }
@@ -90,11 +93,11 @@ export default function ChangeThemeDialog() {
         <button
           className={cn(
             'flex items-center gap-1 bg-white dark:bg-stone-900 hover:bg-stone-200 dark:hover:bg-stone-700 cursor-pointer rounded-md p-2 font-medium',
-            isRateLimited
+            changeConversationThemeRateLimited
               ? 'cursor-not-allowed text-stone-400'
               : ' hover:bg-stone-200 dark:hover:bg-stone-700 cursor-pointer'
           )}
-          disabled={isRateLimited}
+          disabled={changeConversationThemeRateLimited}
           onClick={() => setIsOpen(true)}
         >
           <Icon icon="material-symbols:palette" className="size-7" />

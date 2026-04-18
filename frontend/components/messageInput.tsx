@@ -4,7 +4,6 @@ import { InputGroup, InputGroupTextarea } from '@/components/ui/input-group';
 
 import { useState } from 'react';
 
-import { useSendMessage } from '@/hooks/useChat';
 import { useChatStore } from '@/store/useChatStore';
 import { OtherParticipantDetails } from '@/types/chat';
 
@@ -21,7 +20,11 @@ export default function MessageInput({
 }: MessageInputProps) {
   const [newMessage, setNewMessage] = useState('');
 
-  const { send, isRateLimited } = useSendMessage();
+  const send = useChatStore((state) => state.send);
+
+  const sendError = useChatStore((state) => state.sendError);
+  const sendRateLimited = useChatStore((state) => state.sendRateLimited);
+
   const addSendingMessage = useChatStore((state) => state.addSendingMessage);
   const removeSendingMessage = useChatStore((state) => state.removeSendingMessage);
 
@@ -48,9 +51,9 @@ export default function MessageInput({
 
     setNewMessage('');
 
-    const { error, rateLimited } = await send(newMessage.trim(), tempMessageId);
+    await send(newMessage.trim(), tempMessageId);
 
-    if (error !== null) {
+    if (sendError !== null) {
       toast.error(`Something went wrong when sending a message.`);
       addFailedMessage({
         tempMessageId,
@@ -60,7 +63,7 @@ export default function MessageInput({
       });
 
       removeSendingMessage(tempMessageId);
-    } else if (rateLimited) {
+    } else if (sendRateLimited) {
       toast.error('You have tried to send too many messages. Try again in 1 minute.');
       removeSendingMessage(tempMessageId);
     }
@@ -74,17 +77,17 @@ export default function MessageInput({
           onChange={(e) => setNewMessage(e.target.value)}
           onKeyDown={handleKeyDown}
           className="min-h-4! py-2!"
-          disabled={isRateLimited}
+          disabled={sendRateLimited}
           placeholder={
             otherParticipantFriendshipStatus !== 'accepted'
               ? `You aren't friends with ${otherParticipantDetails?.username} anymore. This conversation is read-only.`
-              : isRateLimited
+              : sendRateLimited
                 ? 'You have tried to send too many messages. Try again in 1 minute.'
                 : 'Type your message...'
           }
         />
       </InputGroup>
-      <Button onClick={sendNewMessage} disabled={newMessage === '' || isRateLimited}>
+      <Button onClick={sendNewMessage} disabled={newMessage === '' || sendRateLimited}>
         Send
       </Button>
     </div>

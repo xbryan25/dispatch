@@ -19,9 +19,8 @@ import { Icon } from '@iconify/react';
 
 import { toast } from 'sonner';
 
-import { useCreateDirectMessage } from '@/hooks/useChat';
-
 import { useRouter } from 'next/navigation';
+import { useChatStore } from '@/store/useChatStore';
 
 interface CreateNewConversationDialogProps {
   username: string;
@@ -32,7 +31,10 @@ export default function CreateNewConversationDialog({
   username,
   otherUserId,
 }: CreateNewConversationDialogProps) {
-  const { createNewDirectMessage, loading } = useCreateDirectMessage();
+  const createNewDirectMessage = useChatStore((state) => state.createNewDirectMessage);
+  const createNewDirectMessageLoading = useChatStore(
+    (state) => state.createNewDirectMessageLoading
+  );
 
   const router = useRouter();
 
@@ -40,9 +42,9 @@ export default function CreateNewConversationDialog({
     try {
       const result = await createNewDirectMessage(otherUserId);
 
-      if (result.data) {
-        const conversationId = result.data.conversationId;
-        const conversationIdType = result.data.conversationIdType;
+      if (result) {
+        const conversationId = result.conversationId;
+        const conversationIdType = result.conversationIdType;
 
         if (conversationIdType === 'existing') {
           toast.info(`There is already an existing conversation between you and ${username}.`);
@@ -79,9 +81,9 @@ export default function CreateNewConversationDialog({
             <Button
               className="flex-1 cursor-pointer text-md"
               onClick={createDirectMessage}
-              disabled={loading}
+              disabled={createNewDirectMessageLoading}
             >
-              {loading && <Spinner data-icon="inline-start" />}
+              {createNewDirectMessageLoading && <Spinner data-icon="inline-start" />}
               Start conversation
             </Button>
           </div>

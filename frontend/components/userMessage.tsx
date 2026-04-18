@@ -11,7 +11,6 @@ import { useEffect, useState } from 'react';
 import { DateFormatters } from '@/types/chat';
 import { useChatStore } from '@/store/useChatStore';
 import { useAuthStore } from '@/store/useAuthStore';
-import { useSendMessage } from '@/hooks/useChat';
 
 interface UserMessageProps {
   messageId: string;
@@ -41,11 +40,13 @@ export default function UserMessage({
   const [formattedTime, setFormattedTime] = useState('');
   const [formattedSeenTime, setFormattedSeenTime] = useState('');
 
-  const { send } = useSendMessage();
-
   const currentUserId = useAuthStore((state) => state.currentUserId);
 
   const [dots, setDots] = useState('.');
+
+  const send = useChatStore((state) => state.send);
+
+  const sendError = useChatStore((state) => state.sendError);
 
   const otherParticipantLastReadMessageId = useChatStore(
     (state) => state.otherParticipantLastReadMessageId
@@ -75,11 +76,9 @@ export default function UserMessage({
       status: 'sending',
     });
 
-    const error = await send(content.trim(), tempMessageId);
+    await send(content.trim(), tempMessageId);
 
-    console.log(error !== null);
-
-    if (error !== null) {
+    if (sendError !== null) {
       addFailedMessage({
         tempMessageId,
         content: content.trim(),
