@@ -4,9 +4,9 @@ import Image from 'next/image';
 import { Icon } from '@iconify/react';
 
 import { useChatStore } from '@/store/useChatStore';
-import ChangeThemeDialog from './changeThemeDialog';
+import ChangeThemeDialog from '../shared/changeThemeDialog';
 import { useState } from 'react';
-import UnfriendDialog from './dialogs/unfriendDialog';
+import UnfriendDialog from '../shared/unfriendDialog';
 import { useFriendsStore } from '@/store/friends/useFriendsStore';
 
 import { cn } from '@/lib/utils';

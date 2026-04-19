@@ -1,5 +1,5 @@
 import UserCard from './userCard';
-import LoadingSpinner from './loadingSpinner';
+import LoadingSpinner from '../shared/loadingSpinner';
 
 import { useFriendsStore } from '@/store/friends/useFriendsStore';
 

@@ -1,8 +1,8 @@
 'use client';
 
-import { Button } from './ui/button';
+import { Button } from '../ui/button';
 
-import { Spinner } from './ui/spinner';
+import { Spinner } from '../ui/spinner';
 
 import {
   Dialog,

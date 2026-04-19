@@ -1,13 +1,6 @@
 import { create } from 'zustand';
 
-import { UserInfo } from '@/types/auth';
-
 import {
-  getCurrentFriends,
-  getSentRequestsProfile,
-  getReceivedRequestsProfile,
-  getFormerFriends,
-  getFriendSuggestions,
   createNewFriendRequest,
   cancelFriendRequest,
   acceptFriendRequest,

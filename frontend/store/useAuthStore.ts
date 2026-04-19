@@ -122,7 +122,8 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
     });
 
     try {
-      const data = await login(email, password);
+      // const data = await login(email, password);
+      await login(email, password);
     } catch (err: unknown) {
       if (err instanceof Error) {
         set({

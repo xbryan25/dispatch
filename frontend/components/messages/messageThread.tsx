@@ -6,7 +6,7 @@ import { useEffect, useRef, useMemo } from 'react';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useChatStore } from '@/store/useChatStore';
 
-import LoadingSpinner from './loadingSpinner';
+import LoadingSpinner from '../shared/loadingSpinner';
 
 import { DateFormatters } from '@/types/chat';
 

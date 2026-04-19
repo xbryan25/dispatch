@@ -1,7 +1,7 @@
 'use client';
 
-import LoginForm from '@/components/loginForm';
-import GuestHeader from '@/components/guestHeader';
+import LoginForm from '@/components/auth/loginForm';
+import GuestHeader from '@/components/shared/guestHeader';
 
 export default function LoginPage() {
   return (

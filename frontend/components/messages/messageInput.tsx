@@ -1,4 +1,4 @@
-import { Button } from './ui/button';
+import { Button } from '../ui/button';
 
 import { InputGroup, InputGroupTextarea } from '@/components/ui/input-group';
 

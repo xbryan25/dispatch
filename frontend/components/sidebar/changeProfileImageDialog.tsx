@@ -2,7 +2,7 @@
 
 import { Input } from '@/components/ui/input';
 
-import { Button } from './ui/button';
+import { Button } from '../ui/button';
 
 import {
   Dialog,
@@ -26,7 +26,7 @@ import { toast } from 'sonner';
 import { validateImageFile } from '@/lib/validation';
 
 import { ChangeEvent } from 'react';
-import LoadingSpinner from './loadingSpinner';
+import LoadingSpinner from '../shared/loadingSpinner';
 
 import { cn } from '@/lib/utils';
 
