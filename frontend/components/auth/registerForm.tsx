@@ -4,7 +4,7 @@ import { FormEvent, useState } from 'react';
 
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Spinner } from './ui/spinner';
+import { Spinner } from '../ui/spinner';
 import { toast } from 'sonner';
 
 import { Field, FieldGroup, FieldLabel } from '@/components/ui/field';

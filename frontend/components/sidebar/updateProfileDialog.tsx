@@ -2,7 +2,7 @@
 
 import { Input } from '@/components/ui/input';
 
-import { Button } from './ui/button';
+import { Button } from '../ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
 import {
@@ -37,10 +37,10 @@ import { UserProfile } from '@/types/auth';
 import { FormEvent } from 'react';
 
 import { toast } from 'sonner';
-import LoadingSpinner from './loadingSpinner';
+import LoadingSpinner from '../shared/loadingSpinner';
 
 import { cn } from '@/lib/utils';
-import { Spinner } from './ui/spinner';
+import { Spinner } from '../ui/spinner';
 
 import { useAuthStore } from '@/store/useAuthStore';
 

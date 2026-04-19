@@ -2,8 +2,8 @@
 
 import { useFriendsStore } from '@/store/friends/useFriendsStore';
 
-import PaginationButtons from '@/components/paginationButtons';
-import FriendsPageTabGroup from '@/components/friendsPageTabGroup';
+import PaginationButtons from '@/components/friends/paginationButtons';
+import FriendsPageTabGroup from '@/components/friends/friendsPageTabGroup';
 
 export default function FriendsPage() {
   const hasUsers = useFriendsStore((state) => state.users.length > 0);

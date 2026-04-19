@@ -1,4 +1,4 @@
-import ConversationAreaPlaceholder from '@/components/conversationAreaPlaceholder';
+import ConversationAreaPlaceholder from '@/components/messages/conversationAreaPlaceholder';
 
 export default function MessagesPage() {
   return (

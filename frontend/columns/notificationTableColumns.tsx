@@ -4,11 +4,11 @@ import { ColumnDef } from '@tanstack/react-table';
 
 import { Checkbox } from '@/components/ui/checkbox';
 
-import NotificationDetailsDialog from '@/components/notificationDetailsDialog';
+import NotificationDetailsDialog from '@/components/notifications/notificationDetailsDialog';
 
 import { Notification } from '@/types/notifications';
 
-import NotificationRowActions from '@/components/notificationRowActions';
+import NotificationRowActions from '@/components/notifications/notificationRowActions';
 
 const formatter = new Intl.DateTimeFormat('en-US', {
   day: 'numeric',

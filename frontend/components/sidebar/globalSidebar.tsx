@@ -3,7 +3,7 @@
 import ThemeToggleButton from './themeToggleButton';
 
 import SidebarPopover from './sidebarPopover';
-import { Button } from './ui/button';
+import { Button } from '../ui/button';
 import { Icon } from '@iconify/react';
 import Link from 'next/link';
 

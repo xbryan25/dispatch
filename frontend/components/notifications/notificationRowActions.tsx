@@ -1,6 +1,6 @@
 'use client';
 
-import { Button } from './ui/button';
+import { Button } from '../ui/button';
 
 import { MoreHorizontal } from 'lucide-react';
 
@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 import { Icon } from '@iconify/react';
-import DeleteNotificationDialog from '@/components/deleteNotificationDialog';
+import DeleteNotificationDialog from '@/components/friends/deleteNotificationDialog';
 
 import { useState } from 'react';
 import { Notification } from '@/types/notifications';

@@ -1,6 +1,6 @@
 'use client';
 
-import ChatSidebar from '@/components/chatSidebar';
+import ChatSidebar from '@/components/messages/chatSidebar';
 
 export default function MessagesLayout({ children }: { children: React.ReactNode }) {
   return (

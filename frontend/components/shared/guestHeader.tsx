@@ -2,11 +2,11 @@
 
 import Link from 'next/link';
 
-import { Button } from './ui/button';
+import { Button } from '../ui/button';
 
 import { useRouter, usePathname } from 'next/navigation';
 
-import ThemeToggleButton from './themeToggleButton';
+import ThemeToggleButton from '../sidebar/themeToggleButton';
 
 export default function GuestHeader() {
   const router = useRouter();

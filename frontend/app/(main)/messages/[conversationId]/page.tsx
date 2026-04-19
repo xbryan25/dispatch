@@ -2,12 +2,12 @@
 
 import { useParams } from 'next/navigation';
 
-import ConversationArea from '@/components/conversationArea';
+import ConversationArea from '@/components/messages/conversationArea';
 
-import ConversationDetails from '@/components/conversationDetails';
+import ConversationDetails from '@/components/messages/conversationDetails';
 import { useChatStore } from '@/store/useChatStore';
 import { useEffect, useState, useRef } from 'react';
-import LoadingSpinner from '@/components/loadingSpinner';
+import LoadingSpinner from '@/components/shared/loadingSpinner';
 
 export default function SpecificConversationPage() {
   const params = useParams();

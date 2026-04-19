@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import { ConversationIcon } from '@/components/icons/conversationIcon';
 import { MessagesIcon } from '@/components/icons/messagesIcon';
 import { OrganizeIcon } from '@/components/icons/organizeIcon';
-import GuestHeader from '@/components/guestHeader';
+import GuestHeader from '@/components/shared/guestHeader';
 
 export default function HomePage() {
   const router = useRouter();

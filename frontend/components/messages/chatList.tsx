@@ -3,7 +3,7 @@
 import { useEffect } from 'react';
 import ConversationTab from './conversationTab';
 
-import LoadingSpinner from './loadingSpinner';
+import LoadingSpinner from '../shared/loadingSpinner';
 import { useSidebarStore } from '@/store/useSidebarStore';
 
 export default function ChatList() {

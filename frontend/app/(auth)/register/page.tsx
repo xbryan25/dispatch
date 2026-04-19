@@ -1,7 +1,7 @@
 'use client';
 
-import GuestHeader from '@/components/guestHeader';
-import RegisterForm from '@/components/registerForm';
+import GuestHeader from '@/components/shared/guestHeader';
+import RegisterForm from '@/components/auth/registerForm';
 
 export default function RegisterPage() {
   return (

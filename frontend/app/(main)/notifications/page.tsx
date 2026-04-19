@@ -6,7 +6,7 @@ import { NotificationsToShow, ReadState, ReadStateForSelect } from '@/types/noti
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import LoadingSpinner from '@/components/loadingSpinner';
+import LoadingSpinner from '@/components/shared/loadingSpinner';
 
 import { useNotificationsStore } from '@/store/useNotificationsStore';
 
@@ -27,7 +27,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Notification } from '@/types/notifications';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
-import DeleteNotificationDialog from '@/components/deleteNotificationDialog';
+import DeleteNotificationDialog from '@/components/friends/deleteNotificationDialog';
 
 export default function NotificationsPage() {
   const [selectedRows, setSelectedRows] = useState<Notification[]>([]);
