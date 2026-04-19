@@ -1,8 +1,6 @@
-'use client';
-
 import { Button } from '@/components/ui/button';
 
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 import { ConversationIcon } from '@/components/icons/conversationIcon';
 import { MessagesIcon } from '@/components/icons/messagesIcon';
@@ -10,8 +8,6 @@ import { OrganizeIcon } from '@/components/icons/organizeIcon';
 import GuestHeader from '@/components/shared/guestHeader';
 
 export default function HomePage() {
-  const router = useRouter();
-
   return (
     <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
       <main className="flex min-h-screen w-full flex-col items-center justify-between p-10 bg-white dark:bg-black sm:items-start">
@@ -23,9 +19,9 @@ export default function HomePage() {
             A streamlined messaging experience designed for focus. No bloat, just your people and
             your words.
           </h3>
-          <Button onClick={() => router.push('/register')} className="text-lg cursor-pointer">
-            Get Started
-          </Button>
+          <Link href="/register">
+            <Button className="text-lg cursor-pointer">Get Started</Button>
+          </Link>
         </div>
         <div className="flex-1 flex w-full ">
           <div className="flex-1 flex flex-col items-center justify-center">

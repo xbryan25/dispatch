@@ -12,7 +12,7 @@ export default function EmailConfirmedPage() {
     const hash = window.location.hash; // includes everything after #
 
     if (hash.includes('error_code=otp_expired') || hash.includes('error_code=access_denied')) {
-      // Redirect to your resend page
+      // Redirect to resend page
       window.history.replaceState(null, '', window.location.pathname);
 
       router.replace('/resend-confirmation-email');

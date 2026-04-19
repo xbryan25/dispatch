@@ -1,19 +1,21 @@
 import { Icon } from '@iconify/react';
-import { Button } from './ui/button';
+import { Button } from '../ui/button';
+
 import Link from 'next/link';
-import UnfriendDialog from './dialogs/unfriendDialog';
-import AcceptFriendshipDialog from './dialogs/acceptFriendshipDialog';
-import CancelFriendshipRequestDialog from './dialogs/cancelFriendshipRequestDialog';
-import MakeFriendshipRequestDialog from './dialogs/makeFriendshipRequestDialog';
+
+import UnfriendDialog from '../shared/unfriendDialog';
+import AcceptFriendshipDialog from './acceptFriendshipDialog';
+import CancelFriendshipRequestDialog from './cancelFriendshipRequestDialog';
+import MakeFriendshipRequestDialog from './makeFriendshipRequestDialog';
+import RejectFriendshipDialog from './rejectFriendshipDialog';
+import CreateNewConversationDialog from './createNewConversationDialog';
+
 import Image from 'next/image';
 import { UserInfo } from '@/types/auth';
-import RejectFriendshipDialog from './dialogs/rejectFriendshipDialog';
 
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 import { useFriendsStore } from '@/store/friends/useFriendsStore';
-
-import CreateNewConversationDialog from './dialogs/createNewConversationDialog';
 
 import { useState } from 'react';
 
