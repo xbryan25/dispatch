@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useTheme } from 'next-themes';
 import { Icon } from '@iconify/react'; // Assuming you're using Iconify
+import { useTheme } from 'next-themes';
+import { useState, useEffect } from 'react';
+
 import { Button } from '@/components/ui/button'; // Your button component
 
 export default function ThemeToggleButton() {
@@ -10,8 +11,8 @@ export default function ThemeToggleButton() {
   const { resolvedTheme, setTheme } = useTheme();
 
   useEffect(() => {
+    // eslint-disable-next-line
     setMounted(true);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (!mounted) {

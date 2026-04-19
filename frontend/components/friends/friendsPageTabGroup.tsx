@@ -1,18 +1,19 @@
-import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group';
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Button } from '@/components/ui/button';
 
 import { Icon } from '@iconify/react';
 import { Search } from 'lucide-react';
+import { useState, useEffect } from 'react';
 
 import { useFriendsStore } from '@/store/friends/useFriendsStore';
 
-import { useState, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-import FriendsPageTab from './friendsPageTab';
 
 import { UserCategory } from '@/types/friends';
+
+import FriendsPageTab from './friendsPageTab';
 
 export default function FriendsPageTabGroup() {
   const sortState = useFriendsStore((state) => state.sortState);

@@ -1,9 +1,12 @@
 'use client';
 
-import { Spinner } from '../ui/spinner';
+import { Icon } from '@iconify/react';
+import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 
-import { Button } from '../ui/button';
+import { useChatStore } from '@/store/useChatStore';
 
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -12,15 +15,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-
+import { Spinner } from '@/components/ui/spinner';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-
-import { Icon } from '@iconify/react';
-
-import { toast } from 'sonner';
-
-import { useRouter } from 'next/navigation';
-import { useChatStore } from '@/store/useChatStore';
 
 interface CreateNewConversationDialogProps {
   username: string;

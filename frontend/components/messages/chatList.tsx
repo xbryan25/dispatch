@@ -1,10 +1,11 @@
 'use client';
 
 import { useEffect } from 'react';
-import ConversationTab from './conversationTab';
 
-import LoadingSpinner from '../shared/loadingSpinner';
 import { useSidebarStore } from '@/store/useSidebarStore';
+
+import ConversationTab from '@/components/messages/conversationTab';
+import LoadingSpinner from '@/components/shared/loadingSpinner';
 
 export default function ChatList() {
   const conversationSnippets = useSidebarStore((state) => state.conversationSnippets);

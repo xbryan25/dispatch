@@ -1,9 +1,13 @@
 'use client';
 
-import { Spinner } from '../ui/spinner';
+import { Icon } from '@iconify/react';
+import { useState } from 'react';
+import { toast } from 'sonner';
 
-import { Button } from '../ui/button';
+import { useFriendsActionsStore } from '@/store/friends/useFriendsActionsStore';
+import { useFriendsStore } from '@/store/friends/useFriendsStore';
 
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -12,17 +16,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-
+import { Spinner } from '@/components/ui/spinner';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-
-import { Icon } from '@iconify/react';
-
-import { toast } from 'sonner';
-
-import { useFriendsStore } from '@/store/friends/useFriendsStore';
-import { useFriendsActionsStore } from '@/store/friends/useFriendsActionsStore';
-
-import { useState } from 'react';
 
 interface AcceptFriendshipRequestDialogProps {
   username: string;

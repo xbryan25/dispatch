@@ -1,5 +1,5 @@
-import GuestHeader from '@/components/shared/guestHeader';
 import RegisterForm from '@/components/auth/registerForm';
+import GuestHeader from '@/components/shared/guestHeader';
 
 export default function RegisterPage() {
   return (

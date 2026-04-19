@@ -1,6 +1,11 @@
 'use client';
 
-import { Button } from '../ui/button';
+import { Icon } from '@iconify/react';
+
+import ChangeProfileImageDialog from '@/components/sidebar/changeProfileImageDialog';
+import LogoutDialog from '@/components/sidebar/logoutDialog';
+import UpdateProfileDialog from '@/components/sidebar/updateProfileDialog';
+import { Button } from '@/components/ui/button';
 import {
   Popover,
   PopoverContent,
@@ -8,12 +13,6 @@ import {
   PopoverTitle,
   PopoverTrigger,
 } from '@/components/ui/popover';
-
-import { Icon } from '@iconify/react';
-
-import LogoutDialog from './logoutDialog';
-import UpdateProfileDialog from './updateProfileDialog';
-import ChangeProfileImageDialog from './changeProfileImageDialog';
 
 export default function SidebarPopover() {
   return (

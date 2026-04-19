@@ -1,10 +1,7 @@
 'use client';
 
-import { useEffect, useImperativeHandle, useState } from 'react';
-
 import {
   ColumnDef,
-  ColumnFiltersState,
   Row,
   SortingState,
   flexRender,
@@ -14,7 +11,11 @@ import {
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table';
+import { useEffect, useImperativeHandle, useState } from 'react';
 
+import { useNotificationsStore } from '@/store/useNotificationsStore';
+
+import { Button } from '@/components/ui/button';
 import {
   Table,
   TableBody,
@@ -23,10 +24,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-
-import { Button } from '@/components/ui/button';
-import { useNotificationsStore } from '@/store/useNotificationsStore';
-import { cn } from '@/lib/utils';
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];

@@ -1,7 +1,15 @@
 'use client';
 
-import { Button } from '../ui/button';
+import { Icon } from '@iconify/react';
+import { DialogTrigger } from '@radix-ui/react-dialog';
+import { useState, useEffect } from 'react';
+import { toast } from 'sonner';
 
+import { useChatStore } from '@/store/useChatStore';
+
+import LoadingSpinner from '@/components/shared/loadingSpinner';
+import ThemeOption from '@/components/shared/themeOption';
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -11,16 +19,7 @@ import {
   DialogDescription,
 } from '@/components/ui/dialog';
 
-import { toast } from 'sonner';
-import ThemeOption from './themeOption';
-import { useState, useEffect } from 'react';
-
 import { themes } from '@/lib/themes';
-import { useChatStore } from '@/store/useChatStore';
-import LoadingSpinner from './loadingSpinner';
-import { DialogTrigger } from '@radix-ui/react-dialog';
-import { Icon } from '@iconify/react';
-
 import { cn } from '@/lib/utils';
 
 export default function ChangeThemeDialog() {

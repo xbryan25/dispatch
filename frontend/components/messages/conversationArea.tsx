@@ -1,15 +1,14 @@
 'use client';
 
-import { Button } from '../ui/button';
-
-import Image from 'next/image';
 import { Icon } from '@iconify/react';
-import MessageThread from './messageThread';
+import Image from 'next/image';
+import { useState, useEffect } from 'react';
 
 import { useChatStore } from '@/store/useChatStore';
 
-import { useState, useEffect } from 'react';
-import MessageInput from './messageInput';
+import MessageInput from '@/components/messages/messageInput';
+import MessageThread from '@/components/messages/messageThread';
+import { Button } from '@/components/ui/button';
 
 interface ConversationAreaProps {
   onToggle: (newVal?: boolean) => void; // This is a function prop

@@ -1,7 +1,7 @@
-import UserCard from './userCard';
-import LoadingSpinner from '../shared/loadingSpinner';
-
 import { useFriendsStore } from '@/store/friends/useFriendsStore';
+
+import UserCard from '@/components/friends/userCard';
+import LoadingSpinner from '@/components/shared/loadingSpinner';
 
 export default function FriendsPageTab() {
   const users = useFriendsStore((state) => state.users);

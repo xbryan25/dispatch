@@ -1,3 +1,7 @@
+import { create } from 'zustand';
+
+import { UserProfile, UserProfileUpdate } from '@/types/auth';
+
 import {
   getCurrentUserDetails,
   getCurrentUserId,
@@ -7,8 +11,6 @@ import {
 } from '@/lib/api/auth';
 import { login, logout, register } from '@/lib/auth';
 import { uploadImageToSupabaseStorage } from '@/lib/supabase/client';
-import { UserProfile, UserProfileUpdate } from '@/types/auth';
-import { create } from 'zustand';
 
 interface AuthState {
   currentUserId: string | null;

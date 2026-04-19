@@ -1,13 +1,14 @@
 'use client';
 
-import Image from 'next/image';
 import { Icon } from '@iconify/react';
-
-import { useChatStore } from '@/store/useChatStore';
-import ChangeThemeDialog from '../shared/changeThemeDialog';
+import Image from 'next/image';
 import { useState } from 'react';
-import UnfriendDialog from '../shared/unfriendDialog';
+
 import { useFriendsStore } from '@/store/friends/useFriendsStore';
+import { useChatStore } from '@/store/useChatStore';
+
+import ChangeThemeDialog from '@/components/shared/changeThemeDialog';
+import UnfriendDialog from '@/components/shared/unfriendDialog';
 
 import { cn } from '@/lib/utils';
 

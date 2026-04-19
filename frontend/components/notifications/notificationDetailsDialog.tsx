@@ -1,5 +1,9 @@
 'use client';
 
+import { useEffect, useRef } from 'react';
+
+import { useNotificationsStore } from '@/store/useNotificationsStore';
+
 import {
   Dialog,
   DialogContent,
@@ -8,10 +12,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-
 import { Separator } from '@/components/ui/separator';
-import { useNotificationsStore } from '@/store/useNotificationsStore';
-import { useEffect, useRef } from 'react';
 
 interface NotificationDetailsDialogProps {
   notificationId: string;

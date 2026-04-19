@@ -1,9 +1,12 @@
 'use client';
 
-import { Button } from '../ui/button';
 import { toast } from 'sonner';
-import { Spinner } from '../ui/spinner';
 
+import { useFriendsActionsStore } from '@/store/friends/useFriendsActionsStore';
+import { useFriendsStore } from '@/store/friends/useFriendsStore';
+import { useChatStore } from '@/store/useChatStore';
+
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -11,11 +14,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-
-import { useChatStore } from '@/store/useChatStore';
-
-import { useFriendsStore } from '@/store/friends/useFriendsStore';
-import { useFriendsActionsStore } from '@/store/friends/useFriendsActionsStore';
+import { Spinner } from '@/components/ui/spinner';
 
 interface UnfriendDialogProps {
   username: string;

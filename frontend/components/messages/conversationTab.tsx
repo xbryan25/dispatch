@@ -2,15 +2,13 @@
 
 import { Icon } from '@iconify/react';
 import Image from 'next/image';
-
-import { ConversationSnippet } from '@/types/chat';
-
 import { useParams } from 'next/navigation';
-
+import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
-import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/useAuthStore';
+
+import { ConversationSnippet } from '@/types/chat';
 
 interface ConversationTabProps {
   conversationSnippet: ConversationSnippet;

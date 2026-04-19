@@ -1,13 +1,12 @@
 import { useEffect } from 'react';
-import { useChatStore } from '@/store/useChatStore';
-import { useSidebarStore } from '@/store/useSidebarStore';
-import { useAuthStore } from '@/store/useAuthStore';
-
 import { toast } from 'sonner';
 
-import { themes } from '@/lib/themes';
-
+import { useAuthStore } from '@/store/useAuthStore';
+import { useChatStore } from '@/store/useChatStore';
 import { useNotificationsStore } from '@/store/useNotificationsStore';
+import { useSidebarStore } from '@/store/useSidebarStore';
+
+import { themes } from '@/lib/themes';
 
 const fastapiWebsocketUrl = process.env.NEXT_PUBLIC_FASTAPI_WEBSOCKET_URL;
 

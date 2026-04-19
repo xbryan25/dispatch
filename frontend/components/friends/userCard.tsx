@@ -1,23 +1,20 @@
 import { Icon } from '@iconify/react';
-import { Button } from '../ui/button';
-
-import Link from 'next/link';
-
-import UnfriendDialog from '../shared/unfriendDialog';
-import AcceptFriendshipDialog from './acceptFriendshipDialog';
-import CancelFriendshipRequestDialog from './cancelFriendshipRequestDialog';
-import MakeFriendshipRequestDialog from './makeFriendshipRequestDialog';
-import RejectFriendshipDialog from './rejectFriendshipDialog';
-import CreateNewConversationDialog from './createNewConversationDialog';
-
 import Image from 'next/image';
-import { UserInfo } from '@/types/auth';
-
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import Link from 'next/link';
+import { useState } from 'react';
 
 import { useFriendsStore } from '@/store/friends/useFriendsStore';
 
-import { useState } from 'react';
+import AcceptFriendshipDialog from '@/components/friends/acceptFriendshipDialog';
+import CancelFriendshipRequestDialog from '@/components/friends/cancelFriendshipRequestDialog';
+import CreateNewConversationDialog from '@/components/friends/createNewConversationDialog';
+import MakeFriendshipRequestDialog from '@/components/friends/makeFriendshipRequestDialog';
+import RejectFriendshipDialog from '@/components/friends/rejectFriendshipDialog';
+import UnfriendDialog from '@/components/shared/unfriendDialog';
+import { Button } from '@/components/ui/button';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+
+import { UserInfo } from '@/types/auth';
 
 interface UserCardProps {
   userInfo: UserInfo;

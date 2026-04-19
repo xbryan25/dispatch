@@ -1,4 +1,3 @@
-import { Button } from '@/components/ui/button';
 
 import Link from 'next/link';
 
@@ -6,6 +5,7 @@ import { ConversationIcon } from '@/components/icons/conversationIcon';
 import { MessagesIcon } from '@/components/icons/messagesIcon';
 import { OrganizeIcon } from '@/components/icons/organizeIcon';
 import GuestHeader from '@/components/shared/guestHeader';
+import { Button } from '@/components/ui/button';
 
 export default function HomePage() {
   return (

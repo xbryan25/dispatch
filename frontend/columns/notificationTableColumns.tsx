@@ -2,13 +2,13 @@
 
 import { ColumnDef } from '@tanstack/react-table';
 
+import NotificationDetailsDialog from '@/components/notifications/notificationDetailsDialog';
+import NotificationRowActions from '@/components/notifications/notificationRowActions';
 import { Checkbox } from '@/components/ui/checkbox';
 
-import NotificationDetailsDialog from '@/components/notifications/notificationDetailsDialog';
 
 import { Notification } from '@/types/notifications';
 
-import NotificationRowActions from '@/components/notifications/notificationRowActions';
 
 const formatter = new Intl.DateTimeFormat('en-US', {
   day: 'numeric',

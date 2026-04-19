@@ -1,10 +1,15 @@
 'use client';
 
-import { Input } from '@/components/ui/input';
+import { Icon } from '@iconify/react';
+import { useState } from 'react';
+import { FormEvent } from 'react';
+import { toast } from 'sonner';
 
-import { Button } from '../ui/button';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { useAuthStore } from '@/store/useAuthStore';
 
+import LoadingSpinner from '@/components/shared/loadingSpinner';
+import { Button } from '@/components/ui/button';
+import { Calendar } from '@/components/ui/calendar';
 import {
   Dialog,
   DialogContent,
@@ -13,7 +18,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-
+import { Field, FieldGroup, FieldLabel } from '@/components/ui/field';
+import { Input } from '@/components/ui/input';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import {
   Select,
   SelectContent,
@@ -23,26 +30,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-
-import { Field, FieldGroup, FieldLabel } from '@/components/ui/field';
-
-import { Calendar } from '@/components/ui/calendar';
-
-import { Icon } from '@iconify/react';
-
-import { useState } from 'react';
+import { Spinner } from '@/components/ui/spinner';
 
 import { UserProfile } from '@/types/auth';
 
-import { FormEvent } from 'react';
-
-import { toast } from 'sonner';
-import LoadingSpinner from '../shared/loadingSpinner';
-
 import { cn } from '@/lib/utils';
-import { Spinner } from '../ui/spinner';
-
-import { useAuthStore } from '@/store/useAuthStore';
 
 export default function UpdateProfileDialog() {
   const currentUserDetails = useAuthStore((state) => state.currentUserDetails);

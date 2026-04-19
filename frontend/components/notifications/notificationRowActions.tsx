@@ -1,9 +1,13 @@
 'use client';
 
-import { Button } from '../ui/button';
-
+import { Icon } from '@iconify/react';
 import { MoreHorizontal } from 'lucide-react';
+import { useState } from 'react';
 
+import { useNotificationsStore } from '@/store/useNotificationsStore';
+
+import DeleteNotificationDialog from '@/components/friends/deleteNotificationDialog';
+import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,12 +16,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
-import { Icon } from '@iconify/react';
-import DeleteNotificationDialog from '@/components/friends/deleteNotificationDialog';
-
-import { useState } from 'react';
 import { Notification } from '@/types/notifications';
-import { useNotificationsStore } from '@/store/useNotificationsStore';
 
 interface NotificationRowActionsProps {
   notification: Notification;
