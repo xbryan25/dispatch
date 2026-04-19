@@ -1,8 +1,7 @@
-import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group';
-
 import { Search } from 'lucide-react';
 
-import ChatList from './chatList';
+import ChatList from '@/components/messages/chatList';
+import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group';
 
 export default function ChatSidebar() {
   return (

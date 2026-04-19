@@ -1,5 +1,7 @@
 'use client';
 
+import { useFriendsStore } from '@/store/friends/useFriendsStore';
+
 import {
   Pagination,
   PaginationContent,
@@ -10,7 +12,6 @@ import {
   PaginationPrevious,
 } from '@/components/ui/pagination';
 
-import { useFriendsStore } from '@/store/friends/useFriendsStore';
 
 export default function PaginationButtons() {
   const totalPages = useFriendsStore((state) => state.totalPages);

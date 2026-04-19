@@ -1,11 +1,11 @@
 'use client';
 
-import ThemeToggleButton from './themeToggleButton';
-
-import SidebarPopover from './sidebarPopover';
-import { Button } from '../ui/button';
 import { Icon } from '@iconify/react';
 import Link from 'next/link';
+
+import SidebarPopover from '@/components/sidebar/sidebarPopover';
+import ThemeToggleButton from '@/components/sidebar/themeToggleButton';
+import { Button } from '@/components/ui/button';
 
 export default function GlobalSidebar() {
   return (

@@ -1,6 +1,8 @@
 import { create } from 'zustand';
 
 import { UserInfo } from '@/types/auth';
+import { UserCategory, ActionCategory } from '@/types/friends';
+import { SortState } from '@/types/global';
 
 import {
   getCurrentFriends,
@@ -9,9 +11,6 @@ import {
   getFormerFriends,
   getFriendSuggestions,
 } from '@/lib/api/friendship';
-
-import { UserCategory, ActionCategory } from '@/types/friends';
-import { SortState } from '@/types/global';
 
 interface FriendsState {
   users: UserInfo[];

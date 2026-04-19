@@ -1,9 +1,13 @@
 'use client';
 
+import { Icon } from '@iconify/react';
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { toast } from 'sonner';
 
-import { Button } from '../ui/button';
+import { useAuthStore } from '@/store/useAuthStore';
 
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -12,14 +16,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-
-import { Icon } from '@iconify/react';
-
-import { useState } from 'react';
-
-import { toast } from 'sonner';
-
-import { useAuthStore } from '@/store/useAuthStore';
 
 export default function LogoutDialog() {
   const router = useRouter();

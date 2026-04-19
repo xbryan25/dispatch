@@ -1,5 +1,5 @@
 import { SortState } from '@/types/global';
-import { Notification, ReadState, ReadStateForSelect } from '@/types/notifications';
+import { ReadState, ReadStateForSelect } from '@/types/notifications';
 
 const fastapiServerUrl = process.env.NEXT_PUBLIC_FASTAPI_SERVER_URL;
 

@@ -1,11 +1,7 @@
+import { toast } from 'sonner';
 import { create } from 'zustand';
 
-import {
-  bulkDeleteNotifications,
-  getUserNotifications,
-  updateNotificationReadStatus,
-} from '@/lib/api/notifications';
-
+import { SortState } from '@/types/global';
 import {
   Notification,
   NotificationsToShow,
@@ -13,9 +9,14 @@ import {
   ReadStateForSelect,
 } from '@/types/notifications';
 
-import { toast } from 'sonner';
+import {
+  bulkDeleteNotifications,
+  getUserNotifications,
+  updateNotificationReadStatus,
+} from '@/lib/api/notifications';
 
-import { SortState } from '@/types/global';
+
+
 
 interface NotificationsState {
   notifications: Notification[];

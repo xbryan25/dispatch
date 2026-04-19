@@ -1,9 +1,15 @@
 'use client';
 
-import { Input } from '@/components/ui/input';
+import { Icon } from '@iconify/react';
+import { useState } from 'react';
+import { FormEvent } from 'react';
+import { ChangeEvent } from 'react';
+import { toast } from 'sonner';
 
-import { Button } from '../ui/button';
+import { useAuthStore } from '@/store/useAuthStore';
 
+import LoadingSpinner from '@/components/shared/loadingSpinner';
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -12,25 +18,11 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-
 import { Field, FieldGroup, FieldLabel } from '@/components/ui/field';
-
-import { Icon } from '@iconify/react';
-
-import { useState } from 'react';
-
-import { FormEvent } from 'react';
-
-import { toast } from 'sonner';
-
-import { validateImageFile } from '@/lib/validation';
-
-import { ChangeEvent } from 'react';
-import LoadingSpinner from '../shared/loadingSpinner';
+import { Input } from '@/components/ui/input';
 
 import { cn } from '@/lib/utils';
-
-import { useAuthStore } from '@/store/useAuthStore';
+import { validateImageFile } from '@/lib/validation';
 
 export default function ChangeProfileImageDialog() {
   const patchUserProfileImage = useAuthStore((state) => state.patchUserProfileImage);

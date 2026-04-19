@@ -1,12 +1,12 @@
 'use client';
 
 import { useParams } from 'next/navigation';
+import { useEffect, useState, useRef } from 'react';
+
+import { useChatStore } from '@/store/useChatStore';
 
 import ConversationArea from '@/components/messages/conversationArea';
-
 import ConversationDetails from '@/components/messages/conversationDetails';
-import { useChatStore } from '@/store/useChatStore';
-import { useEffect, useState, useRef } from 'react';
 import LoadingSpinner from '@/components/shared/loadingSpinner';
 
 export default function SpecificConversationPage() {
@@ -54,7 +54,7 @@ export default function SpecificConversationPage() {
     return () => {
       fetchedIdRef.current = null;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, []);
 
   return (

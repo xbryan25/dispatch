@@ -1,13 +1,12 @@
-import { Button } from '../ui/button';
-
-import { InputGroup, InputGroupTextarea } from '@/components/ui/input-group';
-
 import { useState } from 'react';
+import { toast } from 'sonner';
 
 import { useChatStore } from '@/store/useChatStore';
-import { OtherParticipantDetails } from '@/types/chat';
 
-import { toast } from 'sonner';
+import { Button } from '@/components/ui/button';
+import { InputGroup, InputGroupTextarea } from '@/components/ui/input-group';
+
+import { OtherParticipantDetails } from '@/types/chat';
 
 interface MessageInputProps {
   otherParticipantFriendshipStatus: string | null;

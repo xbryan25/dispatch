@@ -1,9 +1,8 @@
 'use client';
 
-import { Button } from '../ui/button';
+import { useNotificationsStore } from '@/store/useNotificationsStore';
 
-import { Spinner } from '../ui/spinner';
-
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -11,8 +10,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-
-import { useNotificationsStore } from '@/store/useNotificationsStore';
+import { Spinner } from '@/components/ui/spinner';
 
 interface DeleteNotificationDialogProps {
   isOpen: boolean;

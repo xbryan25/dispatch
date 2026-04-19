@@ -1,5 +1,5 @@
-import GlobalSidebar from '@/components/sidebar/globalSidebar';
 import WebsocketProvider from '@/components/shared/websocketProvider';
+import GlobalSidebar from '@/components/sidebar/globalSidebar';
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
   return (

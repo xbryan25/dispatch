@@ -1,14 +1,16 @@
 'use client';
 
+import Link from 'next/link';
 import { useState } from 'react';
-import { createClient } from '@/lib/supabase/client';
-
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-
 import { toast } from 'sonner';
 
-import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+
+import { createClient } from '@/lib/supabase/client';
+
+
+
 
 export default function ResendConfirmationEmailPage() {
   const supabase = createClient();

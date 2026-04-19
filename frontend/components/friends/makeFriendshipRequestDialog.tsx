@@ -1,7 +1,13 @@
 'use client';
 
-import { Button } from '../ui/button';
+import { Icon } from '@iconify/react';
+import { useState } from 'react';
+import { toast } from 'sonner';
 
+import { useFriendsActionsStore } from '@/store/friends/useFriendsActionsStore';
+import { useFriendsStore } from '@/store/friends/useFriendsStore';
+
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -10,17 +16,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-
-import { Icon } from '@iconify/react';
-
-import { toast } from 'sonner';
-
-import { useFriendsStore } from '@/store/friends/useFriendsStore';
-import { useFriendsActionsStore } from '@/store/friends/useFriendsActionsStore';
-
-import { useState } from 'react';
 
 interface MakeFriendshipRequestDialogProps {
   username: string;

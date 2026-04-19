@@ -1,23 +1,21 @@
 'use client';
 
-import { FormEvent, useState } from 'react';
-
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Spinner } from '../ui/spinner';
-import { toast } from 'sonner';
-
-import { Field, FieldGroup, FieldLabel } from '@/components/ui/field';
-
 import { Icon } from '@iconify/react';
-
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-
-import { useUsernameCheck } from '@/hooks/useUsernameCheck';
-import { validatePassword, validateEmail } from '@/lib/validation';
+import { FormEvent, useState } from 'react';
+import { toast } from 'sonner';
 
 import { useAuthStore } from '@/store/useAuthStore';
+
+import { useUsernameCheck } from '@/hooks/useUsernameCheck';
+
+import { Button } from '@/components/ui/button';
+import { Field, FieldGroup, FieldLabel } from '@/components/ui/field';
+import { Input } from '@/components/ui/input';
+import { Spinner } from '@/components/ui/spinner';
+
+import { validatePassword, validateEmail } from '@/lib/validation';
 
 export default function RegisterForm() {
   const router = useRouter();

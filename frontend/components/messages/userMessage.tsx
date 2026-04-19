@@ -1,16 +1,16 @@
 'use client';
 
 import Image from 'next/image';
+import { useEffect, useState } from 'react';
 
-import { cn } from '@/lib/utils';
+import { useAuthStore } from '@/store/useAuthStore';
+import { useChatStore } from '@/store/useChatStore';
 
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
-import { useEffect, useState } from 'react';
-
 import { DateFormatters } from '@/types/chat';
-import { useChatStore } from '@/store/useChatStore';
-import { useAuthStore } from '@/store/useAuthStore';
+
+import { cn } from '@/lib/utils';
 
 interface UserMessageProps {
   messageId: string;

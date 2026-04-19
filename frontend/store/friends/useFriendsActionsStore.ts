@@ -1,5 +1,7 @@
 import { create } from 'zustand';
 
+import { ActionCategory } from '@/types/friends';
+
 import {
   createNewFriendRequest,
   cancelFriendRequest,
@@ -9,7 +11,6 @@ import {
   reconnectToUser,
 } from '@/lib/api/friendship';
 
-import { ActionCategory } from '@/types/friends';
 
 interface FriendsActionsState {
   loading: boolean;

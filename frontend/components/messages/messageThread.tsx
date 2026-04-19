@@ -1,12 +1,12 @@
 'use client';
-import UserMessage from './userMessage';
 
 import { useEffect, useRef, useMemo } from 'react';
 
 import { useAuthStore } from '@/store/useAuthStore';
 import { useChatStore } from '@/store/useChatStore';
 
-import LoadingSpinner from '../shared/loadingSpinner';
+import UserMessage from '@/components/messages/userMessage';
+import LoadingSpinner from '@/components/shared/loadingSpinner';
 
 import { DateFormatters } from '@/types/chat';
 

@@ -1,17 +1,16 @@
 'use client';
 
-import { notificationTableColumns } from '@/columns/notificationTableColumns';
-import { DataTable } from '@/components/ui/data-table';
-import { NotificationsToShow, ReadState, ReadStateForSelect } from '@/types/notifications';
-
+import { Row } from '@tanstack/react-table';
 import { useCallback, useEffect, useRef, useState } from 'react';
-
-import LoadingSpinner from '@/components/shared/loadingSpinner';
 
 import { useNotificationsStore } from '@/store/useNotificationsStore';
 
-import { Row } from '@tanstack/react-table';
+import { notificationTableColumns } from '@/columns/notificationTableColumns';
 
+import DeleteNotificationDialog from '@/components/friends/deleteNotificationDialog';
+import LoadingSpinner from '@/components/shared/loadingSpinner';
+import { Button } from '@/components/ui/button';
+import { DataTable } from '@/components/ui/data-table';
 import {
   Select,
   SelectContent,
@@ -20,14 +19,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Spinner } from '@/components/ui/spinner';
 
 import { SortState } from '@/types/global';
-import { Skeleton } from '@/components/ui/skeleton';
-
 import { Notification } from '@/types/notifications';
-import { Button } from '@/components/ui/button';
-import { Spinner } from '@/components/ui/spinner';
-import DeleteNotificationDialog from '@/components/friends/deleteNotificationDialog';
+import { NotificationsToShow, ReadState, ReadStateForSelect } from '@/types/notifications';
 
 export default function NotificationsPage() {
   const [selectedRows, setSelectedRows] = useState<Notification[]>([]);

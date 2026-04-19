@@ -1,5 +1,7 @@
 import { create } from 'zustand';
+
 import { ConversationSnippet, Message } from '@/types/chat';
+
 import { getUserConversationsList } from '@/lib/api/messages';
 
 interface SidebarState {

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+
 import { checkIfUsernameIsTaken } from '@/lib/api/auth';
 
 export function useUsernameCheck(username: string) {
