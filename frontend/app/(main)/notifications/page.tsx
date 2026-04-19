@@ -89,6 +89,8 @@ export default function NotificationsPage() {
             {unreadNotifications > 0 && <p className="text-lg">({unreadNotifications} unread)</p>}
           </div>
 
+          {/* TODO: move header and table to its own components */}
+
           {notifications.length > 0 && (
             <div className="flex gap-2">
               {isInitialLoad ? (
