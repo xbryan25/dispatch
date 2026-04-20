@@ -6,7 +6,7 @@ import { useState } from 'react';
 
 import { useNotificationsStore } from '@/store/useNotificationsStore';
 
-import DeleteNotificationDialog from '@/components/friends/deleteNotificationDialog';
+import DeleteNotificationDialog from '@/components/notifications/deleteNotificationDialog';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
