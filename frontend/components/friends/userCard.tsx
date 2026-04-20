@@ -5,11 +5,8 @@ import { useState } from 'react';
 
 import { useFriendsStore } from '@/store/friends/useFriendsStore';
 
-import AcceptFriendshipDialog from '@/components/friends/acceptFriendshipDialog';
-import CancelFriendshipRequestDialog from '@/components/friends/cancelFriendshipRequestDialog';
 import CreateNewConversationDialog from '@/components/friends/createNewConversationDialog';
-import MakeFriendshipRequestDialog from '@/components/friends/makeFriendshipRequestDialog';
-import RejectFriendshipDialog from '@/components/friends/rejectFriendshipDialog';
+import FriendsActionsDialog from '@/components/friends/friendsActionsDialog';
 import UnfriendDialog from '@/components/shared/unfriendDialog';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
@@ -97,25 +94,26 @@ export default function UserCard({ userInfo }: UserCardProps) {
 
       {userType === 'pending' && (
         <div className="flex flex-col items-start justify-start gap-4">
-          <CancelFriendshipRequestDialog
+          <FriendsActionsDialog
             username={userInfo.username}
-            receiverId={userInfo.userId}
-            isRateLimitedFromAction={isRateLimitedFromActions['cancelRequestAction']}
+            otherUserId={userInfo.userId}
+            actionType="cancelRequestAction"
           />
         </div>
       )}
 
       {userType === 'requests' && (
         <div className="flex flex-col items-start justify-start gap-4">
-          <AcceptFriendshipDialog
+          <FriendsActionsDialog
             username={userInfo.username}
-            receiverId={userInfo.userId}
-            isRateLimitedFromAction={isRateLimitedFromActions['acceptAction']}
+            otherUserId={userInfo.userId}
+            actionType="acceptAction"
           />
-          <RejectFriendshipDialog
+
+          <FriendsActionsDialog
             username={userInfo.username}
-            senderId={userInfo.userId}
-            isRateLimitedFromAction={isRateLimitedFromActions['rejectAction']}
+            otherUserId={userInfo.userId}
+            actionType="rejectAction"
           />
         </div>
       )}
@@ -137,22 +135,20 @@ export default function UserCard({ userInfo }: UserCardProps) {
             </Tooltip>
           )}
 
-          <MakeFriendshipRequestDialog
+          <FriendsActionsDialog
             username={userInfo.username}
-            receiverId={userInfo.userId}
-            requestType="reconnect"
-            isRateLimitedFromAction={isRateLimitedFromActions['reconnectRequestAction']}
+            otherUserId={userInfo.userId}
+            actionType="reconnectRequestAction"
           />
         </div>
       )}
 
       {userType === 'addFriend' && (
         <div className="flex flex-col items-start justify-start gap-4">
-          <MakeFriendshipRequestDialog
+          <FriendsActionsDialog
             username={userInfo.username}
-            receiverId={userInfo.userId}
-            requestType="new"
-            isRateLimitedFromAction={isRateLimitedFromActions['createNewRequestAction']}
+            otherUserId={userInfo.userId}
+            actionType="createNewRequestAction"
           />
         </div>
       )}
