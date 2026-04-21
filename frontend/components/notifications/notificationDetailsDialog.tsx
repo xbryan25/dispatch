@@ -29,13 +29,9 @@ export default function NotificationDetailsDialog({
   toShowInCell,
   dateStr,
 }: NotificationDetailsDialogProps) {
-  const markAsReadSilently = useNotificationsStore((state) => state.markAsReadSilently);
+  const { markAsReadSilently, setOpenDialogNotificationId } = useNotificationsStore();
 
   const openDialogNotificationId = useNotificationsStore((state) => state.openDialogNotificationId);
-
-  const setOpenDialogNotificationId = useNotificationsStore(
-    (state) => state.setOpenDialogNotificationId
-  );
 
   const toTitleCase = (str: string) =>
     str

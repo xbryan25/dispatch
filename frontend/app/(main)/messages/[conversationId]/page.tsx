@@ -13,15 +13,13 @@ export default function SpecificConversationPage() {
   const params = useParams();
   const conversationId: string = params.conversationId as string;
 
-  const resetConversation = useChatStore((state) => state.resetConversation);
-
-  const getPastMessages = useChatStore((state) => state.getPastMessages);
-
-  const getOtherParticipant = useChatStore((state) => state.getOtherParticipant);
-
-  const getActiveConversationTheme = useChatStore((state) => state.getActiveConversationTheme);
-
-  const markAsRead = useChatStore((state) => state.markAsRead);
+  const {
+    resetConversation,
+    getPastMessages,
+    getOtherParticipant,
+    getActiveConversationTheme,
+    markAsRead,
+  } = useChatStore();
 
   const otherParticipantDetails = useChatStore((state) => state.otherParticipantDetails);
 
@@ -54,7 +52,6 @@ export default function SpecificConversationPage() {
     return () => {
       fetchedIdRef.current = null;
     };
-     
   }, []);
 
   return (

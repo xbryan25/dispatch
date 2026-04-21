@@ -23,7 +23,7 @@ export default function NotificationsPage() {
   const notifications = useNotificationsStore((state) => state.notifications);
   const loading = useNotificationsStore((state) => state.loading);
 
-  const getNotifications = useNotificationsStore((state) => state.getNotifications);
+  const { getNotifications } = useNotificationsStore();
 
   useEffect(() => {
     getNotifications();

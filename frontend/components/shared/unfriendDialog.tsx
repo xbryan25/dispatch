@@ -33,15 +33,14 @@ export default function UnfriendDialog({
   onSuccess,
   isRateLimitedFromAction,
 }: UnfriendDialogProps) {
-  const doFriendsAction = useFriendsActionsStore((state) => state.doFriendsAction);
+  const { doFriendsAction } = useFriendsActionsStore();
+  const { loadUsersData } = useFriendsStore();
 
   const loading = useFriendsActionsStore((state) => state.loading);
   const error = useFriendsActionsStore((state) => state.error);
   const isRateLimitedFromActions = useFriendsActionsStore(
     (state) => state.isRateLimitedFromActions
   );
-
-  const loadUsersData = useFriendsStore((state) => state.loadUsersData);
 
   const unfriendUser = async () => {
     await doFriendsAction(otherUserId, 'unfriendAction');

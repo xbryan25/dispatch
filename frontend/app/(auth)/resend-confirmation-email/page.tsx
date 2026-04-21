@@ -9,9 +9,6 @@ import { Input } from '@/components/ui/input';
 
 import { createClient } from '@/lib/supabase/client';
 
-
-
-
 export default function ResendConfirmationEmailPage() {
   const supabase = createClient();
 

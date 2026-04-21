@@ -23,12 +23,12 @@ export default function LoginForm() {
 
   const [isClickedLoginButton, setIsClickedLoginButton] = useState<boolean>(false);
 
-  const loginUser = useAuthStore((state) => state.loginUser);
   const loginLoading = useAuthStore((state) => state.loginLoading);
   const loginError = useAuthStore((state) => state.loginError);
 
-  const initCurrentUserId = useAuthStore((state) => state.getCurrentId);
   const initCurrentUserIdError = useAuthStore((state) => state.getCurrentIdError);
+
+  const { loginUser, getCurrentId } = useAuthStore();
 
   const isEmailValid = validateEmail(email);
   const isFormEmpty = !email || !password;
@@ -43,7 +43,7 @@ export default function LoginForm() {
     if (loginError) {
       toast.error(`Login failed. ${loginError}.`);
     } else {
-      await initCurrentUserId();
+      await getCurrentId();
 
       if (initCurrentUserIdError) {
         toast.error(`Login successful but failed to load your account. Please refresh.`);

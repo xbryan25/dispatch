@@ -25,12 +25,10 @@ export default function DeleteNotificationDialog({
   onSuccess,
   notificationIds,
 }: DeleteNotificationDialogProps) {
-  const bulkDeleteNotifications = useNotificationsStore((state) => state.bulkDeleteNotifications);
+  const { bulkDeleteNotifications, setDeleteLoading } = useNotificationsStore();
 
   const deleteLoading = useNotificationsStore((state) => state.deleteLoading);
   const deleteIsRateLimited = useNotificationsStore((state) => state.deleteIsRateLimited);
-
-  const setDeleteLoading = useNotificationsStore((state) => state.setDeleteLoading);
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>

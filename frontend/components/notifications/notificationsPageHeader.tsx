@@ -40,21 +40,19 @@ export default function NotificationPageHeader({
   const unreadNotifications = useNotificationsStore((state) => state.unreadNotifications);
 
   const readState = useNotificationsStore((state) => state.readState);
-  const setReadState = useNotificationsStore((state) => state.setReadState);
 
   const sortState = useNotificationsStore((state) => state.sortState);
-  const setSortState = useNotificationsStore((state) => state.setSortState);
 
   const notificationsToShow = useNotificationsStore((state) => state.notificationsToShow);
-  const setNotificationsToShow = useNotificationsStore((state) => state.setNotificationsToShow);
 
   const [dialogOpen, setDialogOpen] = useState(false);
 
   const markLoading = useNotificationsStore((state) => state.markLoading);
-  const setMarkLoading = useNotificationsStore((state) => state.setMarkLoading);
 
   const deleteLoading = useNotificationsStore((state) => state.deleteLoading);
-  const setDeleteLoading = useNotificationsStore((state) => state.setDeleteLoading);
+
+  const { setReadState, setSortState, setNotificationsToShow, setMarkLoading, setDeleteLoading } =
+    useNotificationsStore();
 
   const updateNotificationsReadStatus = useNotificationsStore(
     (state) => state.updateNotificationsReadStatus

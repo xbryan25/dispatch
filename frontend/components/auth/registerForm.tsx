@@ -25,10 +25,10 @@ export default function RegisterForm() {
   const [password, setPassword] = useState<string>('');
   const [confirmPassword, setConfirmPassword] = useState<string>('');
 
-  const registerUser = useAuthStore((state) => state.registerUser);
-
   const registerLoading = useAuthStore((state) => state.registerLoading);
   const registerError = useAuthStore((state) => state.registerError);
+
+  const { registerUser } = useAuthStore();
 
   const {
     isUsernameTaken,

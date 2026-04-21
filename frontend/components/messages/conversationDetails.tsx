@@ -18,9 +18,8 @@ interface ConversationDetailsProps {
 
 export default function ConversationDetails({ onToggle }: ConversationDetailsProps) {
   const otherParticipantDetails = useChatStore((state) => state.otherParticipantDetails);
-  const setOtherParticipantFriendshipStatus = useChatStore(
-    (state) => state.setOtherParticipantFriendshipStatus
-  );
+
+  const { setOtherParticipantFriendshipStatus } = useChatStore();
 
   const [openUnfriendDialog, setOpenUnfriendDialog] = useState(false);
 

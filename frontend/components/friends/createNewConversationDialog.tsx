@@ -27,10 +27,11 @@ export default function CreateNewConversationDialog({
   username,
   otherUserId,
 }: CreateNewConversationDialogProps) {
-  const createNewDirectMessage = useChatStore((state) => state.createNewDirectMessage);
   const createNewDirectMessageLoading = useChatStore(
     (state) => state.createNewDirectMessageLoading
   );
+
+  const { createNewDirectMessage } = useChatStore();
 
   const router = useRouter();
 
