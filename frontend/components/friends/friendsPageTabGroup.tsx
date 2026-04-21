@@ -1,16 +1,17 @@
+'use client';
+
 import { Icon } from '@iconify/react';
 import { Search } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
 import { useFriendsStore } from '@/store/friends/useFriendsStore';
 
+import FriendsPageTab from '@/components/friends/friendsPageTab';
 import { Button } from '@/components/ui/button';
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 import { UserCategory } from '@/types/friends';
-
-import FriendsPageTab from './friendsPageTab';
 
 export default function FriendsPageTabGroup() {
   const sortState = useFriendsStore((state) => state.sortState);
