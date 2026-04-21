@@ -23,9 +23,7 @@ interface NotificationRowActionsProps {
 }
 
 export default function NotificationRowActions({ notification }: NotificationRowActionsProps) {
-  const updateNotificationsReadStatus = useNotificationsStore(
-    (state) => state.updateNotificationsReadStatus
-  );
+  const { updateNotificationsReadStatus } = useNotificationsStore();
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);

@@ -37,16 +37,16 @@ import { UserProfile } from '@/types/auth';
 import { cn } from '@/lib/utils';
 
 export default function UpdateProfileDialog() {
+  const { getCurrentUserDetails, patchUserDetails } = useAuthStore();
+
   const currentUserDetails = useAuthStore((state) => state.currentUserDetails);
 
-  const retrieveUserDetails = useAuthStore((state) => state.getCurrentUserDetails);
   const retrieveUserDetailsLoading = useAuthStore((state) => state.getCurrentUserDetailsLoading);
   const retrieveUserDetailsError = useAuthStore((state) => state.getCurrentUserDetailsError);
   const retrieveUserDetailsIsRateLimited = useAuthStore(
     (state) => state.getCurrentUserDetailsIsRateLimited
   );
 
-  const patchUserDetails = useAuthStore((state) => state.patchUserDetails);
   const patchUserDetailsLoading = useAuthStore((state) => state.patchUserDetailsLoading);
   const patchUserDetailsError = useAuthStore((state) => state.patchUserDetailsError);
   const patchUserDetailsIsRateLimited = useAuthStore(
@@ -67,7 +67,7 @@ export default function UpdateProfileDialog() {
   const [userDetails, setUserDetails] = useState<UserProfile | null>(null);
 
   const getUserDetails = async () => {
-    await retrieveUserDetails();
+    await getCurrentUserDetails();
 
     if (retrieveUserDetailsError != null) {
       toast.error(retrieveUserDetailsError);

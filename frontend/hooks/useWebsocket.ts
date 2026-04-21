@@ -31,7 +31,7 @@ export const useInitializeWebsocket = () => {
 
   const { upsertSnippet, updateHasSeenLatestMessage } = useSidebarStore();
 
-  const getNotifications = useNotificationsStore((state) => state.getNotifications);
+  const { getNotifications } = useNotificationsStore();
 
   useEffect(() => {
     if (!currentUserId) return;

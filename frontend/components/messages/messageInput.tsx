@@ -19,15 +19,10 @@ export default function MessageInput({
 }: MessageInputProps) {
   const [newMessage, setNewMessage] = useState('');
 
-  const send = useChatStore((state) => state.send);
-
   const sendError = useChatStore((state) => state.sendError);
   const sendRateLimited = useChatStore((state) => state.sendRateLimited);
 
-  const addSendingMessage = useChatStore((state) => state.addSendingMessage);
-  const removeSendingMessage = useChatStore((state) => state.removeSendingMessage);
-
-  const addFailedMessage = useChatStore((state) => state.addFailedMessage);
+  const { send, addSendingMessage, removeSendingMessage, addFailedMessage } = useChatStore();
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {

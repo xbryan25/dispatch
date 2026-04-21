@@ -11,7 +11,7 @@ export default function ChatList() {
   const conversationSnippets = useSidebarStore((state) => state.conversationSnippets);
   const isLoading = useSidebarStore((state) => state.isLoading);
 
-  const getConversations = useSidebarStore((state) => state.getConversations);
+  const { getConversations } = useSidebarStore();
 
   useEffect(() => {
     getConversations();

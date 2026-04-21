@@ -1,5 +1,3 @@
-
-
 import { Icon } from '@iconify/react';
 import { Search } from 'lucide-react';
 import { useState, useEffect } from 'react';
@@ -10,25 +8,20 @@ import { Button } from '@/components/ui/button';
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-
 import { UserCategory } from '@/types/friends';
 
 import FriendsPageTab from './friendsPageTab';
 
 export default function FriendsPageTabGroup() {
   const sortState = useFriendsStore((state) => state.sortState);
-  const setSortState = useFriendsStore((state) => state.setSortState);
 
   const searchQuery = useFriendsStore((state) => state.searchQuery);
-  const setSearchQuery = useFriendsStore((state) => state.setSearchQuery);
-
-  const setUserType = useFriendsStore((state) => state.setUserType);
-
-  const loadUsersData = useFriendsStore((state) => state.loadUsersData);
 
   const isRateLimited = useFriendsStore((state) => state.isRateLimited);
 
   const retryTimeout = useFriendsStore((state) => state.retryTimeout);
+
+  const { setSortState, setSearchQuery, setUserType, loadUsersData } = useFriendsStore();
 
   const [preDebouncedSearchQuery, setPreDebouncedSearchQuery] = useState<string>('');
 

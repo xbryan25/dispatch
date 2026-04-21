@@ -5,13 +5,12 @@ import { useEffect } from 'react';
 import { useAuthStore } from '@/store/useAuthStore';
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const clearCurrentUserId = useAuthStore((state) => state.clearCurrentUserId);
-  const initCurrentUserId = useAuthStore((state) => state.getCurrentId);
+  const { clearCurrentUserId, getCurrentId } = useAuthStore();
 
   useEffect(() => {
     const verifySession = async () => {
       try {
-        await initCurrentUserId();
+        await getCurrentId();
       } catch {
         // Wipe the store
         console.error('Session invalid, logging out...');
@@ -20,7 +19,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
 
     verifySession();
-  }, [initCurrentUserId, clearCurrentUserId]);
+  }, [getCurrentId, clearCurrentUserId]);
 
   return <>{children}</>;
 }

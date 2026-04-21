@@ -22,7 +22,8 @@ export default function LogoutDialog() {
 
   const [isClickedLogoutButton, setIsClickedLogoutButton] = useState<boolean>(false);
 
-  const logoutUser = useAuthStore((state) => state.logoutUser);
+  const { logoutUser } = useAuthStore();
+
   const logoutError = useAuthStore((state) => state.logoutError);
 
   const userLogout = async () => {

@@ -17,16 +17,6 @@ export default function MessageThread() {
   const sendingMessages = useChatStore((state) => state.sendingMessages);
   const failedMessages = useChatStore((state) => state.failedMessages);
 
-  const pendingMessages = useMemo(() => {
-    return [...sendingMessages, ...failedMessages].sort(
-      (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-    );
-  }, [sendingMessages, failedMessages]);
-
-  useEffect(() => {
-    console.log(failedMessages);
-  }, [failedMessages]);
-
   const hasMorePastMessages = useChatStore((state) => state.hasMorePastMessages);
   const activeConversationId = useChatStore((state) => state.activeConversationId);
   const isInitialLoad = useChatStore((state) => state.isInitialLoad);
@@ -36,9 +26,19 @@ export default function MessageThread() {
   const activeConversationTheme =
     themes.find((theme) => theme.id == activeConversationThemeId) ?? themes[0];
 
-  const getPastMessages = useChatStore((state) => state.getPastMessages);
+  const { getPastMessages } = useChatStore();
 
   const currentUserId = useAuthStore((state) => state.currentUserId);
+
+  const pendingMessages = useMemo(() => {
+    return [...sendingMessages, ...failedMessages].sort(
+      (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+    );
+  }, [sendingMessages, failedMessages]);
+
+  useEffect(() => {
+    console.log(failedMessages);
+  }, [failedMessages]);
 
   const topSentinelRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);

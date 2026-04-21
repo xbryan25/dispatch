@@ -37,11 +37,12 @@ export default function ChangeThemeDialog() {
 
   const selectedTheme = themes.find((theme) => theme.id == selectedThemeId);
 
-  const changeConversationTheme = useChatStore((state) => state.changeConversationTheme);
   const changeConversationThemeError = useChatStore((state) => state.changeConversationThemeError);
   const changeConversationThemeRateLimited = useChatStore(
     (state) => state.changeConversationThemeRateLimited
   );
+
+  const { changeConversationTheme } = useChatStore();
 
   const updateConversationTheme = async () => {
     setLocalLoading(true);

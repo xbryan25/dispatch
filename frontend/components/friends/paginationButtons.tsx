@@ -12,13 +12,12 @@ import {
   PaginationPrevious,
 } from '@/components/ui/pagination';
 
-
 export default function PaginationButtons() {
   const totalPages = useFriendsStore((state) => state.totalPages);
   const currentPage = useFriendsStore((state) => state.currentPage);
   const loading = useFriendsStore((state) => state.loading);
 
-  const loadUsersData = useFriendsStore((state) => state.loadUsersData);
+  const { loadUsersData } = useFriendsStore();
 
   const getPageNumbers = () => {
     const pages = [];

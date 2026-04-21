@@ -44,7 +44,8 @@ export default function UserMessage({
 
   const [dots, setDots] = useState('.');
 
-  const send = useChatStore((state) => state.send);
+  const { send, addSendingMessage, removeSendingMessage, addFailedMessage, removeFailedMessage } =
+    useChatStore();
 
   const sendError = useChatStore((state) => state.sendError);
 
@@ -57,12 +58,6 @@ export default function UserMessage({
   );
 
   const otherParticipantDetails = useChatStore((state) => state.otherParticipantDetails);
-
-  const addSendingMessage = useChatStore((state) => state.addSendingMessage);
-  const removeSendingMessage = useChatStore((state) => state.removeSendingMessage);
-
-  const addFailedMessage = useChatStore((state) => state.addFailedMessage);
-  const removeFailedMessage = useChatStore((state) => state.removeFailedMessage);
 
   const resendFailedMessage = async () => {
     removeFailedMessage(messageId);

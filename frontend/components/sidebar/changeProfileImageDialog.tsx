@@ -25,7 +25,8 @@ import { cn } from '@/lib/utils';
 import { validateImageFile } from '@/lib/validation';
 
 export default function ChangeProfileImageDialog() {
-  const patchUserProfileImage = useAuthStore((state) => state.patchUserProfileImage);
+  const { patchUserProfileImage } = useAuthStore();
+
   const patchUserProfileImageLoading = useAuthStore((state) => state.patchUserProfileImageLoading);
   const patchUserProfileImageError = useAuthStore((state) => state.patchUserProfileImageError);
   const presignedURLIsRateLimited = useAuthStore((state) => state.presignedURLIsRateLimited);

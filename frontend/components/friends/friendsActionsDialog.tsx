@@ -33,16 +33,14 @@ export default function FriendsActionsDialog({
   actionType,
 }: FriendsActionsDialogProps) {
   const [isOpen, setIsOpen] = useState<boolean>(false);
-
-  const doFriendsAction = useFriendsActionsStore((state) => state.doFriendsAction);
-
   const loading = useFriendsActionsStore((state) => state.loading);
   const error = useFriendsActionsStore((state) => state.error);
   const isRateLimitedFromActions = useFriendsActionsStore(
     (state) => state.isRateLimitedFromActions
   );
 
-  const loadUsersData = useFriendsStore((state) => state.loadUsersData);
+  const { loadUsersData } = useFriendsStore();
+  const { doFriendsAction } = useFriendsActionsStore();
 
   const messages: Record<ActionCategory, Record<string, string>> = {
     createNewRequestAction: {
