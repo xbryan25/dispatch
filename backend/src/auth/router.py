@@ -57,8 +57,12 @@ async def get_user_details(
 ):
 
     try:
-        return await AuthService.get_user_details(db, user_id)
-
+        user = await AuthService.get_user_details(db, user_id)
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        return user
+    except HTTPException:
+        raise 
     except Exception:
         traceback.print_exc()
         raise HTTPException(status_code=500, detail="Internal Server Error")
@@ -150,6 +154,9 @@ async def update_profile_image_url(
 
         return {"status": "success"}
 
+    except HTTPException:
+        raise 
+    
     except Exception:
         traceback.print_exc()
         raise HTTPException(status_code=500, detail="Internal Server Error")
