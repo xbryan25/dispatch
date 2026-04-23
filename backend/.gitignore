@@ -4,3 +4,4 @@
 /src/.ruff_cache
 .env
 .env.local
+.env.test
