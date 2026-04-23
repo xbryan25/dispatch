@@ -62,7 +62,7 @@ async def get_user_details(
             raise HTTPException(status_code=404, detail="User not found")
         return user
     except HTTPException:
-        raise 
+        raise
     except Exception:
         traceback.print_exc()
         raise HTTPException(status_code=500, detail="Internal Server Error")
@@ -155,8 +155,8 @@ async def update_profile_image_url(
         return {"status": "success"}
 
     except HTTPException:
-        raise 
-    
+        raise
+
     except Exception:
         traceback.print_exc()
         raise HTTPException(status_code=500, detail="Internal Server Error")
