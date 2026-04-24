@@ -1,7 +1,7 @@
 from uuid import UUID
 from datetime import datetime
 
-from .constants import NotificationTypeEnum
+from .constants import NotificationTypeEnum, NotificationReadState
 from src.core import BaseSchema
 
 
@@ -32,4 +32,4 @@ class NotificationIdsList(BaseSchema):
 
 
 class NotificationIdsListWithReadState(NotificationIdsList):
-    read_state: str
+    read_state: NotificationReadState
