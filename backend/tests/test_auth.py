@@ -107,6 +107,8 @@ class TestUpdateUserDetails:
 
 
 class TestGetProfileImageUploadUrl:
+    # GET /profile-image-upload-url
+
     async def test_get_upload_url_success(self, authenticated_client, mock_s3):
         response = await authenticated_client.get(
             "/api/auth/profile-image-upload-url",
@@ -145,6 +147,8 @@ class TestGetProfileImageUploadUrl:
 
 
 class TestUpdateProfileImage:
+    # PATCH /profile-image-upload-url
+
     valid_url = f"https://{os.getenv("SUPABASE_PROJECT_ID")}.supabase.co/storage/v1/object/public/sample-bucket-name/some-image.jpg"
 
     async def test_update_profile_image_success(self, authenticated_client, mock_s3):

@@ -1,6 +1,11 @@
 from enum import Enum
 
 
+class NotificationReadState(str, Enum):
+    read = "read"
+    unread = "unread"
+
+
 class NotificationTypeEnum(str, Enum):
     friend_request_accepted = "friend_request_accepted"
     friend_request_received = "friend_request_received"

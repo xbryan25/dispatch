@@ -1,11 +1,11 @@
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request, Query
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from uuid import UUID
 
 import traceback
-from typing import Annotated
+from typing import Annotated, Literal
 
 import math
 
@@ -32,14 +32,15 @@ router = APIRouter(
 async def get_notifications(
     request: Request,
     user_id: Annotated[UUID, Depends(get_current_user_id)],
-    read_state: str = "all",
-    sort_state: str = "ascending",
-    page: int = 1,
-    limit: int = 24,
+    read_state: Literal["all", "read", "unread"] = "all",
+    sort_state: Literal["ascending", "descending"] = "ascending",
+    page: int = Query(default=1, ge=1),
+    limit: int = Query(default=24, ge=1),
     db: AsyncSession = Depends(get_db),
 ):
 
     try:
+
         result = await NotificationsService.get_notifications(
             db, user_id, read_state, sort_state, page, limit
         )
@@ -63,7 +64,6 @@ async def get_notifications(
             "pagination": pagination_details,
             "unread_notifications_count": unread_notifications_count,
         }
-
     except Exception:
         traceback.print_exc()
         raise HTTPException(status_code=500, detail="Internal Server Error")
