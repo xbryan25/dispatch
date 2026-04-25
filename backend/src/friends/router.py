@@ -7,7 +7,7 @@ from uuid import UUID
 import uuid
 
 import traceback
-from typing import Annotated, Any
+from typing import Annotated, Any, Literal
 
 import math
 
@@ -37,10 +37,10 @@ router = APIRouter(
 async def get_current_friends(
     request: Request,
     user_id: Annotated[UUID, Depends(get_current_user_id)],
-    sort_state: str = "ascending",
+    sort_state: Literal["ascending", "descending"] = "ascending",
     search_query: str = "",
-    page: int = 1,
-    limit: int = 24,
+    page: int = Query(default=1, ge=1),
+    limit: int = Query(default=24, ge=1),
     db: AsyncSession = Depends(get_db),
 ):
 
@@ -73,10 +73,10 @@ async def get_current_friends(
 async def get_sent_requests_profiles(
     request: Request,
     user_id: Annotated[UUID, Depends(get_current_user_id)],
-    sort_state: str = "ascending",
+    sort_state: Literal["ascending", "descending"] = "ascending",
     search_query: str = "",
-    page: int = 1,
-    limit: int = 24,
+    page: int = Query(default=1, ge=1),
+    limit: int = Query(default=24, ge=1),
     db: AsyncSession = Depends(get_db),
 ):
 
@@ -109,10 +109,10 @@ async def get_sent_requests_profiles(
 async def get_received_requests_profiles(
     request: Request,
     user_id: Annotated[UUID, Depends(get_current_user_id)],
-    sort_state: str = "ascending",
+    sort_state: Literal["ascending", "descending"] = "ascending",
     search_query: str = "",
-    page: int = 1,
-    limit: int = 24,
+    page: int = Query(default=1, ge=1),
+    limit: int = Query(default=24, ge=1),
     db: AsyncSession = Depends(get_db),
 ):
 
@@ -145,10 +145,10 @@ async def get_received_requests_profiles(
 async def get_former_friends(
     request: Request,
     user_id: Annotated[UUID, Depends(get_current_user_id)],
-    sort_state: str = "ascending",
+    sort_state: Literal["ascending", "descending"] = "ascending",
     search_query: str = "",
-    page: int = 1,
-    limit: int = 24,
+    page: int = Query(default=1, ge=1),
+    limit: int = Query(default=24, ge=1),
     db: AsyncSession = Depends(get_db),
 ):
 
@@ -181,10 +181,10 @@ async def get_former_friends(
 async def get_friend_suggestions(
     request: Request,
     user_id: Annotated[UUID, Depends(get_current_user_id)],
-    sort_state: str = "ascending",
+    sort_state: Literal["ascending", "descending"] = "ascending",
     search_query: str = "",
-    page: int = 1,
-    limit: int = 24,
+    page: int = Query(default=1, ge=1),
+    limit: int = Query(default=24, ge=1),
     db: AsyncSession = Depends(get_db),
 ):
 
