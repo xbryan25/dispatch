@@ -23,6 +23,7 @@ jobs:
       SUPABASE_S3_SECRET_KEY: ${{ secrets.TEST_SUPABASE_S3_SECRET_KEY }}
       SUPABASE_S3_BUCKET_NAME: ${{ secrets.TEST_SUPABASE_S3_BUCKET_NAME }}
       REDIS_URL: ${{ secrets.TEST_REDIS_URL }}
+      FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
