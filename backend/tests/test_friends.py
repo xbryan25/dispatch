@@ -1,3 +1,7 @@
+from uuid import UUID
+from .conftest import as_user
+
+
 class TestGetCurrentFriends:
 
     async def test_get_current_friends(self, authenticated_client):
@@ -241,24 +245,280 @@ class TestGetFriendSuggestions:
 
 
 class TestCreateNewFriendRequest:
-    pass
+    async def test_create_new_friend_request(self, authenticated_client):
+        await authenticated_client.delete(
+            "/api/friends/friend-request/cancel",
+            params={"target_user_id": "441cff8e-1338-4c01-bace-daed0f308eed"},
+        )
+
+        response = await authenticated_client.post(
+            "/api/friends/friend-request",
+            json={"target_user_id": "441cff8e-1338-4c01-bace-daed0f308eed"},
+        )
+        assert response.status_code == 200
+
+    async def test_create_new_friend_request_invalid_target_user_id(
+        self, authenticated_client
+    ):
+        response = await authenticated_client.post(
+            "/api/friends/friend-request",
+            json={"target_user_id": "d8b4eaa8-83a8-4ae2-b728-d3601b19817c"},
+        )
+        assert response.status_code == 400
+
+    async def test_create_new_friend_request_invalid_target_user_id_format(
+        self, authenticated_client
+    ):
+        response = await authenticated_client.post(
+            "/api/friends/friend-request",
+            json={"target_user_id": "invalid-id-format"},
+        )
+        assert response.status_code == 422
+
+    async def test_create_new_friend_request_no_target_user_id(
+        self, authenticated_client
+    ):
+        response = await authenticated_client.post(
+            "/api/friends/friend-request",
+        )
+        assert response.status_code == 422
+
+    async def test_create_new_friend_request_unauthenticated(self, client):
+        response = await client.post(
+            "/api/friends/friend-request",
+            json={"target_user_id": "d8b4eaa8-83a8-4ae2-b728-d3601b19817c"},
+        )
+        assert response.status_code == 401
+
+    async def test_create_new_friend_request_with_invalid_cookie(self, client):
+        cookie_name = "sb-tkwaptgyevrrzkfrpyxh-auth-token"
+        headers = {"Cookie": f"{cookie_name}=not-a-real-token"}
+
+        response = await client.post(
+            "/api/friends/friend-request",
+            headers=headers,
+            json={"target_user_id": "d8b4eaa8-83a8-4ae2-b728-d3601b19817c"},
+        )
+        assert response.status_code == 401
 
 
 class TestCancelFriendRequest:
-    pass
+    async def test_cancel_friend_request(self, authenticated_client):
+        response = await authenticated_client.delete(
+            "/api/friends/friend-request/cancel",
+            params={"target_user_id": "441cff8e-1338-4c01-bace-daed0f308eed"},
+        )
+        assert response.status_code == 200
+
+    async def test_cancel_friend_request_invalid_target_user_id_format(
+        self, authenticated_client
+    ):
+        response = await authenticated_client.delete(
+            "/api/friends/friend-request/cancel",
+            params={"target_user_id": "invalid-id-format"},
+        )
+        assert response.status_code == 422
+
+    async def test_cancel_friend_request_no_target_user_id(self, authenticated_client):
+        response = await authenticated_client.delete(
+            "/api/friends/friend-request/cancel",
+        )
+        assert response.status_code == 422
+
+    async def test_cancel_friend_request_unauthenticated(self, client):
+        response = await client.delete(
+            "/api/friends/friend-request/cancel",
+            params={"target_user_id": "d8b4eaa8-83a8-4ae2-b728-d3601b19817c"},
+        )
+        assert response.status_code == 401
+
+    async def test_cancel_friend_request_with_invalid_cookie(self, client):
+        cookie_name = "sb-tkwaptgyevrrzkfrpyxh-auth-token"
+        headers = {"Cookie": f"{cookie_name}=not-a-real-token"}
+
+        response = await client.delete(
+            "/api/friends/friend-request/cancel",
+            headers=headers,
+            params={"target_user_id": "d8b4eaa8-83a8-4ae2-b728-d3601b19817c"},
+        )
+        assert response.status_code == 401
 
 
 class TestAcceptFriendRequest:
-    pass
+    async def test_accept_friend_request(self, client):
+        user_a = UUID("c976dffe-6d6c-495b-bd00-92c2cf9fd24c")
+        user_b = UUID("441cff8e-1338-4c01-bace-daed0f308eed")
+
+        async with as_user(user_a):
+            await client.post(
+                "/api/friends/friend-request",
+                json={"target_user_id": "441cff8e-1338-4c01-bace-daed0f308eed"},
+            )
+
+        async with as_user(user_b):
+            response = await client.patch(
+                "/api/friends/friend-request/accept",
+                json={"target_user_id": "c976dffe-6d6c-495b-bd00-92c2cf9fd24c"},
+            )
+            assert response.status_code == 200
+
+    async def test_accept_friend_request_invalid_target_user_id_format(
+        self, authenticated_client
+    ):
+        response = await authenticated_client.patch(
+            "/api/friends/friend-request/accept",
+            params={"target_user_id": "invalid-id-format"},
+        )
+        assert response.status_code == 422
+
+    async def test_accept_friend_request_no_target_user_id(self, authenticated_client):
+        response = await authenticated_client.patch(
+            "/api/friends/friend-request/accept",
+        )
+        assert response.status_code == 422
+
+    async def test_accept_friend_request_unauthenticated(self, client):
+        response = await client.patch(
+            "/api/friends/friend-request/accept",
+            params={"target_user_id": "d8b4eaa8-83a8-4ae2-b728-d3601b19817c"},
+        )
+        assert response.status_code == 401
+
+    async def test_accept_friend_request_with_invalid_cookie(self, client):
+        cookie_name = "sb-tkwaptgyevrrzkfrpyxh-auth-token"
+        headers = {"Cookie": f"{cookie_name}=not-a-real-token"}
+
+        response = await client.patch(
+            "/api/friends/friend-request/accept",
+            headers=headers,
+            params={"target_user_id": "d8b4eaa8-83a8-4ae2-b728-d3601b19817c"},
+        )
+        assert response.status_code == 401
 
 
 class TestRejectFriendRequest:
-    pass
+    async def test_reject_friend_request(self, authenticated_client):
+        response = await authenticated_client.delete(
+            "/api/friends/friend-request/reject",
+            params={"target_user_id": "441cff8e-1338-4c01-bace-daed0f308eed"},
+        )
+        assert response.status_code == 200
+
+    async def test_reject_friend_request_invalid_target_user_id_format(
+        self, authenticated_client
+    ):
+        response = await authenticated_client.delete(
+            "/api/friends/friend-request/reject",
+            params={"target_user_id": "invalid-id-format"},
+        )
+        assert response.status_code == 422
+
+    async def test_reject_friend_request_no_target_user_id(self, authenticated_client):
+        response = await authenticated_client.delete(
+            "/api/friends/friend-request/reject",
+        )
+        assert response.status_code == 422
+
+    async def test_reject_friend_request_unauthenticated(self, client):
+        response = await client.delete(
+            "/api/friends/friend-request/reject",
+            params={"target_user_id": "d8b4eaa8-83a8-4ae2-b728-d3601b19817c"},
+        )
+        assert response.status_code == 401
+
+    async def test_reject_friend_request_with_invalid_cookie(self, client):
+        cookie_name = "sb-tkwaptgyevrrzkfrpyxh-auth-token"
+        headers = {"Cookie": f"{cookie_name}=not-a-real-token"}
+
+        response = await client.delete(
+            "/api/friends/friend-request/reject",
+            headers=headers,
+            params={"target_user_id": "d8b4eaa8-83a8-4ae2-b728-d3601b19817c"},
+        )
+        assert response.status_code == 401
 
 
 class TestUnfriendUser:
-    pass
+    async def test_unfriend_user(self, authenticated_client):
+        response = await authenticated_client.patch(
+            "/api/friends/unfriend",
+            json={"target_user_id": "441cff8e-1338-4c01-bace-daed0f308eed"},
+        )
+        assert response.status_code == 200
+
+    async def test_unfriend_user_invalid_target_user_id_format(
+        self, authenticated_client
+    ):
+        response = await authenticated_client.patch(
+            "/api/friends/unfriend",
+            json={"target_user_id": "invalid-id-format"},
+        )
+        assert response.status_code == 422
+
+    async def test_unfriend_user_no_target_user_id(self, authenticated_client):
+        response = await authenticated_client.patch(
+            "/api/friends/unfriend",
+        )
+        assert response.status_code == 422
+
+    async def test_unfriend_user_unauthenticated(self, client):
+        response = await client.patch(
+            "/api/friends/unfriend",
+            json={"target_user_id": "d8b4eaa8-83a8-4ae2-b728-d3601b19817c"},
+        )
+        assert response.status_code == 401
+
+    async def test_unfriend_user_with_invalid_cookie(self, client):
+        cookie_name = "sb-tkwaptgyevrrzkfrpyxh-auth-token"
+        headers = {"Cookie": f"{cookie_name}=not-a-real-token"}
+
+        response = await client.patch(
+            "/api/friends/unfriend",
+            headers=headers,
+            json={"target_user_id": "d8b4eaa8-83a8-4ae2-b728-d3601b19817c"},
+        )
+        assert response.status_code == 401
 
 
 class TestReconnectToFormerFriend:
-    pass
+    async def test_reconnect_to_former_friend(self, authenticated_client):
+        response = await authenticated_client.patch(
+            "/api/friends/friend-request/reconnect",
+            json={"target_user_id": "441cff8e-1338-4c01-bace-daed0f308eed"},
+        )
+        assert response.status_code == 200
+
+    async def test_reconnect_to_former_friend_invalid_target_user_id_format(
+        self, authenticated_client
+    ):
+        response = await authenticated_client.patch(
+            "/api/friends/friend-request/reconnect",
+            json={"target_user_id": "invalid-id-format"},
+        )
+        assert response.status_code == 422
+
+    async def test_reconnect_to_former_friend_no_target_user_id(
+        self, authenticated_client
+    ):
+        response = await authenticated_client.patch(
+            "/api/friends/friend-request/reconnect",
+        )
+        assert response.status_code == 422
+
+    async def test_reconnect_to_former_friend_unauthenticated(self, client):
+        response = await client.patch(
+            "/api/friends/friend-request/reconnect",
+            json={"target_user_id": "d8b4eaa8-83a8-4ae2-b728-d3601b19817c"},
+        )
+        assert response.status_code == 401
+
+    async def test_reconnect_to_former_friend_with_invalid_cookie(self, client):
+        cookie_name = "sb-tkwaptgyevrrzkfrpyxh-auth-token"
+        headers = {"Cookie": f"{cookie_name}=not-a-real-token"}
+
+        response = await client.patch(
+            "/api/friends/friend-request/reconnect",
+            headers=headers,
+            json={"target_user_id": "d8b4eaa8-83a8-4ae2-b728-d3601b19817c"},
+        )
+        assert response.status_code == 401

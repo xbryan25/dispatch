@@ -20,7 +20,7 @@ class UserUpdate(BaseSchema):
 
 
 class TargetUserId(BaseSchema):
-    target_user_id: str
+    target_user_id: UUID
 
 
 class UserProfileImageUrl(BaseSchema):

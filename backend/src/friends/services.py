@@ -170,7 +170,7 @@ class FriendsService:
         ).returning(Friendship)
 
         result = await db.execute(stmt)
-        db_friendship = result.scalar_one()
+        db_friendship = result.scalar_one_or_none()
 
         await db.commit()
 
