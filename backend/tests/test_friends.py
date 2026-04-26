@@ -35,7 +35,7 @@ class TestGetCurrentFriends:
         assert response.status_code == 401
 
     async def test_get_current_friends_with_invalid_cookie(self, client):
-        cookie_name = "sb-tkwaptgyevrrzkfrpyxh-auth-token"
+        cookie_name = "sb-t...-auth-token"
         headers = {"Cookie": f"{cookie_name}=not-a-real-token"}
 
         response = await client.get("/api/friends", headers=headers)
@@ -86,7 +86,7 @@ class TestGetSentRequestsProfiles:
         assert response.status_code == 401
 
     async def test_get_sent_requests_profiles_with_invalid_cookie(self, client):
-        cookie_name = "sb-tkwaptgyevrrzkfrpyxh-auth-token"
+        cookie_name = "sb-t...-auth-token"
         headers = {"Cookie": f"{cookie_name}=not-a-real-token"}
 
         response = await client.get("/api/friends/sent", headers=headers)
@@ -141,7 +141,7 @@ class TestGetReceivedRequestsProfiles:
         assert response.status_code == 401
 
     async def test_get_received_requests_profiles_with_invalid_cookie(self, client):
-        cookie_name = "sb-tkwaptgyevrrzkfrpyxh-auth-token"
+        cookie_name = "sb-t...-auth-token"
         headers = {"Cookie": f"{cookie_name}=not-a-real-token"}
 
         response = await client.get("/api/friends/received", headers=headers)
@@ -188,7 +188,7 @@ class TestGetFormerFriends:
         assert response.status_code == 401
 
     async def test_get_former_friends_with_invalid_cookie(self, client):
-        cookie_name = "sb-tkwaptgyevrrzkfrpyxh-auth-token"
+        cookie_name = "sb-t...-auth-token"
         headers = {"Cookie": f"{cookie_name}=not-a-real-token"}
 
         response = await client.get("/api/friends/former", headers=headers)
@@ -237,7 +237,7 @@ class TestGetFriendSuggestions:
         assert response.status_code == 401
 
     async def test_get_friend_suggestions_with_invalid_cookie(self, client):
-        cookie_name = "sb-tkwaptgyevrrzkfrpyxh-auth-token"
+        cookie_name = "sb-t...-auth-token"
         headers = {"Cookie": f"{cookie_name}=not-a-real-token"}
 
         response = await client.get("/api/friends/suggestions", headers=headers)
@@ -291,7 +291,7 @@ class TestCreateNewFriendRequest:
         assert response.status_code == 401
 
     async def test_create_new_friend_request_with_invalid_cookie(self, client):
-        cookie_name = "sb-tkwaptgyevrrzkfrpyxh-auth-token"
+        cookie_name = "sb-t...-auth-token"
         headers = {"Cookie": f"{cookie_name}=not-a-real-token"}
 
         response = await client.post(
@@ -333,7 +333,7 @@ class TestCancelFriendRequest:
         assert response.status_code == 401
 
     async def test_cancel_friend_request_with_invalid_cookie(self, client):
-        cookie_name = "sb-tkwaptgyevrrzkfrpyxh-auth-token"
+        cookie_name = "sb-t...-auth-token"
         headers = {"Cookie": f"{cookie_name}=not-a-real-token"}
 
         response = await client.delete(
@@ -385,7 +385,7 @@ class TestAcceptFriendRequest:
         assert response.status_code == 401
 
     async def test_accept_friend_request_with_invalid_cookie(self, client):
-        cookie_name = "sb-tkwaptgyevrrzkfrpyxh-auth-token"
+        cookie_name = "sb-t...-auth-token"
         headers = {"Cookie": f"{cookie_name}=not-a-real-token"}
 
         response = await client.patch(
@@ -427,7 +427,7 @@ class TestRejectFriendRequest:
         assert response.status_code == 401
 
     async def test_reject_friend_request_with_invalid_cookie(self, client):
-        cookie_name = "sb-tkwaptgyevrrzkfrpyxh-auth-token"
+        cookie_name = "sb-t...-auth-token"
         headers = {"Cookie": f"{cookie_name}=not-a-real-token"}
 
         response = await client.delete(
@@ -469,7 +469,7 @@ class TestUnfriendUser:
         assert response.status_code == 401
 
     async def test_unfriend_user_with_invalid_cookie(self, client):
-        cookie_name = "sb-tkwaptgyevrrzkfrpyxh-auth-token"
+        cookie_name = "sb-t...-auth-token"
         headers = {"Cookie": f"{cookie_name}=not-a-real-token"}
 
         response = await client.patch(
@@ -513,7 +513,7 @@ class TestReconnectToFormerFriend:
         assert response.status_code == 401
 
     async def test_reconnect_to_former_friend_with_invalid_cookie(self, client):
-        cookie_name = "sb-tkwaptgyevrrzkfrpyxh-auth-token"
+        cookie_name = "sb-t...-auth-token"
         headers = {"Cookie": f"{cookie_name}=not-a-real-token"}
 
         response = await client.patch(

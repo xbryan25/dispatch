@@ -45,7 +45,7 @@ class TestGetNotifications:
         assert response.status_code == 401
 
     async def test_get_notifications_with_invalid_cookie(self, client):
-        cookie_name = "sb-tkwaptgyevrrzkfrpyxh-auth-token"
+        cookie_name = "sb-t...-auth-token"
         headers = {"Cookie": f"{cookie_name}=not-a-real-token"}
 
         response = await client.get("/api/notifications", headers=headers)
@@ -78,7 +78,7 @@ class TestBulkDeleteNotifications:
         assert response.status_code == 401
 
     async def test_bulk_delete_notifications_with_invalid_cookie(self, client):
-        cookie_name = "sb-tkwaptgyevrrzkfrpyxh-auth-token"
+        cookie_name = "sb-t...-auth-token"
         headers = {"Cookie": f"{cookie_name}=not-a-real-token"}
 
         response = await client.request(
@@ -150,7 +150,7 @@ class TestUpdateNotificationState:
     async def test_mark_notifications_as_read_or_unread_with_invalid_cookie(
         self, client
     ):
-        cookie_name = "sb-tkwaptgyevrrzkfrpyxh-auth-token"
+        cookie_name = "sb-t...-auth-token"
         headers = {"Cookie": f"{cookie_name}=not-a-real-token"}
 
         response = await client.patch(
