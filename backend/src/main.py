@@ -3,7 +3,8 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from slowapi.errors import RateLimitExceeded
 from fastapi.responses import JSONResponse
-from src.core import limiter
+
+from src.core import limiter, settings
 
 from .auth import router as auth_router
 from .auth import public_router as auth_public_router
@@ -20,7 +21,7 @@ def create_app():
 
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["http://localhost:3000"],
+        allow_origins=[settings.FRONTEND_URL, "http://localhost:3000"],
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
