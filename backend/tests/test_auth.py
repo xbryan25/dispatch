@@ -47,7 +47,7 @@ class TestGetMe:
         assert response.status_code == 401
 
     async def test_get_me_with_invalid_cookie(self, client):
-        cookie_name = "sb-tkwaptgyevrrzkfrpyxh-auth-token"
+        cookie_name = "sb-t...-auth-token"
         headers = {"Cookie": f"{cookie_name}=not-a-real-token"}
 
         response = await client.get("/api/auth/me", headers=headers)
@@ -66,7 +66,7 @@ class TestGetUserDetails:
         assert response.status_code == 401
 
     async def test_get_user_details_with_invalid_cookie(self, client):
-        cookie_name = "sb-tkwaptgyevrrzkfrpyxh-auth-token"
+        cookie_name = "sb-t...-auth-token"
         headers = {"Cookie": f"{cookie_name}=not-a-real-token"}
 
         response = await client.get("/api/auth/user-details", headers=headers)
@@ -97,7 +97,7 @@ class TestUpdateUserDetails:
         assert response.status_code == 401
 
     async def test_update_user_details_with_invalid_cookie(self, client):
-        cookie_name = "sb-tkwaptgyevrrzkfrpyxh-auth-token"
+        cookie_name = "sb-t...-auth-token"
         headers = {"Cookie": f"{cookie_name}=not-a-real-token"}
 
         response = await client.patch(
@@ -135,7 +135,7 @@ class TestGetProfileImageUploadUrl:
         assert response.status_code == 401
 
     async def test_update_user_details_with_invalid_cookie(self, client):
-        cookie_name = "sb-tkwaptgyevrrzkfrpyxh-auth-token"
+        cookie_name = "sb-t...-auth-token"
         headers = {"Cookie": f"{cookie_name}=not-a-real-token"}
 
         response = await client.get(
@@ -192,7 +192,7 @@ class TestUpdateProfileImage:
         assert response.status_code == 400
 
     async def test_update_user_details_with_invalid_cookie(self, client, mock_s3):
-        cookie_name = "sb-tkwaptgyevrrzkfrpyxh-auth-token"
+        cookie_name = "sb-t...-auth-token"
         headers = {"Cookie": f"{cookie_name}=not-a-real-token"}
 
         response = await client.patch(

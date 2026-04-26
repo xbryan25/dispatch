@@ -17,6 +17,7 @@ from uuid import UUID
 from src.main import app
 from src.auth.dependencies import get_current_user_id
 from src.core.storage import get_s3_client
+from src.core.redis import get_redis
 from src.core import limiter
 
 import sys
@@ -87,4 +88,17 @@ def mock_s3():
     mock_s3_client.delete_object = AsyncMock(return_value={})
     app.dependency_overrides[get_s3_client] = lambda: mock_s3_client
     yield mock_s3_client
+    app.dependency_overrides.clear()
+
+
+@pytest.fixture()
+def mock_redis():
+    mock_redis_client = MagicMock()
+
+    mock_redis_client.exists = AsyncMock(return_value=True)
+    mock_redis_client.sadd = AsyncMock(return_value={})
+    mock_redis_client.expire = AsyncMock(return_value={})
+
+    app.dependency_overrides[get_redis] = lambda: mock_redis_client
+    yield mock_redis_client
     app.dependency_overrides.clear()

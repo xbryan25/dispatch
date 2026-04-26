@@ -6,7 +6,7 @@ from typing import Optional
 
 from pydantic import Field
 
-from src.messages.constants import MessageStatusEnum
+from src.messages.constants import MessageStatusEnum, ConversationThemes
 from src.core import BaseSchema
 
 
@@ -55,7 +55,7 @@ class ConversationIdWithType(ConversationId):
 
 
 class ConversationIdWithTheme(ConversationId):
-    theme: str
+    theme: ConversationThemes = ConversationThemes.default
 
 
 class ConversationTheme(BaseSchema):

@@ -9,7 +9,6 @@ from fastapi import (
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from uuid import UUID
-import uuid
 
 import traceback
 from typing import Annotated
@@ -175,6 +174,12 @@ async def get_other_conversation_participant(
 
         return other_participant_dict
 
+    except HTTPException:
+        raise
+
+    except InvalidConversationID:
+        raise HTTPException(status_code=400, detail="Conversation ID does not exist.")
+
     except Exception:
         traceback.print_exc()
         raise HTTPException(status_code=500, detail="Internal Server Error")
@@ -191,11 +196,16 @@ async def create_direct_message(
 
     try:
 
-        formatted_target_user_id = uuid.UUID(payload.target_user_id)
+        target_user_details = await AuthService.get_user_details(
+            db, payload.target_user_id
+        )
+
+        if not target_user_details:
+            raise HTTPException(status_code=400, detail="Target user doesn't exist.")
 
         conversation_id = (
             await MessagesService.check_if_in_existing_direct_message_conversation(
-                db, user_id, formatted_target_user_id
+                db, user_id, payload.target_user_id
             )
         )
 
@@ -203,16 +213,19 @@ async def create_direct_message(
 
             conversation_id = await MessagesService.create_new_conversation(db)
 
-            if not conversation_id or not formatted_target_user_id:
+            if not conversation_id or not payload.target_user_id:
                 raise Exception
 
             await MessagesService.add_direct_message_participants(
-                db, conversation_id, user_id, formatted_target_user_id
+                db, conversation_id, user_id, payload.target_user_id
             )
 
             return {"conversation_id": conversation_id, "conversation_id_type": "new"}
 
         return {"conversation_id": conversation_id, "conversation_id_type": "existing"}
+
+    except HTTPException:
+        raise
 
     except Exception:
         traceback.print_exc()
@@ -228,11 +241,19 @@ async def get_conversation_theme(
 ):
 
     try:
+        conversation = await MessagesService.get_conversation_by_id(db, conversation_id)
+
+        if not conversation:
+            raise InvalidConversationID("Conversation ID does not exist.")
+
         theme_details = await MessagesService.get_conversation_theme(
             db, conversation_id
         )
 
         return theme_details
+
+    except InvalidConversationID:
+        raise HTTPException(status_code=400, detail="Conversation ID does not exist.")
 
     except Exception:
         traceback.print_exc()
@@ -251,6 +272,11 @@ async def update_conversation_theme(
     try:
         conversation_id = payload.conversation_id
         new_theme = payload.theme
+
+        conversation = await MessagesService.get_conversation_by_id(db, conversation_id)
+
+        if not conversation:
+            raise InvalidConversationID("Conversation ID does not exist.")
 
         await MessagesService.update_conversation_theme(
             db, conversation_id, new_theme, user_id
@@ -287,6 +313,9 @@ async def update_conversation_theme(
 
         return theme_details
 
+    except InvalidConversationID:
+        raise HTTPException(status_code=400, detail="Conversation ID does not exist.")
+
     except Exception:
         traceback.print_exc()
         raise HTTPException(status_code=500, detail="Internal Server Error")
@@ -303,6 +332,11 @@ async def mark_conversation_as_read(
 
     try:
         conversation_id = payload.conversation_id
+
+        conversation = await MessagesService.get_conversation_by_id(db, conversation_id)
+
+        if not conversation:
+            raise InvalidConversationID("Conversation ID does not exist.")
 
         result = await MessagesService.mark_conversation_as_read(
             db, payload.conversation_id, user_id
@@ -322,7 +356,7 @@ async def mark_conversation_as_read(
         )
 
         if other_participant is None:
-            raise HTTPException(status_code=404, detail="User not found")
+            raise HTTPException(status_code=404, detail="User not found.")
 
         if result:
             message_seen_dict = {
@@ -340,6 +374,12 @@ async def mark_conversation_as_read(
             event_data = {"type": "MESSAGE_SEEN", "data": message_seen_dict}
 
             await manager.send_to_user(UUID(str(other_participant.user_id)), event_data)
+
+    except HTTPException:
+        raise
+
+    except InvalidConversationID:
+        raise HTTPException(status_code=400, detail="Conversation ID does not exist.")
 
     except Exception:
         traceback.print_exc()
@@ -366,6 +406,9 @@ async def get_conversation_message_history(
         )
 
         return {"past_messages": past_messages}
+
+    except InvalidConversationID:
+        raise HTTPException(status_code=400, detail="Conversation ID does not exist.")
 
     except Exception:
         traceback.print_exc()
