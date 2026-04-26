@@ -4,7 +4,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
 
 from uuid import UUID
-import uuid
 
 import traceback
 from typing import Annotated, Any, Literal
@@ -222,10 +221,8 @@ async def create_new_friend_request(
 ):
 
     try:
-        formatted_target_user_id = uuid.UUID(payload.target_user_id)
-
         await FriendsService.create_new_friend_request(
-            db, user_id, formatted_target_user_id
+            db, user_id, payload.target_user_id
         )
 
         user_details = await AuthService.get_user_details(db, user_id)
@@ -243,10 +240,14 @@ async def create_new_friend_request(
                 notification_message,
                 user_id,
                 user_details.username,
-                formatted_target_user_id,
+                payload.target_user_id,
             )
 
-        return {"status": "success"}
+        return {
+            "status": "success",
+            "current_user": user_id,
+            "target_user_id": payload.target_user_id,
+        }
 
     except IntegrityError:
         await db.rollback()
@@ -288,11 +289,7 @@ async def accept_friend_request(
 ):
 
     try:
-        formatted_target_user_id = uuid.UUID(payload.target_user_id)
-
-        await FriendsService.accept_friend_request(
-            db, user_id, formatted_target_user_id
-        )
+        await FriendsService.accept_friend_request(db, user_id, payload.target_user_id)
 
         user_details = await AuthService.get_user_details(db, user_id)
 
@@ -308,7 +305,7 @@ async def accept_friend_request(
                 notification_message,
                 user_id,
                 user_details.username,
-                formatted_target_user_id,
+                payload.target_user_id,
             )
 
             friendship_status_dict = {
@@ -318,7 +315,7 @@ async def accept_friend_request(
 
             event_data = {"type": "UPDATE_CONVERSATION", "data": friendship_status_dict}
 
-            await manager.send_to_user(formatted_target_user_id, event_data)
+            await manager.send_to_user(payload.target_user_id, event_data)
 
         return {"status": "success"}
 
@@ -362,9 +359,7 @@ async def unfriend_user(
 ):
 
     try:
-        formatted_target_user_id = uuid.UUID(payload.target_user_id)
-
-        await FriendsService.unfriend_user(db, user_id, formatted_target_user_id)
+        await FriendsService.unfriend_user(db, user_id, payload.target_user_id)
 
         target_user_details = await AuthService.get_user_details(db, user_id)
 
@@ -376,7 +371,7 @@ async def unfriend_user(
 
             event_data = {"type": "UPDATE_CONVERSATION", "data": friendship_status_dict}
 
-            await manager.send_to_user(formatted_target_user_id, event_data)
+            await manager.send_to_user(payload.target_user_id, event_data)
 
         return {"status": "success"}
 
@@ -401,10 +396,9 @@ async def reconnect_to_former_friend(
 ):
 
     try:
-        formatted_target_user_id = uuid.UUID(payload.target_user_id)
 
         await FriendsService.create_new_friend_request(
-            db, user_id, formatted_target_user_id
+            db, user_id, payload.target_user_id
         )
 
         user_details = await AuthService.get_user_details(db, user_id)
@@ -422,7 +416,7 @@ async def reconnect_to_former_friend(
                 notification_message,
                 user_id,
                 user_details.username,
-                formatted_target_user_id,
+                payload.target_user_id,
             )
 
         return {"status": "success"}

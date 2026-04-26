@@ -4,6 +4,8 @@ import pytest
 from unittest.mock import MagicMock, AsyncMock
 from httpx import AsyncClient, ASGITransport
 
+from contextlib import asynccontextmanager
+
 import os
 from dotenv import load_dotenv
 
@@ -36,6 +38,15 @@ def disable_rate_limiting():
     limiter.enabled = False
     yield
     limiter.enabled = True
+
+
+@asynccontextmanager
+async def as_user(user_id: UUID):
+    app.dependency_overrides[get_current_user_id] = lambda: user_id
+    try:
+        yield
+    finally:
+        app.dependency_overrides.clear()
 
 
 @pytest.fixture

@@ -10,11 +10,15 @@ class FriendsUtils:
         output = []
 
         for row in users_with_counts:
+
+            print(f"\n\n{row}\n\n")
+
             user_obj = row.UserProfile
             count = row.total_friend_count
-            conversation_id = row.conversation_id
 
             if with_conversation_id:
+                conversation_id = row.conversation_id
+
                 output.append(
                     {
                         "user_id": user_obj.user_id,
