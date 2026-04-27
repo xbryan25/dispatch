@@ -1,7 +1,8 @@
 import json
-from fastapi import Cookie, HTTPException, Security
+from fastapi import Cookie, HTTPException, Security, Query
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from jose import jwt
+from jose import jwt, JWTError
+from jose.exceptions import ExpiredSignatureError
 from src.core.config import settings
 import base64
 
@@ -13,12 +14,16 @@ security = HTTPBearer(auto_error=False)
 async def get_current_user_id(
     cookie_str: str | None = Cookie(None, alias=settings.SUPABASE_COOKIE_NAME),
     token_auth: HTTPAuthorizationCredentials | None = Security(security),
+    token: str | None = Query(None),
 ) -> UUID:
 
     access_token = None
 
     if token_auth:
         access_token = token_auth.credentials
+
+    elif token:
+        access_token = token
 
     elif cookie_str:
         try:
@@ -38,14 +43,12 @@ async def get_current_user_id(
 
         except Exception as e:
             print(f"Auth Error: {e}")
-            raise HTTPException(
-                status_code=401, detail="Could not validate credentials"
-            )
+            raise HTTPException(status_code=401, detail="Invalid session cookie")
 
     if not access_token:
         raise HTTPException(
             status_code=401,
-            detail="Authentication failed: No valid session cookie or Bearer token found.",
+            detail="Authentication failed: No valid session cookie, Bearer token, or Query token found.",
         )
 
     try:
@@ -65,6 +68,14 @@ async def get_current_user_id(
 
         return UUID(user_id_str)
 
+    except ExpiredSignatureError:
+        print("Auth Error: Token has expired")
+        raise HTTPException(
+            status_code=401, detail="Token expired. Please refresh your session."
+        )
+    except JWTError as e:
+        print(f"JWT Error: {e}")
+        raise HTTPException(status_code=401, detail="Could not validate credentials")
     except Exception as e:
-        print(f"Auth Error: {e}")
+        print(f"JWT Error: {e}")
         raise HTTPException(status_code=401, detail="Could not validate credentials")
