@@ -15,6 +15,8 @@ export const createClient = () =>
     supabaseAnonKey || 'placeholder'
   );
 
+export const supabase = createClient();
+
 export async function uploadImageToSupabaseStorage(upload_url: string, image: File) {
   const res = await fetch(upload_url, {
     method: 'PUT',

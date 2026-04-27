@@ -1,11 +1,21 @@
+import { supabase } from '@/lib/supabase/client';
+
 const fastapiServerUrl = process.env.NEXT_PUBLIC_FASTAPI_SERVER_URL;
 
 let controller: AbortController | null = null;
 
 export async function getUserConversationsList() {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  const token = session?.access_token;
+
+  if (!token) return null;
+
   const res = await fetch(`${fastapiServerUrl}/api/messages/conversations`, {
     method: 'GET',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
     credentials: 'include',
   });
 
@@ -25,11 +35,17 @@ export async function sendMessage(
   tempMessageId: string,
   activeConversationId: string | null
 ) {
-  console.log(activeConversationId);
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  const token = session?.access_token;
+
+  if (!token) return null;
 
   const res = await fetch(`${fastapiServerUrl}/api/messages/send`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
     body: JSON.stringify({ content, tempMessageId, conversationId: activeConversationId }),
     credentials: 'include',
   });
@@ -49,10 +65,18 @@ export async function getPastMessagesFromConversation(query: string) {
   if (controller) controller.abort();
   controller = new AbortController();
 
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  const token = session?.access_token;
+
+  if (!token) return null;
+
   try {
     const res = await fetch(`${fastapiServerUrl}/api/messages/${query}`, {
       method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
       credentials: 'include',
     });
 
@@ -72,9 +96,17 @@ export async function getPastMessagesFromConversation(query: string) {
 }
 
 export async function getOtherParticipantFromConversation(conversationId: string) {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  const token = session?.access_token;
+
+  if (!token) return null;
+
   const res = await fetch(`${fastapiServerUrl}/api/messages/${conversationId}/other-participant`, {
     method: 'GET',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
     credentials: 'include',
   });
 
@@ -92,9 +124,17 @@ export async function getOtherParticipantFromConversation(conversationId: string
 }
 
 export async function createDirectMessage(targetUserId: string) {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  const token = session?.access_token;
+
+  if (!token) return null;
+
   const res = await fetch(`${fastapiServerUrl}/api/messages/new-direct-message`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
     body: JSON.stringify({ targetUserId }),
     credentials: 'include',
   });
@@ -113,11 +153,19 @@ export async function createDirectMessage(targetUserId: string) {
 }
 
 export async function getConversationTheme(conversationId: string) {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  const token = session?.access_token;
+
+  if (!token) return null;
+
   const res = await fetch(
     `${fastapiServerUrl}/api/messages/theme?conversation_id=${conversationId}`,
     {
       method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
       credentials: 'include',
     }
   );
@@ -136,9 +184,17 @@ export async function getConversationTheme(conversationId: string) {
 }
 
 export async function updateConversationTheme(conversationId: string, theme: string) {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  const token = session?.access_token;
+
+  if (!token) return null;
+
   const res = await fetch(`${fastapiServerUrl}/api/messages/update-theme`, {
     method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
     body: JSON.stringify({ conversationId, theme }),
     credentials: 'include',
   });
@@ -157,9 +213,17 @@ export async function updateConversationTheme(conversationId: string, theme: str
 }
 
 export async function markConversationAsRead(conversationId: string) {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  const token = session?.access_token;
+
+  if (!token) return null;
+
   const res = await fetch(`${fastapiServerUrl}/api/messages/mark-as-read`, {
     method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
     body: JSON.stringify({ conversationId }),
     credentials: 'include',
   });

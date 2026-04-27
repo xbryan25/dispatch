@@ -1,5 +1,7 @@
 import { UserProfileUpdate } from '@/types/auth';
 
+import { supabase } from '@/lib/supabase/client';
+
 const fastapiServerUrl = process.env.NEXT_PUBLIC_FASTAPI_SERVER_URL;
 
 export async function checkIfUsernameIsTaken(username: string) {
@@ -19,9 +21,17 @@ export async function checkIfUsernameIsTaken(username: string) {
 }
 
 export async function getCurrentUserId() {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  const token = session?.access_token;
+
+  if (!token) return null;
+
   const res = await fetch(`${fastapiServerUrl}/api/auth/me`, {
     method: 'GET',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
     credentials: 'include',
   });
 
@@ -36,9 +46,17 @@ export async function getCurrentUserId() {
 }
 
 export async function getCurrentUserDetails() {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  const token = session?.access_token;
+
+  if (!token) return null;
+
   const res = await fetch(`${fastapiServerUrl}/api/auth/user-details`, {
     method: 'GET',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
     credentials: 'include',
   });
 
@@ -54,6 +72,14 @@ export async function getCurrentUserDetails() {
 }
 
 export async function updateUserDetails(payload: UserProfileUpdate) {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  const token = session?.access_token;
+
+  if (!token) return null;
+
   const dataToSend = {
     ...payload,
     dateOfBirth:
@@ -68,7 +94,7 @@ export async function updateUserDetails(payload: UserProfileUpdate) {
 
   const res = await fetch(`${fastapiServerUrl}/api/auth/user-details`, {
     method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
     body: JSON.stringify(body),
     credentials: 'include',
   });
@@ -85,11 +111,20 @@ export async function updateUserDetails(payload: UserProfileUpdate) {
 }
 
 export async function getPresignedUrl(image: File) {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  const token = session?.access_token;
+
+  if (!token) return null;
+
   const res = await fetch(
     `${fastapiServerUrl}/api/auth/profile-image-upload-url?filename=${image.name}&file_type=${image.type}`,
     {
       method: 'GET',
       credentials: 'include',
+      headers: { Authorization: `Bearer ${token}` },
     }
   );
 
@@ -105,11 +140,20 @@ export async function getPresignedUrl(image: File) {
 }
 
 export async function updateProfileImage(imageUrl: string) {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  const token = session?.access_token;
+
+  if (!token) return null;
+
   const res = await fetch(`${fastapiServerUrl}/api/auth/profile-image`, {
     method: 'PATCH',
     credentials: 'include',
     headers: {
-      'Content-Type': 'application/json', // Must be here!
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify({ profile_image_url: imageUrl }),
   });

@@ -1,11 +1,21 @@
+import { supabase } from '@/lib/supabase/client';
+
 const fastapiServerUrl = process.env.NEXT_PUBLIC_FASTAPI_SERVER_URL;
 
 export async function getCurrentFriends(sortState: string, searchQuery: string, page: number) {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  const token = session?.access_token;
+
+  if (!token) return null;
+
   const res = await fetch(
     `${fastapiServerUrl}/api/friends?sort_state=${sortState}&search_query=${searchQuery}&page=${page}`,
     {
       method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
       credentials: 'include',
     }
   );
@@ -24,11 +34,19 @@ export async function getCurrentFriends(sortState: string, searchQuery: string, 
 }
 
 export async function getSentRequestsProfile(sortState: string, searchQuery: string, page: number) {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  const token = session?.access_token;
+
+  if (!token) return null;
+
   const res = await fetch(
     `${fastapiServerUrl}/api/friends/sent?sort_state=${sortState}&search_query=${searchQuery}&page=${page}`,
     {
       method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
       credentials: 'include',
     }
   );
@@ -51,11 +69,19 @@ export async function getReceivedRequestsProfile(
   searchQuery: string,
   page: number
 ) {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  const token = session?.access_token;
+
+  if (!token) return null;
+
   const res = await fetch(
     `${fastapiServerUrl}/api/friends/received?sort_state=${sortState}&search_query=${searchQuery}&page=${page}`,
     {
       method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
       credentials: 'include',
     }
   );
@@ -74,11 +100,19 @@ export async function getReceivedRequestsProfile(
 }
 
 export async function getFormerFriends(sortState: string, searchQuery: string, page: number) {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  const token = session?.access_token;
+
+  if (!token) return null;
+
   const res = await fetch(
     `${fastapiServerUrl}/api/friends/former?sort_state=${sortState}&search_query=${searchQuery}&page=${page}`,
     {
       method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
       credentials: 'include',
     }
   );
@@ -97,11 +131,19 @@ export async function getFormerFriends(sortState: string, searchQuery: string, p
 }
 
 export async function getFriendSuggestions(sortState: string, searchQuery: string, page: number) {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  const token = session?.access_token;
+
+  if (!token) return null;
+
   const res = await fetch(
     `${fastapiServerUrl}/api/friends/suggestions?sort_state=${sortState}&search_query=${searchQuery}&page=${page}`,
     {
       method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
       credentials: 'include',
     }
   );
@@ -120,9 +162,17 @@ export async function getFriendSuggestions(sortState: string, searchQuery: strin
 }
 
 export async function createNewFriendRequest(targetUserId: string) {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  const token = session?.access_token;
+
+  if (!token) return null;
+
   const res = await fetch(`${fastapiServerUrl}/api/friends/friend-request`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
     body: JSON.stringify({ targetUserId }),
     credentials: 'include',
   });
@@ -141,11 +191,19 @@ export async function createNewFriendRequest(targetUserId: string) {
 }
 
 export async function cancelFriendRequest(targetUserId: string) {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  const token = session?.access_token;
+
+  if (!token) return null;
+
   const res = await fetch(
     `${fastapiServerUrl}/api/friends/friend-request/cancel?target_user_id=${targetUserId}`,
     {
       method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
       credentials: 'include',
     }
   );
@@ -164,9 +222,17 @@ export async function cancelFriendRequest(targetUserId: string) {
 }
 
 export async function acceptFriendRequest(targetUserId: string) {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  const token = session?.access_token;
+
+  if (!token) return null;
+
   const res = await fetch(`${fastapiServerUrl}/api/friends/friend-request/accept`, {
     method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
     body: JSON.stringify({ targetUserId }),
     credentials: 'include',
   });
@@ -185,11 +251,19 @@ export async function acceptFriendRequest(targetUserId: string) {
 }
 
 export async function rejectFriendRequest(targetUserId: string) {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  const token = session?.access_token;
+
+  if (!token) return null;
+
   const res = await fetch(
     `${fastapiServerUrl}/api/friends/friend-request/reject?target_user_id=${targetUserId}`,
     {
       method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
       credentials: 'include',
     }
   );
@@ -207,9 +281,17 @@ export async function rejectFriendRequest(targetUserId: string) {
 }
 
 export async function unfriendUser(targetUserId: string) {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  const token = session?.access_token;
+
+  if (!token) return null;
+
   const res = await fetch(`${fastapiServerUrl}/api/friends/unfriend`, {
     method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
     body: JSON.stringify({ targetUserId }),
     credentials: 'include',
   });
@@ -226,9 +308,17 @@ export async function unfriendUser(targetUserId: string) {
 }
 
 export async function reconnectToUser(targetUserId: string) {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  const token = session?.access_token;
+
+  if (!token) return null;
+
   const res = await fetch(`${fastapiServerUrl}/api/friends/friend-request/reconnect`, {
     method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
     body: JSON.stringify({ targetUserId }),
     credentials: 'include',
   });
