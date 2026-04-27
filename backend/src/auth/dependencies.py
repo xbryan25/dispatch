@@ -7,12 +7,13 @@ from src.core.config import settings
 import base64
 
 from uuid import UUID
+from typing import Any
 
 security = HTTPBearer(auto_error=False)
 
 
 async def get_current_user_id(
-    websocket: WebSocket | None = None, 
+    websocket: Any = None, 
     cookie_str: str | None = Cookie(None, alias=settings.SUPABASE_COOKIE_NAME),
     token_auth: HTTPAuthorizationCredentials | None = Security(security),
     token: str | None = Query(None),
