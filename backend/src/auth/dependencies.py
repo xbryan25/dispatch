@@ -1,5 +1,5 @@
 import json
-from fastapi import Cookie, HTTPException, Security, Query, WebSocket
+from fastapi import Cookie, HTTPException, Security, Query
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jose import jwt, JWTError
 from jose.exceptions import ExpiredSignatureError
@@ -13,7 +13,7 @@ security = HTTPBearer(auto_error=False)
 
 
 async def get_current_user_id(
-    websocket: Any = None, 
+    websocket: Any = None,
     cookie_str: str | None = Cookie(None, alias=settings.SUPABASE_COOKIE_NAME),
     token_auth: HTTPAuthorizationCredentials | None = Security(security),
     token: str | None = Query(None),
