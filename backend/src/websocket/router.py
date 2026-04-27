@@ -18,7 +18,7 @@ from src.messages.exceptions import InvalidConversationID
 
 from src.core import manager, get_db, get_redis
 
-from src.auth.dependencies import get_current_user_id
+from src.auth.dependencies import get_current_user_id_ws
 
 from src.auth.services import AuthService
 
@@ -29,7 +29,7 @@ router = APIRouter(prefix="/api/websocket", tags=["Webscoket"])
 @router.websocket("/ws")
 async def websocket_endpoint(
     websocket: WebSocket,
-    user_id: Annotated[UUID, Depends(get_current_user_id)],
+    user_id: Annotated[UUID, Depends(get_current_user_id_ws)],
     redis: Redis = Depends(get_redis),
     db: AsyncSession = Depends(get_db),
 ):
