@@ -144,6 +144,8 @@ export const useInitializeWebsocket = () => {
         clearInterval(interval);
       };
     };
+
+    connectWs();
   }, [
     currentUserId,
     setSocket,
