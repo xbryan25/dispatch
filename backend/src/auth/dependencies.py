@@ -1,5 +1,5 @@
 import json
-from fastapi import Cookie, HTTPException, Security, Query
+from fastapi import Cookie, HTTPException, Security, Query, WebSocketException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jose import jwt, JWTError
 from jose.exceptions import ExpiredSignatureError
@@ -16,16 +16,12 @@ async def get_current_user_id(
     websocket: Any = None,
     cookie_str: str | None = Cookie(None, alias=settings.SUPABASE_COOKIE_NAME),
     token_auth: HTTPAuthorizationCredentials | None = Security(security),
-    token: str | None = Query(None),
 ) -> UUID:
 
     access_token = None
 
     if token_auth:
         access_token = token_auth.credentials
-
-    elif token:
-        access_token = token
 
     elif cookie_str:
         try:
@@ -53,31 +49,35 @@ async def get_current_user_id(
             detail="Authentication failed: No valid session cookie, Bearer token, or Query token found.",
         )
 
+    return await _decode_token(access_token)
+
+
+async def get_current_user_id_ws(
+    token: str | None = Query(None),
+) -> UUID:
+    if not token:
+        raise WebSocketException(code=status.WS_1008_POLICY_VIOLATION)
+
+    return await _decode_token(token)
+
+
+async def _decode_token(access_token: str) -> UUID:
     try:
         payload = jwt.decode(
             access_token,
             str(settings.JWT_SECRET),
             algorithms=["HS256"],
-            options={
-                "verify_aud": False,
-                "verify_signature": True,
-            },
+            options={"verify_aud": False, "verify_signature": True},
         )
-
         user_id_str = payload.get("sub")
         if not user_id_str:
             raise HTTPException(status_code=401, detail="Invalid token: missing sub")
-
         return UUID(user_id_str)
 
     except ExpiredSignatureError:
-        print("Auth Error: Token has expired")
-        raise HTTPException(
-            status_code=401, detail="Token expired. Please refresh your session."
-        )
-    except JWTError as e:
-        print(f"JWT Error: {e}")
+        raise HTTPException(status_code=401, detail="Token expired.")
+    except JWTError:
         raise HTTPException(status_code=401, detail="Could not validate credentials")
-    except Exception as e:
+    except Exception as e:  # ← add this
         print(f"JWT Error: {e}")
         raise HTTPException(status_code=401, detail="Could not validate credentials")
