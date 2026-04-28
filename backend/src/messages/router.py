@@ -17,7 +17,7 @@ from redis.asyncio import Redis
 
 from .exceptions import InvalidConversationID
 
-from src.core import manager, get_db, get_redis, limiter
+from src.core import get_db, get_redis, limiter, publish_to_user
 
 from src.auth.dependencies import get_current_user_id
 
@@ -90,7 +90,7 @@ async def send_message(
             event_data = {"type": "NEW_MESSAGE", "data": msg_dict}
 
             for conversation_participant in conversation_participants:
-                await manager.send_to_user(conversation_participant, event_data)
+                await publish_to_user(str(conversation_participant), event_data)
 
         return msg_dict
 
@@ -309,7 +309,7 @@ async def update_conversation_theme(
 
             for conversation_participant in conversation_participants:
                 if conversation_participant != user_id:
-                    await manager.send_to_user(conversation_participant, event_data)
+                    await publish_to_user(str(conversation_participant), event_data)
 
         return theme_details
 
@@ -373,7 +373,7 @@ async def mark_conversation_as_read(
 
             event_data = {"type": "MESSAGE_SEEN", "data": message_seen_dict}
 
-            await manager.send_to_user(UUID(str(other_participant.user_id)), event_data)
+            await publish_to_user(str(other_participant.user_id), event_data)
 
     except HTTPException:
         raise

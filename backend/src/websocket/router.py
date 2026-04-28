@@ -8,11 +8,13 @@ from fastapi import (
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from uuid import UUID
+import json
 
 import traceback
 from typing import Annotated
 
 from redis.asyncio import Redis
+import asyncio
 
 from src.messages.exceptions import InvalidConversationID
 
@@ -43,31 +45,49 @@ async def websocket_endpoint(
 
     await redis.sadd("online_users", str(user_id))  # type: ignore
 
+    pubsub = redis.pubsub()
+    await pubsub.subscribe(f"user:{user_id}")
+
     try:
         online_direct_message_participants = await redis.sinter(f"user:direct_message:{user_id}", "online_users")  # type: ignore
 
-        for online_direct_message_participant in online_direct_message_participants:
-            online_status_dict = {"isOnline": True}
-
-            event_data = {"type": "USER_ONLINE", "data": online_status_dict}
-
-            await manager.send_to_user(
-                UUID(online_direct_message_participant), event_data
+        for participant in online_direct_message_participants:
+            await redis.publish(
+                f"user:{participant}",
+                json.dumps({"type": "USER_ONLINE", "data": {"isOnline": True}}),
             )
 
-        while True:
-            data = await websocket.receive_json()
+        # run pubsub listener and websocket receiver concurrently
+        async def listen_to_redis():
+            async for message in pubsub.listen():
+                if message["type"] == "message":
+                    data = json.loads(message["data"])
+                    await websocket.send_json(data)
 
-            if data["type"] == "PING":
-                await redis.set(f"online:{user_id}", "1", ex=60)
-                await redis.sadd("online_users", str(user_id))  # type: ignore
-                await websocket.send_json({"type": "PONG"})
+        async def listen_to_websocket():
+            while True:
+                data = await websocket.receive_json()
+                if data["type"] == "PING":
+                    await redis.set(f"online:{user_id}", "1", ex=60)
+                    await redis.sadd("online_users", str(user_id))  # type: ignore
+                    await websocket.send_json({"type": "PONG"})
+
+        try:
+            await asyncio.gather(
+                listen_to_redis(), listen_to_websocket(), return_exceptions=False
+            )
+        except WebSocketDisconnect:
+            raise 
+        except Exception:
+            raise
 
     except InvalidConversationID:
         traceback.print_exc()
         await websocket.close(code=3001)
     except WebSocketDisconnect:
         traceback.print_exc()
+
+        await pubsub.unsubscribe(f"user:{user_id}")
         manager.disconnect(websocket, user_id)
 
         remaining_connections = manager.get_num_of_current_connections_for_a_user(
@@ -82,16 +102,20 @@ async def websocket_endpoint(
 
             last_online = await AuthService.update_last_online(db, user_id)
 
-            for online_direct_message_participant in online_direct_message_participants:
-                offline_status_dict = {
-                    "isOnline": False,
-                    "lastOnline": last_online.isoformat() if last_online else None,
-                }
-
-                event_data = {"type": "USER_OFFLINE", "data": offline_status_dict}
-
-                await manager.send_to_user(
-                    UUID(online_direct_message_participant), event_data
+            for participant in online_direct_message_participants:
+                await redis.publish(
+                    f"user:{participant}",
+                    json.dumps(
+                        {
+                            "type": "USER_OFFLINE",
+                            "data": {
+                                "isOnline": False,
+                                "lastOnline": (
+                                    last_online.isoformat() if last_online else None
+                                ),
+                            },
+                        }
+                    ),
                 )
 
     except Exception:
