@@ -92,13 +92,15 @@ def mock_s3():
 
 
 @pytest.fixture()
-def mock_redis():
+def mock_redis(monkeypatch):
     mock_redis_client = MagicMock()
 
     mock_redis_client.exists = AsyncMock(return_value=True)
     mock_redis_client.sadd = AsyncMock(return_value={})
     mock_redis_client.expire = AsyncMock(return_value={})
     mock_redis_client.publish = AsyncMock(return_value={})
+
+    monkeypatch.setattr("src.core.redis.redis_client", mock_redis_client)
 
     app.dependency_overrides[get_redis] = lambda: mock_redis_client
     yield mock_redis_client
