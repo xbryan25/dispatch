@@ -1,4 +1,7 @@
 import redis.asyncio as redis
+
+import json
+
 from typing import AsyncGenerator
 from .config import settings
 
@@ -21,3 +24,7 @@ async def get_redis() -> AsyncGenerator[redis.Redis, None]:
 
 async def close_redis():
     await redis_client.aclose()
+
+
+async def publish_to_user(user_id: str, event: dict):
+    await redis_client.publish(f"user:{user_id}", json.dumps(event))

@@ -10,7 +10,7 @@ from typing import Annotated, Any, Literal
 
 import math
 
-from src.core import manager, get_db, limiter
+from src.core import get_db, limiter, publish_to_user
 
 from src.auth.dependencies import get_current_user_id
 
@@ -315,7 +315,7 @@ async def accept_friend_request(
 
             event_data = {"type": "UPDATE_CONVERSATION", "data": friendship_status_dict}
 
-            await manager.send_to_user(payload.target_user_id, event_data)
+            await publish_to_user(str(payload.target_user_id), event_data)
 
         return {"status": "success"}
 
@@ -371,7 +371,7 @@ async def unfriend_user(
 
             event_data = {"type": "UPDATE_CONVERSATION", "data": friendship_status_dict}
 
-            await manager.send_to_user(payload.target_user_id, event_data)
+            await publish_to_user(str(payload.target_user_id), event_data)
 
         return {"status": "success"}
 

@@ -26,15 +26,5 @@ class ConnectionManager:
             if not self.user_connections[user_id]:
                 del self.user_connections[user_id]
 
-    async def send_to_user(self, user_id: UUID, message: dict) -> None:
-        # Sends a message to every active connection owned by a specific user.
-        connections = self.user_connections.get(user_id)
-        if connections:
-            for websocket in connections:
-                try:
-                    await websocket.send_json(message)
-                except Exception:
-                    pass
-
 
 manager = ConnectionManager()

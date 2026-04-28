@@ -9,7 +9,7 @@ from typing import Any
 from .queries import NotificationsQueries
 from .models import Notification
 
-from src.core import manager
+from src.core import publish_to_user
 
 
 class NotificationsService:
@@ -42,7 +42,7 @@ class NotificationsService:
                 "type": "NEW_NOTIFICATION",
             }
 
-            await manager.send_to_user(receiver_id, event_data)
+            await publish_to_user(str(receiver_id), event_data)
 
         except Exception:
             traceback.print_exc()
