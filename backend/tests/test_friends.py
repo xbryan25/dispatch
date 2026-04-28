@@ -345,7 +345,7 @@ class TestCancelFriendRequest:
 
 
 class TestAcceptFriendRequest:
-    async def test_accept_friend_request(self, client):
+    async def test_accept_friend_request(self, client, mock_redis):
         user_a = UUID("c976dffe-6d6c-495b-bd00-92c2cf9fd24c")
         user_b = UUID("441cff8e-1338-4c01-bace-daed0f308eed")
 
@@ -439,7 +439,7 @@ class TestRejectFriendRequest:
 
 
 class TestUnfriendUser:
-    async def test_unfriend_user(self, authenticated_client):
+    async def test_unfriend_user(self, authenticated_client, mock_redis):
         response = await authenticated_client.patch(
             "/api/friends/unfriend",
             json={"target_user_id": "441cff8e-1338-4c01-bace-daed0f308eed"},

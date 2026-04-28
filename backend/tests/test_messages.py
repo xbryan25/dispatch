@@ -1,5 +1,5 @@
 class TestSendMessage:
-    async def test_send_message(self, authenticated_client):
+    async def test_send_message(self, authenticated_client, mock_redis):
         response = await authenticated_client.post(
             "/api/messages/send",
             json={
@@ -301,7 +301,7 @@ class TestGetConversationTheme:
 
 
 class TestUpdateConversationTheme:
-    async def test_update_conversation_theme(self, authenticated_client):
+    async def test_update_conversation_theme(self, authenticated_client, mock_redis):
         response = await authenticated_client.patch(
             "/api/messages/update-theme",
             json={
@@ -384,7 +384,7 @@ class TestUpdateConversationTheme:
 
 
 class TestMarkConversationAsRead:
-    async def test_mark_conversation_as_read(self, authenticated_client):
+    async def test_mark_conversation_as_read(self, authenticated_client, mock_redis):
         response = await authenticated_client.patch(
             "/api/messages/mark-as-read",
             json={"conversation_id": "42f3e11b-7c0d-4744-a527-738001c154e1"},
