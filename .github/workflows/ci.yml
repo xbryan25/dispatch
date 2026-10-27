@@ -63,8 +63,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install PNPM
-        run: npm install -g pnpm
+      - name: Set up PNPM
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.34.9
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -85,4 +87,4 @@ jobs:
         working-directory: frontend
         env:
           NEXT_PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.placeholder
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_OR_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.placeholder
