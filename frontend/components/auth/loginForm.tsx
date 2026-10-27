@@ -8,6 +8,7 @@ import { toast } from 'sonner';
 
 import { useAuthStore } from '@/store/useAuthStore';
 
+import FormError from '@/components/auth/formError';
 import { Button } from '@/components/ui/button';
 import { Field, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
@@ -88,17 +89,13 @@ export default function LoginForm() {
                 placeholder="Enter your email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                aria-invalid={!isEmailValid && email !== ''}
+                aria-describedby={!isEmailValid && email !== '' ? 'email-error' : undefined}
                 className="h-11 rounded-xl border-slate-200 bg-white px-3.5 shadow-none placeholder:text-slate-400 focus-visible:border-indigo-400 focus-visible:ring-indigo-500/20"
               />
 
               {!validateEmail(email) && email !== '' && (
-                <div className="flex gap-1 items-center">
-                  <Icon
-                    icon="material-symbols:cancel-outline-rounded"
-                    className="w-4 h-4 text-red-500"
-                  />
-                  <span className="text-red-500 text-sm">Email not in proper format.</span>
-                </div>
+                <FormError>Enter a valid email address, such as name@example.com</FormError>
               )}
             </Field>
 

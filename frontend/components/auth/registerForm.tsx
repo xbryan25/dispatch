@@ -10,6 +10,7 @@ import { useAuthStore } from '@/store/useAuthStore';
 
 import { useUsernameCheck } from '@/hooks/useUsernameCheck';
 
+import FormError from '@/components/auth/formError';
 import { Button } from '@/components/ui/button';
 import { Field, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
@@ -79,7 +80,9 @@ export default function RegisterForm() {
         <form onSubmit={(e) => userSignup(e)} className="flex flex-col gap-4">
           <FieldGroup className="flex flex-col gap-3">
             <Field>
-              <FieldLabel htmlFor="username" className="font-medium text-slate-700">Username</FieldLabel>
+              <FieldLabel htmlFor="username" className="font-medium text-slate-700">
+                Username
+              </FieldLabel>
 
               <div className="flex flex-col gap-2">
                 <Input
@@ -92,72 +95,67 @@ export default function RegisterForm() {
                 />
 
                 {isCheckingUsername && !isUsernameCheckRateLimited && (
-                  <div className="flex gap-1 items-center">
-                    <Spinner />
-                    <span className=" text-sm">Checking username availability...</span>
+                  <div
+                    aria-live="polite"
+                    className="mt-1 flex items-center gap-2 rounded-lg border border-indigo-200 bg-indigo-50/80 px-3 py-2 text-xs font-medium text-indigo-700"
+                  >
+                    <Spinner
+                      aria-label="Checking username availability"
+                      className="size-4 shrink-0 animate-spin text-indigo-600"
+                    />
+                    <span>Checking username availability…</span>
                   </div>
                 )}
 
                 {!isCheckingUsername && isUsernameTaken && (
-                  <div className="flex gap-1 items-center">
-                    <Icon
-                      icon="material-symbols:cancel-outline-rounded"
-                      className="w-4 h-4 text-red-500"
-                    />
-                    <span className="text-red-500 text-sm">Username is taken.</span>
-                  </div>
+                  <FormError>Username is taken.</FormError>
                 )}
 
                 {!isUsernameProperLength && username !== '' && (
-                  <div className="flex gap-1 items-center">
-                    <Icon
-                      icon="material-symbols:cancel-outline-rounded"
-                      className="w-4 h-4 text-red-500"
-                    />
-                    <span className="text-red-500 text-sm">
-                      Username should have 3 or more characters.
-                    </span>
-                  </div>
+                  <FormError>Username should have 3 or more characters.</FormError>
                 )}
 
                 {isUsernameCheckRateLimited && (
-                  <div className="flex gap-1 items-center">
-                    <Icon
-                      icon="material-symbols:cancel-outline-rounded"
-                      className="w-4 h-4 text-red-500"
-                    />
-                    <span className="text-red-500 text-sm">
-                      Too many attempts. Please wait a minute.
-                    </span>
-                  </div>
+                  <FormError>Too many attempts. Please wait a minute.</FormError>
                 )}
               </div>
             </Field>
 
             <Field>
-              <FieldLabel htmlFor="email" className="font-medium text-slate-700">Email</FieldLabel>
+              <FieldLabel htmlFor="email" className="font-medium text-slate-700">
+                Email
+              </FieldLabel>
               <Input
                 id="email"
                 type="email"
                 placeholder="Enter your email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                aria-invalid={!isEmailValid && email !== ''}
+                aria-describedby={!isEmailValid && email !== '' ? 'email-error' : undefined}
                 className="h-11 rounded-xl border-slate-200 bg-white px-3.5 shadow-none placeholder:text-slate-400 focus-visible:border-indigo-400 focus-visible:ring-indigo-500/20"
               />
 
               {!validateEmail(email) && email !== '' && (
-                <div className="flex gap-1 items-center">
+                <div
+                  id="email-error"
+                  role="status"
+                  className="mt-1 flex items-center gap-2 rounded-lg border border-rose-200 bg-rose-50/80 px-3 py-2 text-xs text-rose-700"
+                >
                   <Icon
-                    icon="material-symbols:cancel-outline-rounded"
-                    className="w-4 h-4 text-red-500"
+                    icon="lucide:circle-alert"
+                    className="size-4 shrink-0 text-rose-600"
+                    aria-hidden="true"
                   />
-                  <span className="text-red-500 text-sm">Email not in proper format.</span>
+                  <span>Enter a valid email address, such as name@example.com.</span>
                 </div>
               )}
             </Field>
 
             <Field>
-              <FieldLabel htmlFor="password" className="font-medium text-slate-700">Password</FieldLabel>
+              <FieldLabel htmlFor="password" className="font-medium text-slate-700">
+                Password
+              </FieldLabel>
 
               <div className="flex flex-col gap-2">
                 <Input
@@ -169,17 +167,30 @@ export default function RegisterForm() {
                   className="h-11 rounded-xl border-slate-200 bg-white px-3.5 shadow-none placeholder:text-slate-400 focus-visible:border-indigo-400 focus-visible:ring-indigo-500/20"
                 />
 
-                <ul>
-                  {passwordErrors.map((error) => (
-                    <li key={error} className="text-red-500 text-sm flex items-center gap-1">
-                      <Icon
-                        icon="material-symbols:cancel-outline-rounded"
-                        className="w-4 h-4 text-red-500"
-                      />
-                      {error}
-                    </li>
-                  ))}
-                </ul>
+                {passwordErrors.length > 0 && (
+                  <div
+                    aria-live="polite"
+                    className="mt-1 rounded-lg border border-rose-200 bg-rose-50/80 px-3 text-xs text-rose-700"
+                  >
+                    <ul>
+                      {passwordErrors.map((error, index) => (
+                        <li
+                          key={error}
+                          className={`flex items-center gap-2 py-2 ${
+                            index > 0 ? 'border-t border-rose-200/80' : ''
+                          }`}
+                        >
+                          <Icon
+                            icon="lucide:circle-alert"
+                            className="size-4 shrink-0 text-rose-600"
+                            aria-hidden="true"
+                          />
+                          <span>{error}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </div>
             </Field>
 
@@ -194,13 +205,7 @@ export default function RegisterForm() {
                 className="h-11 rounded-xl border-slate-200 bg-white px-3.5 shadow-none placeholder:text-slate-400 focus-visible:border-indigo-400 focus-visible:ring-indigo-500/20"
               />
               {!(password === confirmPassword) && confirmPassword !== '' && (
-                <div className="flex gap-1 items-center">
-                  <Icon
-                    icon="material-symbols:cancel-outline-rounded"
-                    className="w-4 h-4 text-red-500"
-                  />
-                  <span className="text-red-500 text-sm">Both passwords are not identical.</span>
-                </div>
+                <FormError>Both passwords are not identical.</FormError>
               )}
             </Field>
           </FieldGroup>
@@ -224,7 +229,7 @@ export default function RegisterForm() {
               {registerLoading && <Spinner />}
               Register
             </Button>
-            {registerError && <p className="text-xs text-red-400">{registerError}</p>}
+            {registerError && <FormError>{registerError}</FormError>}
           </Field>
         </form>
         <div className="mt-6 flex justify-center gap-1.5 border-t border-slate-100 pt-5 text-sm text-slate-500">
