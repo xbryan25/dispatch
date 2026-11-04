@@ -25,9 +25,6 @@ export default function LoginForm() {
   const [isClickedLoginButton, setIsClickedLoginButton] = useState<boolean>(false);
 
   const loginLoading = useAuthStore((state) => state.loginLoading);
-  const loginError = useAuthStore((state) => state.loginError);
-
-  const initCurrentUserIdError = useAuthStore((state) => state.getCurrentIdError);
 
   const { loginUser, getCurrentId } = useAuthStore();
 
@@ -41,17 +38,23 @@ export default function LoginForm() {
 
     await loginUser(email, password);
 
+    const loginError = useAuthStore.getState().loginError;
+
     if (loginError) {
       toast.error(`Login failed. ${loginError}.`);
-    } else {
-      await getCurrentId();
+      setIsClickedLoginButton(false);
+      return;
+    }
 
-      if (initCurrentUserIdError) {
-        toast.error(`Login successful but failed to load your account. Please refresh.`);
-      } else {
-        toast.success('Login successful. Welcome to Dispatch!');
-        router.push('/messages');
-      }
+    await getCurrentId();
+
+    const currentUserIdError = useAuthStore.getState().getCurrentIdError;
+
+    if (currentUserIdError) {
+      toast.error('Login succeeded, but we couldn’t load your account. Please refresh.');
+    } else {
+      toast.success('Login successful. Welcome to Dispatch!');
+      router.push('/messages');
     }
   };
 
