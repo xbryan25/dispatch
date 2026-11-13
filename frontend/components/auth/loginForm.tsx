@@ -51,7 +51,8 @@ export default function LoginForm() {
     const currentUserIdError = useAuthStore.getState().getCurrentIdError;
 
     if (currentUserIdError) {
-      toast.error('Login succeeded, but we couldn’t load your account. Please refresh.');
+      toast.warning('Login succeeded, but we couldn’t load your account. Page will be refreshed.');
+      router.refresh();
     } else {
       toast.success('Login successful. Welcome to Dispatch!');
       router.push('/messages');
