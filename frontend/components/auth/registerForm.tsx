@@ -48,11 +48,28 @@ export default function RegisterForm() {
 
     await registerUser(email, password, username);
 
+    const latestRegisterError = useAuthStore.getState().registerError;
+
+    if (latestRegisterError) {
+      toast.error(`Registration failed. ${improveRegisterError()}`);
+      return;
+    }
+
     toast.success(
       'A confirmation link has been sent to your email. Please verify your account to log in.'
     );
 
     router.push('/login');
+  };
+
+  const improveRegisterError = () => {
+    if (registerError == 'email rate limit exceeded') {
+      return 'Email rate limit exceeded. Wait for a few minutes.';
+    } else if (registerError) {
+      return registerError.charAt(0).toUpperCase() + registerError.slice(1);
+    } else {
+      return 'Something went wrong.';
+    }
   };
 
   return (
@@ -229,7 +246,7 @@ export default function RegisterForm() {
               {registerLoading && <Spinner />}
               Register
             </Button>
-            {registerError && <FormError>{registerError}</FormError>}
+            {registerError && <FormError>{improveRegisterError()}</FormError>}
           </Field>
         </form>
         <div className="mt-6 flex justify-center gap-1.5 border-t border-slate-100 pt-5 text-sm text-slate-500">
