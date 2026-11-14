@@ -75,7 +75,7 @@ export default function EmailConfirmedPage() {
                 You’re all set
               </h1>
 
-              <div className="mt-3 flex flex-col gap-1">
+              <div className="mt-3 flex flex-col ">
                 <p className="text-sm leading-6 text-slate-500">Your email has been confirmed.</p>
                 <p className="text-sm leading-6 text-slate-500">
                   Welcome to Dispatch, your conversations are waiting.
@@ -84,18 +84,12 @@ export default function EmailConfirmedPage() {
 
               <Button
                 asChild
-                className="mt-7 h-12 w-full cursor-pointer rounded-xl bg-indigo-600 text-base font-semibold text-white shadow-lg shadow-indigo-600/20 transition hover:bg-indigo-700"
+                className="mt-6 h-12 w-full cursor-pointer rounded-xl bg-indigo-600 text-base font-semibold text-white shadow-lg shadow-indigo-600/20 transition hover:bg-indigo-700"
               >
-                <Link href="/login">Continue to login</Link>
+                <Link href="/messages">Start chatting</Link>
               </Button>
-              <p className="mt-5 text-sm text-slate-500">
-                Ready to get started?{' '}
-                <Link
-                  href="/"
-                  className="font-semibold text-indigo-600 transition hover:text-indigo-700"
-                >
-                  Back to home
-                </Link>
+              <p className="mt-3 text-sm text-slate-500">
+                Click the button to start using Dispatch.
               </p>
             </section>
           ) : (
