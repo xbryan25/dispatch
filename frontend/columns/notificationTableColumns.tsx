@@ -30,7 +30,7 @@ export const notificationTableColumns = (): ColumnDef<Notification>[] => [
         aria-label="Select all"
       />
     ),
-    size: 20,
+    size: 48,
     cell: ({ row }) => (
       <Checkbox
         checked={row.getIsSelected()}
@@ -44,7 +44,7 @@ export const notificationTableColumns = (): ColumnDef<Notification>[] => [
   {
     accessorKey: 'type',
     header: 'Type',
-    size: 40,
+    size: 150,
     cell: ({ row }) => (
       <NotificationDetailsDialog
         notificationId={row.original.notificationId}
@@ -58,6 +58,7 @@ export const notificationTableColumns = (): ColumnDef<Notification>[] => [
   {
     accessorKey: 'message',
     header: 'Message',
+    size: 460,
     cell: ({ row }) => (
       <NotificationDetailsDialog
         notificationId={row.original.notificationId}
@@ -70,15 +71,15 @@ export const notificationTableColumns = (): ColumnDef<Notification>[] => [
   },
   {
     accessorKey: 'date',
-    size: 20,
+    size: 180,
     header: 'Date',
     cell: ({ row }) => (
-      <p className="max-w-10">{formatter.format(new Date(row.original.createdAt))}</p>
+      <p className="whitespace-normal text-xs leading-5 text-stone-500 dark:text-stone-400">{formatter.format(new Date(row.original.createdAt))}</p>
     ),
   },
   {
     id: 'actions',
-    size: 10,
+    size: 64,
     cell: ({ row }) => {
       return <NotificationRowActions notification={row.original} />;
     },

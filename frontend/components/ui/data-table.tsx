@@ -79,15 +79,15 @@ export function DataTable<TData, TValue>({
   }));
 
   return (
-    <div>
-      <div className="overflow-hidden rounded-md border">
-        <Table style={{ tableLayout: 'fixed' }}>
-          <TableHeader>
+    <div className="flex min-h-0 flex-1 flex-col gap-4">
+      <div className="overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-sm dark:border-stone-800 dark:bg-stone-900">
+        <Table className="min-w-[760px]" style={{ tableLayout: 'fixed' }}>
+          <TableHeader className="bg-stone-50 dark:bg-stone-950/70">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
                   return (
-                    <TableHead key={header.id} style={{ width: header.column.getSize() }}>
+                    <TableHead key={header.id} className="h-12 px-4 text-[11px] font-semibold uppercase tracking-[0.12em] text-stone-500 dark:text-stone-400" style={{ width: header.column.getSize() }}>
                       {header.isPlaceholder
                         ? null
                         : flexRender(header.column.columnDef.header, header.getContext())}
@@ -103,10 +103,10 @@ export function DataTable<TData, TValue>({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && 'selected'}
-                  className={getRowClassName?.(row.original)}
+                  className={`group border-stone-100 hover:bg-amber-50/40 data-[state=selected]:bg-amber-50 dark:border-stone-800 dark:hover:bg-amber-400/5 dark:data-[state=selected]:bg-amber-400/10 ${getRowClassName?.(row.original) ?? ''}`}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} style={{ width: cell.column.getSize() }}>
+                    <TableCell key={cell.id} className="h-[4.5rem] px-4 py-3 text-sm" style={{ width: cell.column.getSize() }}>
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
                   ))}
@@ -114,7 +114,7 @@ export function DataTable<TData, TValue>({
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center">
+                <TableCell colSpan={columns.length} className="h-24 text-center text-sm text-stone-500">
                   No results.
                 </TableCell>
               </TableRow>
@@ -122,14 +122,15 @@ export function DataTable<TData, TValue>({
           </TableBody>
         </Table>
       </div>
-      <div className="flex items-center justify-end space-x-2 py-4">
-        <div className="flex-1 text-sm text-muted-foreground">
+      <div className="flex flex-col gap-3 rounded-2xl border border-stone-200 bg-white px-4 py-3 shadow-sm dark:border-stone-800 dark:bg-stone-900 sm:flex-row sm:items-center sm:justify-between">
+        <div className="text-sm text-stone-500 dark:text-stone-400">
           {table.getFilteredSelectedRowModel().rows.length} of{' '}
           {table.getFilteredRowModel().rows.length} row(s) selected.
         </div>
         <Button
           variant="outline"
           size="sm"
+          className="h-9 rounded-xl border-stone-200 px-4 dark:border-stone-700"
           onClick={() => setCurrentPage(currentPage - 1)}
           disabled={!table.getCanPreviousPage()}
         >
@@ -138,6 +139,7 @@ export function DataTable<TData, TValue>({
         <Button
           variant="outline"
           size="sm"
+          className="h-9 rounded-xl border-stone-200 px-4 dark:border-stone-700"
           onClick={() => setCurrentPage(currentPage + 1)}
           disabled={!table.getCanNextPage()}
         >
