@@ -32,12 +32,12 @@ export default function NotificationRowActions({ notification }: NotificationRow
     <div className="flex justify-end">
       <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="h-8 w-8 p-0">
+          <Button variant="ghost" className="size-9 rounded-xl text-stone-500 hover:bg-stone-100 hover:text-stone-900 dark:text-stone-400 dark:hover:bg-stone-800 dark:hover:text-stone-100">
             <MoreHorizontal className="h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+        <DropdownMenuContent align="end" className="min-w-44 rounded-xl border-stone-200 p-1.5 shadow-lg dark:border-stone-700">
+          <DropdownMenuLabel className="px-2 py-1.5 text-xs font-semibold uppercase tracking-wider text-stone-400">Actions</DropdownMenuLabel>
 
           <DropdownMenuItem
             onClick={() =>
@@ -46,13 +46,13 @@ export default function NotificationRowActions({ notification }: NotificationRow
                 notification.isReadByReceiver ? 'unread' : 'read'
               )
             }
-            className="cursor-pointer"
+            className="cursor-pointer rounded-lg py-2 text-sm"
           >
             <Icon icon="material-symbols:check" className="w-4 h-4" /> Mark as{' '}
             {notification.isReadByReceiver ? 'unread' : 'read'}
           </DropdownMenuItem>
           <DropdownMenuItem
-            className="cursor-pointer"
+            className="cursor-pointer rounded-lg py-2 text-sm text-red-600 focus:text-red-700 dark:text-red-400"
             onSelect={(e) => {
               e.preventDefault();
               setDialogOpen(true);
