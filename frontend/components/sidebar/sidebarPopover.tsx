@@ -18,14 +18,20 @@ export default function SidebarPopover() {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button className="cursor-pointer">
-          <Icon icon="material-symbols:settings" className="size-4 cursor-pointer"></Icon>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="size-10 cursor-pointer rounded-xl text-stone-500 hover:bg-stone-100 hover:text-stone-900 dark:text-stone-400 dark:hover:bg-stone-800 dark:hover:text-stone-100"
+          aria-label="Open settings"
+          title="Settings"
+        >
+          <Icon icon="material-symbols:settings-rounded" className="size-5" aria-hidden="true" />
         </Button>
       </PopoverTrigger>
 
-      <PopoverContent align="start" className="flex flex-col gap-3">
+      <PopoverContent align="start" className="flex flex-col gap-3 rounded-2xl border-stone-200 p-5 shadow-xl dark:border-stone-700">
         <PopoverHeader>
-          <PopoverTitle className="text-xl font-bold">Settings</PopoverTitle>
+          <PopoverTitle className="text-lg font-semibold tracking-tight">Settings</PopoverTitle>
         </PopoverHeader>
 
         <ChangeProfileImageDialog />

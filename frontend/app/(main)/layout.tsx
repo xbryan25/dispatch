@@ -3,10 +3,10 @@ import GlobalSidebar from '@/components/sidebar/globalSidebar';
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex min-h-screen w-full items-stretch justify-center bg-zinc-200 dark:bg-stone-800 font-sans">
+    <div className="flex min-h-screen w-full flex-col bg-stone-50 font-sans dark:bg-stone-950 lg:flex-row">
       <GlobalSidebar />
       <WebsocketProvider />
-      <main className="flex-1 overflow-hidden bg-white dark:bg-stone-900">{children}</main>
+      <main className="min-h-screen min-w-0 flex-1 bg-stone-50 dark:bg-stone-950">{children}</main>
     </div>
   );
 }
