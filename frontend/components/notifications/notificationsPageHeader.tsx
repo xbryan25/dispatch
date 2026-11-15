@@ -90,72 +90,87 @@ export default function NotificationPageHeader({
               <span aria-hidden="true">·</span>
               <span>{notifications.length} notifications</span>
             </div>
-            <div className="flex flex-wrap items-center gap-2">
-              {isInitialLoad ? (
-                <Skeleton className="h-10 w-40 rounded-xl" />
-              ) : (
-                <Select
-                  onValueChange={(newReadState: ReadStateForSelect) => setReadState(newReadState)}
-                  value={readState ?? 'all'}
-                >
-                  <SelectTrigger className="h-10 w-full rounded-xl border-stone-200 bg-stone-50/70 sm:w-40 dark:border-stone-700 dark:bg-stone-950">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      <SelectItem value="all">Show All</SelectItem>
-                      <SelectItem value="read">Show Only Read</SelectItem>
-                      <SelectItem value="unread">Show Only Unread</SelectItem>
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
-              )}
+            <div className="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto sm:flex-wrap sm:items-end xl:justify-end">
+              <div className="flex min-w-0 flex-col gap-1.5">
+                <span className="px-1 text-[10px] font-semibold uppercase tracking-wider text-stone-400">
+                  Status
+                </span>
+                {isInitialLoad ? (
+                  <Skeleton className="h-10 w-full rounded-xl sm:w-40" />
+                ) : (
+                  <Select
+                    onValueChange={(newReadState: ReadStateForSelect) => setReadState(newReadState)}
+                    value={readState ?? 'all'}
+                  >
+                    <SelectTrigger className="h-10 w-full min-w-0 rounded-xl border-stone-200 bg-stone-50/70 sm:w-40 dark:border-stone-700 dark:bg-stone-950">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        <SelectItem value="all">All</SelectItem>
+                        <SelectItem value="read">Read only</SelectItem>
+                        <SelectItem value="unread">Unread only</SelectItem>
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                )}
+              </div>
 
-              {isInitialLoad ? (
-                <Skeleton className="h-10 w-44 rounded-xl" />
-              ) : (
-                <Select
-                  onValueChange={(newSortState: SortState) => setSortState(newSortState)}
-                  value={sortState ?? 'ascending'}
-                >
-                  <SelectTrigger className="h-10 w-full rounded-xl border-stone-200 bg-stone-50/70 sm:w-44 dark:border-stone-700 dark:bg-stone-950">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      <SelectItem value="ascending">Show Newest First</SelectItem>
-                      <SelectItem value="descending">Show Latest First</SelectItem>
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
-              )}
+              <div className="flex min-w-0 flex-col gap-1.5">
+                <span className="px-1 text-[10px] font-semibold uppercase tracking-wider text-stone-400">
+                  Sort
+                </span>
+                {isInitialLoad ? (
+                  <Skeleton className="h-10 w-full rounded-xl sm:w-40" />
+                ) : (
+                  <Select
+                    onValueChange={(newSortState: SortState) => setSortState(newSortState)}
+                    value={sortState ?? 'ascending'}
+                  >
+                    <SelectTrigger className="h-10 w-full min-w-0 rounded-xl border-stone-200 bg-stone-50/70 sm:w-40 dark:border-stone-700 dark:bg-stone-950">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        <SelectItem value="ascending">Newest first</SelectItem>
+                        <SelectItem value="descending">Oldest first</SelectItem>
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                )}
+              </div>
 
-              {isInitialLoad ? (
-                <Skeleton className="h-10 w-24 rounded-xl" />
-              ) : (
-                <Select
-                  onValueChange={(newNotificationsToShow: string) =>
-                    setNotificationsToShow(Number(newNotificationsToShow) as NotificationsToShow)
-                  }
-                  value={String(notificationsToShow) ?? '10'}
-                >
-                  <SelectTrigger className="h-10 w-24 rounded-xl border-stone-200 bg-stone-50/70 dark:border-stone-700 dark:bg-stone-950">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      <SelectItem value="10">10</SelectItem>
-                      <SelectItem value="25">25</SelectItem>
-                      <SelectItem value="50">50</SelectItem>
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
-              )}
+              <div className="flex min-w-0 flex-col gap-1.5">
+                <span className="px-1 text-[10px] font-semibold uppercase tracking-wider text-stone-400">
+                  Per page
+                </span>
+                {isInitialLoad ? (
+                  <Skeleton className="h-10 w-full rounded-xl sm:w-28" />
+                ) : (
+                  <Select
+                    onValueChange={(newNotificationsToShow: string) =>
+                      setNotificationsToShow(Number(newNotificationsToShow) as NotificationsToShow)
+                    }
+                    value={String(notificationsToShow) ?? '10'}
+                  >
+                    <SelectTrigger className="h-10 w-full min-w-0 rounded-xl border-stone-200 bg-stone-50/70 sm:w-28 dark:border-stone-700 dark:bg-stone-950">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        <SelectItem value="10">10</SelectItem>
+                        <SelectItem value="25">25</SelectItem>
+                        <SelectItem value="50">50</SelectItem>
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                )}
+              </div>
 
               {selectedRows.length > 1 && (
                 <Button
                   variant="outline"
-                  className="h-10 cursor-pointer rounded-xl border-stone-200 bg-white dark:border-stone-700 dark:bg-stone-900"
+                  className="h-10 w-full cursor-pointer rounded-xl border-stone-200 bg-white sm:w-auto dark:border-stone-700 dark:bg-stone-900"
                   disabled={markLoading || deleteLoading}
                   onClick={async () => {
                     await updateNotificationsReadStatus(
@@ -174,7 +189,7 @@ export default function NotificationPageHeader({
               {selectedRows.length > 1 && (
                 <Button
                   variant="destructive"
-                  className="h-10 cursor-pointer rounded-xl"
+                  className="h-10 w-full cursor-pointer rounded-xl sm:w-auto"
                   disabled={markLoading || deleteLoading}
                   onClick={async () => {
                     setDialogOpen(true);
