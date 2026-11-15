@@ -71,11 +71,13 @@ export default function NotificationDetailsDialog({
         <p
           className={
             toShowInCell === 'type'
-              ? 'inline-flex max-w-full items-center rounded-full bg-stone-100 px-2.5 py-1 text-xs font-semibold text-stone-700 transition-colors hover:bg-amber-100 hover:text-amber-900 dark:bg-stone-800 dark:text-stone-200 dark:hover:bg-amber-400/15 dark:hover:text-amber-200'
-              : 'max-w-full overflow-hidden text-ellipsis whitespace-nowrap font-medium text-stone-800 transition-colors hover:text-amber-800 dark:text-stone-200 dark:hover:text-amber-300'
+              ? 'inline-flex w-fit min-w-0 max-w-full items-center overflow-hidden rounded-full bg-stone-100 px-2.5 py-1 text-xs font-semibold text-stone-700 transition-colors hover:bg-amber-100 hover:text-amber-900 dark:bg-stone-800 dark:text-stone-200 dark:hover:bg-amber-400/15 dark:hover:text-amber-200'
+              : 'block min-w-0 max-w-full truncate font-medium text-stone-800 transition-colors hover:text-amber-800 dark:text-stone-200 dark:hover:text-amber-300'
           }
         >
-          {toShowInCell === 'type' ? toTitleCase(type) : content}
+          <span className="block min-w-0 truncate">
+            {toShowInCell === 'type' ? toTitleCase(type) : content}
+          </span>
         </p>
       </DialogTrigger>
 
