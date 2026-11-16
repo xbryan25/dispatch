@@ -1,11 +1,12 @@
 'use client';
 
-import { Icon } from '@iconify/react';
+import { MessageCirclePlus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 
 import { useChatStore } from '@/store/useChatStore';
 
+import { dialogContentClass, userCardIconButtonClass } from '@/components/friends/userCardStyles';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -61,8 +62,13 @@ export default function CreateNewConversationDialog({
       <Tooltip>
         <TooltipTrigger asChild>
           <DialogTrigger asChild>
-            <Button size="icon" className="h-9 w-9 shrink-0 cursor-pointer">
-              <Icon icon="material-symbols:chat-add-on" className="size-5" />
+            <Button
+              variant="outline"
+              size="icon"
+              className={userCardIconButtonClass}
+              aria-label={`Start talking to ${username}`}
+            >
+              <MessageCirclePlus className="size-4" />
             </Button>
           </DialogTrigger>
         </TooltipTrigger>
@@ -70,13 +76,20 @@ export default function CreateNewConversationDialog({
           <p className="font-medium font-sans">Start talking to {username}?</p>
         </TooltipContent>
       </Tooltip>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Message {username}?</DialogTitle>
-          <DialogDescription>This will start a new conversation with {username}.</DialogDescription>
-          <div className="flex w-full gap-2 pt-2">
+      <DialogContent className={dialogContentClass}>
+        <DialogHeader className="px-6 pb-5 pt-6 text-left">
+          <div className="mb-3 flex size-11 items-center justify-center rounded-xl bg-amber-50 text-amber-700 dark:bg-amber-400/10 dark:text-amber-300">
+            <MessageCirclePlus className="size-5" aria-hidden="true" />
+          </div>
+          <DialogTitle className="text-lg font-semibold tracking-tight">
+            Message {username}?
+          </DialogTitle>
+          <DialogDescription className="pt-1 leading-6">
+            This will start a new conversation with {username}.
+          </DialogDescription>
+          <div className="flex w-full gap-2 pt-4">
             <Button
-              className="flex-1 cursor-pointer text-md"
+              className="h-10 flex-1 cursor-pointer rounded-xl text-sm"
               onClick={createDirectMessage}
               disabled={createNewDirectMessageLoading}
             >

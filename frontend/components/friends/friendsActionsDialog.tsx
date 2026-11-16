@@ -1,12 +1,18 @@
 'use client';
 
-import { Icon } from '@iconify/react';
+import { History, LucideIcon, UserCheck, UserPlus, UserX, X } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
 import { useFriendsActionsStore } from '@/store/friends/useFriendsActionsStore';
 import { useFriendsStore } from '@/store/friends/useFriendsStore';
 
+import {
+  dialogContentClass,
+  userCardDangerIconButtonClass,
+  userCardIconButtonClass,
+  userCardPrimaryIconButtonClass,
+} from '@/components/friends/userCardStyles';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -20,6 +26,29 @@ import { Spinner } from '@/components/ui/spinner';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 import { ActionCategory } from '@/types/friends';
+
+type ActionTone = 'primary' | 'neutral' | 'danger';
+
+const actionStyles: Record<ActionCategory, { icon: LucideIcon; tone: ActionTone }> = {
+  createNewRequestAction: { icon: UserPlus, tone: 'primary' },
+  cancelRequestAction: { icon: X, tone: 'danger' },
+  acceptAction: { icon: UserCheck, tone: 'primary' },
+  rejectAction: { icon: UserX, tone: 'danger' },
+  unfriendAction: { icon: UserX, tone: 'danger' },
+  reconnectRequestAction: { icon: History, tone: 'primary' },
+};
+
+const triggerClassByTone: Record<ActionTone, string> = {
+  primary: userCardPrimaryIconButtonClass,
+  neutral: userCardIconButtonClass,
+  danger: userCardDangerIconButtonClass,
+};
+
+const iconTileClassByTone: Record<ActionTone, string> = {
+  primary: 'bg-amber-50 text-amber-700 dark:bg-amber-400/10 dark:text-amber-300',
+  neutral: 'bg-stone-100 text-stone-600 dark:bg-stone-800 dark:text-stone-300',
+  danger: 'bg-red-50 text-red-600 dark:bg-red-400/10 dark:text-red-400',
+};
 
 interface FriendsActionsDialogProps {
   username: string;
@@ -99,6 +128,8 @@ export default function FriendsActionsDialog({
     },
   };
 
+  const { icon: ActionIcon, tone } = actionStyles[actionType];
+
   const friendsAction = async () => {
     await doFriendsAction(otherUserId, actionType);
 
@@ -130,12 +161,14 @@ export default function FriendsActionsDialog({
         <TooltipTrigger asChild>
           <DialogTrigger asChild>
             <Button
+              variant="outline"
               size="icon"
-              className="h-9 w-9 shrink-0 cursor-pointer"
+              className={triggerClassByTone[tone]}
               disabled={isRateLimitedFromActions[actionType]}
               onClick={() => setIsOpen(true)}
+              aria-label={messages[actionType].tooltip}
             >
-              <Icon icon="material-symbols:check-circle" className="size-6" />
+              <ActionIcon className="size-4" />
             </Button>
           </DialogTrigger>
         </TooltipTrigger>
@@ -143,13 +176,23 @@ export default function FriendsActionsDialog({
           <p className="font-medium font-sans">{messages[actionType].tooltip}</p>
         </TooltipContent>
       </Tooltip>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>{messages[actionType].dialogTitle}</DialogTitle>
-          <DialogDescription>{messages[actionType].dialogDescription}</DialogDescription>
-          <div className="flex w-full gap-2 pt-2">
+      <DialogContent className={dialogContentClass}>
+        <DialogHeader className="px-6 pb-5 pt-6 text-left">
+          <div
+            className={`mb-3 flex size-11 items-center justify-center rounded-xl ${iconTileClassByTone[tone]}`}
+          >
+            <ActionIcon className="size-5" aria-hidden="true" />
+          </div>
+          <DialogTitle className="text-lg font-semibold tracking-tight">
+            {messages[actionType].dialogTitle}
+          </DialogTitle>
+          <DialogDescription className="pt-1 leading-6">
+            {messages[actionType].dialogDescription}
+          </DialogDescription>
+          <div className="flex w-full gap-2 pt-4">
             <Button
-              className="flex-1 cursor-pointer text-md"
+              variant={tone === 'danger' ? 'destructive' : 'default'}
+              className="h-10 flex-1 cursor-pointer rounded-xl text-sm"
               onClick={friendsAction}
               disabled={loading || isRateLimitedFromActions[actionType]}
             >

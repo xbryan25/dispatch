@@ -1,5 +1,6 @@
 'use client';
 
+import { UserMinus } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { useFriendsActionsStore } from '@/store/friends/useFriendsActionsStore';
@@ -72,15 +73,21 @@ export default function UnfriendDialog({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Are you sure you want to unfriend {username}?</DialogTitle>
-          <DialogDescription>
+      <DialogContent className="max-w-md gap-0 overflow-hidden rounded-2xl border-stone-200 p-0 dark:border-stone-800">
+        <DialogHeader className="px-6 pb-5 pt-6 text-left">
+          <div className="mb-3 flex size-11 items-center justify-center rounded-xl bg-red-50 text-red-600 dark:bg-red-400/10 dark:text-red-400">
+            <UserMinus className="size-5" aria-hidden="true" />
+          </div>
+          <DialogTitle className="text-lg font-semibold tracking-tight">
+            Are you sure you want to unfriend {username}?
+          </DialogTitle>
+          <DialogDescription className="pt-1 leading-6">
             Your conversation with {username} will change to view-only.
           </DialogDescription>
-          <div className="flex w-full gap-2 pt-2">
+          <div className="flex w-full gap-2 pt-4">
             <Button
-              className="flex-1 cursor-pointer text-md"
+              variant="destructive"
+              className="h-10 flex-1 cursor-pointer rounded-xl text-sm"
               onClick={unfriendUser}
               disabled={loading || isRateLimitedFromAction}
             >
