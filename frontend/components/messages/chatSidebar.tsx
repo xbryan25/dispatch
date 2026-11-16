@@ -1,6 +1,7 @@
 'use client';
 
 import { MessageSquare, Search } from 'lucide-react';
+import { useState } from 'react';
 
 import { useSidebarStore } from '@/store/useSidebarStore';
 
@@ -12,6 +13,8 @@ import { cn } from '@/lib/utils';
 export default function ChatSidebar({ className }: { className?: string }) {
   const conversationCount = useSidebarStore((state) => state.conversationSnippets.length);
   const isLoading = useSidebarStore((state) => state.isLoading);
+
+  const [searchQuery, setSearchQuery] = useState('');
 
   return (
     <aside
@@ -46,14 +49,20 @@ export default function ChatSidebar({ className }: { className?: string }) {
           Search
         </span>
         <InputGroup className="h-10 w-full rounded-xl border-stone-200 bg-stone-50/70 shadow-none dark:border-stone-700 dark:bg-stone-950">
-          <InputGroupInput placeholder="Search conversations..." />
+          <InputGroupInput
+            placeholder="Search conversations..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            disabled={conversationCount === 0 && searchQuery === ''}
+            aria-label="Search conversations by name"
+          />
           <InputGroupAddon>
             <Search />
           </InputGroupAddon>
         </InputGroup>
       </div>
 
-      <ChatList />
+      <ChatList searchQuery={searchQuery} />
     </aside>
   );
 }

@@ -80,18 +80,24 @@ export default function ConversationDetails({ onToggle, className }: Conversatio
 
         <ChangeThemeDialog />
 
-        <button className={settingsRowClass()}>
+        <button className={settingsRowClass('neutral', true)} disabled>
           <span className={settingsRowIconTileClass()}>
             <BellOff className="size-4" />
           </span>
           Mute notifications
+          <span className="ml-auto shrink-0 rounded-full bg-stone-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-stone-500 dark:bg-stone-800 dark:text-stone-400">
+            Coming soon
+          </span>
         </button>
 
-        <button className={settingsRowClass()}>
+        <button className={settingsRowClass('neutral', true)} disabled>
           <span className={settingsRowIconTileClass()}>
             <PenLine className="size-4" />
           </span>
           Set nicknames
+          <span className="ml-auto shrink-0 rounded-full bg-stone-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-stone-500 dark:bg-stone-800 dark:text-stone-400">
+            Coming soon
+          </span>
         </button>
       </div>
 

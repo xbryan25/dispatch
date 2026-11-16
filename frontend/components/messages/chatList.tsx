@@ -1,16 +1,28 @@
 'use client';
 
-import { MessagesSquare } from 'lucide-react';
-import { useEffect } from 'react';
+import { MessagesSquare, SearchX } from 'lucide-react';
+import { useEffect, useMemo } from 'react';
 
 import { useSidebarStore } from '@/store/useSidebarStore';
 
 import ConversationTab from '@/components/messages/conversationTab';
 import { Skeleton } from '@/components/ui/skeleton';
 
-export default function ChatList() {
+export default function ChatList({ searchQuery = '' }: { searchQuery?: string }) {
   const conversationSnippets = useSidebarStore((state) => state.conversationSnippets);
   const isLoading = useSidebarStore((state) => state.isLoading);
+
+  const normalizedQuery = searchQuery.trim().toLowerCase();
+
+  const filteredSnippets = useMemo(
+    () =>
+      normalizedQuery === ''
+        ? conversationSnippets
+        : conversationSnippets.filter((snippet) =>
+            (snippet.otherUserName ?? '').toLowerCase().includes(normalizedQuery)
+          ),
+    [conversationSnippets, normalizedQuery]
+  );
 
   const { getConversations } = useSidebarStore();
 
@@ -50,10 +62,24 @@ export default function ChatList() {
         <span className="sr-only">Loading conversations...</span>
       </div>
     );
+  } else if (filteredSnippets.length === 0) {
+    return (
+      <div className="flex min-h-0 w-full flex-1 flex-col items-center justify-center rounded-2xl border border-dashed border-stone-300 px-6 text-center dark:border-stone-700">
+        <div className="mb-4 flex size-12 items-center justify-center rounded-2xl bg-stone-100 text-stone-500 dark:bg-stone-800 dark:text-stone-300">
+          <SearchX className="size-5" aria-hidden="true" />
+        </div>
+        <h2 className="text-base font-semibold tracking-tight text-stone-900 dark:text-stone-100">
+          No matches found
+        </h2>
+        <p className="mt-1.5 max-w-xs break-words text-sm leading-6 text-stone-500 dark:text-stone-400">
+          No conversations match &lsquo;{searchQuery.trim()}&rsquo;.
+        </p>
+      </div>
+    );
   } else {
     return (
       <div className="-mx-2 flex h-0 min-w-0 flex-1 flex-col gap-1 overflow-y-auto px-2">
-        {conversationSnippets.map((conversationSnippet) => {
+        {filteredSnippets.map((conversationSnippet) => {
           return (
             <ConversationTab
               key={conversationSnippet.conversationId}
