@@ -40,7 +40,6 @@ export default function ChangeThemeDialog() {
 
   const selectedTheme = themes.find((theme) => theme.id == selectedThemeId);
 
-  const changeConversationThemeError = useChatStore((state) => state.changeConversationThemeError);
   const changeConversationThemeRateLimited = useChatStore(
     (state) => state.changeConversationThemeRateLimited
   );
@@ -54,11 +53,18 @@ export default function ChangeThemeDialog() {
 
       setIsOpen(false);
 
-      if (changeConversationThemeError != null) {
-        toast.error(`Something went wrong when unfriending a user.`);
-        return;
-      } else if (changeConversationThemeRateLimited) {
+      // Read the store's current values; the ones captured at render time are stale after the await.
+      const {
+        changeConversationThemeError: latestThemeError,
+        changeConversationThemeRateLimited: latestThemeRateLimited,
+      } = useChatStore.getState();
+
+      // A 429 sets both flags, so check rate limiting first.
+      if (latestThemeRateLimited) {
         toast.error('You have tried to change the theme already. Try again in 1 minute.');
+        return;
+      } else if (latestThemeError != null) {
+        toast.error(`Something went wrong when changing the theme.`);
         return;
       }
 
