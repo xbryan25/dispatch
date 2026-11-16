@@ -3,9 +3,11 @@
 import { ArrowLeft, PanelRight } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 
 import { useChatStore } from '@/store/useChatStore';
+
+import { useLastActiveLabel } from '@/hooks/useLastActiveLabel';
 
 import {
   userCardIconButtonClass,
@@ -24,63 +26,19 @@ export default function ConversationArea({
   onToggle,
   isDetailsOpen = false,
 }: ConversationAreaProps) {
-  const [formattedLastOnline, setFormattedLastOnline] = useState<string>('');
-
   const otherParticipantDetails = useChatStore((state) => state.otherParticipantDetails);
 
   const otherParticipantFriendshipStatus = useChatStore(
     (state) => state.otherParticipantFriendshipStatus
   );
 
-  const otherParticipantIsOnline = useChatStore((state) => state.otherParticipantIsOnline);
-  const otherParticipantLastOnline = useChatStore((state) => state.otherParticipantLastOnline);
+  const { isOnline: otherParticipantIsOnline, label: lastActiveLabel } = useLastActiveLabel();
 
   useEffect(() => {
     if (otherParticipantFriendshipStatus !== 'accepted') {
       onToggle(false);
     }
   }, [otherParticipantFriendshipStatus, onToggle]);
-
-  const formatRelativeTime = (date: Date) => {
-    const start = date.getTime();
-    const now = Date.now();
-    const diffInSeconds = Math.floor((now - start) / 1000);
-
-    if (diffInSeconds < 60) return '1m';
-
-    const units = [
-      { label: 'm', seconds: 60 },
-      { label: 'h', seconds: 3600 },
-      { label: 'd', seconds: 86400 },
-      { label: 'w', seconds: 604800 },
-      { label: 'mo', seconds: 2592000 },
-      { label: 'y', seconds: 31536000 },
-    ];
-
-    for (let i = units.length - 1; i >= 0; i--) {
-      if (diffInSeconds >= units[i].seconds) {
-        return `${Math.floor(diffInSeconds / units[i].seconds)}${units[i].label}`;
-      }
-    }
-    return '1m';
-  };
-
-  useEffect(() => {
-    const update = () => {
-      let timeStr: string = '';
-
-      if (otherParticipantLastOnline != null) {
-        timeStr = formatRelativeTime(otherParticipantLastOnline);
-      }
-      setFormattedLastOnline(timeStr || '');
-    };
-
-    update();
-
-    const interval = setInterval(update, 60000);
-
-    return () => clearInterval(interval);
-  }, [otherParticipantLastOnline]);
 
   return (
     <section className="flex h-full min-w-0 flex-3 flex-col overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-sm dark:border-stone-800 dark:bg-stone-900">
@@ -123,15 +81,15 @@ export default function ConversationArea({
             <h2 className="truncate font-semibold text-stone-900 dark:text-stone-100">
               {otherParticipantDetails?.username}
             </h2>
-            {otherParticipantIsOnline ? (
-              <p className="text-xs font-medium text-emerald-600 dark:text-emerald-400">
-                Active now
-              </p>
-            ) : (
-              <p className="text-xs text-stone-500 dark:text-stone-400">
-                Last active {formattedLastOnline} ago
-              </p>
-            )}
+            <p
+              className={
+                otherParticipantIsOnline
+                  ? 'text-xs font-medium text-emerald-600 dark:text-emerald-400'
+                  : 'text-xs text-stone-500 dark:text-stone-400'
+              }
+            >
+              {lastActiveLabel}
+            </p>
           </div>
         </div>
 

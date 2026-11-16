@@ -27,6 +27,8 @@ export default function MessageThread() {
   const activeConversationTheme =
     themes.find((theme) => theme.id == activeConversationThemeId) ?? themes[0];
 
+  const otherParticipantDetails = useChatStore((state) => state.otherParticipantDetails);
+
   const { getPastMessages } = useChatStore();
 
   const currentUserId = useAuthStore((state) => state.currentUserId);
@@ -37,31 +39,31 @@ export default function MessageThread() {
     );
   }, [sendingMessages, failedMessages]);
 
-  useEffect(() => {
-    console.log(failedMessages);
-  }, [failedMessages]);
-
   const topSentinelRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const previousHeightRef = useRef(0);
 
-  const dateFormatters: Record<DateFormatters, Intl.DateTimeFormat> = {
-    hour: new Intl.DateTimeFormat('en-US', {
-      hour: 'numeric',
-      minute: '2-digit',
-      hour12: true,
+  // Created once so components depending on it don't re-run their effects every render.
+  const dateFormatters: Record<DateFormatters, Intl.DateTimeFormat> = useMemo(
+    () => ({
+      hour: new Intl.DateTimeFormat('en-US', {
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true,
+      }),
+      currentWeek: new Intl.DateTimeFormat('en-US', {
+        weekday: 'long',
+      }),
+      later: new Intl.DateTimeFormat('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      }),
     }),
-    currentWeek: new Intl.DateTimeFormat('en-US', {
-      weekday: 'long',
-    }),
-    later: new Intl.DateTimeFormat('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    }),
-  };
+    []
+  );
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -178,7 +180,8 @@ export default function MessageThread() {
       {!hasMorePastMessages && messages.length > 0 && (
         <div className="flex justify-center pb-4">
           <p className="rounded-full bg-stone-100 px-3 py-1 text-center text-xs font-medium text-stone-500 dark:bg-stone-800 dark:text-stone-400">
-            Your conversation with Bryan Agan started here ({formatDate(messages[0].createdAt)}).
+            Your conversation with {otherParticipantDetails?.username} started here (
+            {formatDate(messages[0].createdAt)}).
           </p>
         </div>
       )}

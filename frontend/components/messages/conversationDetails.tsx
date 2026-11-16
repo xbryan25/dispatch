@@ -7,6 +7,8 @@ import { useState } from 'react';
 import { useFriendsStore } from '@/store/friends/useFriendsStore';
 import { useChatStore } from '@/store/useChatStore';
 
+import { useLastActiveLabel } from '@/hooks/useLastActiveLabel';
+
 import {
   settingsRowClass,
   settingsRowIconTileClass,
@@ -25,6 +27,8 @@ export default function ConversationDetails({ onToggle, className }: Conversatio
   const otherParticipantDetails = useChatStore((state) => state.otherParticipantDetails);
 
   const { setOtherParticipantFriendshipStatus } = useChatStore();
+
+  const { isOnline, label: lastActiveLabel } = useLastActiveLabel();
 
   const [openUnfriendDialog, setOpenUnfriendDialog] = useState(false);
 
@@ -57,7 +61,15 @@ export default function ConversationDetails({ onToggle, className }: Conversatio
           <h2 className="max-w-full truncate text-lg font-bold tracking-tight text-stone-900 dark:text-stone-100">
             {otherParticipantDetails?.username}
           </h2>
-          <p className="text-xs font-medium text-emerald-600 dark:text-emerald-400">Active now</p>
+          <p
+            className={
+              isOnline
+                ? 'text-xs font-medium text-emerald-600 dark:text-emerald-400'
+                : 'text-xs text-stone-500 dark:text-stone-400'
+            }
+          >
+            {lastActiveLabel}
+          </p>
         </div>
       </div>
 
