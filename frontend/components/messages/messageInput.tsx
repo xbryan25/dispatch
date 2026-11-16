@@ -24,15 +24,20 @@ export default function MessageInput({
 
   const { send, addSendingMessage, removeSendingMessage, addFailedMessage } = useChatStore();
 
+  const isReadOnly = otherParticipantFriendshipStatus !== 'accepted';
+
+  // Whitespace-only drafts, read-only conversations and rate limits all block sending.
+  const canSend = newMessage.trim() !== '' && !isReadOnly && !sendRateLimited;
+
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      if (newMessage.trim() !== '') sendNewMessage();
+      if (canSend) sendNewMessage();
     }
   };
 
   const sendNewMessage = async () => {
-    if (newMessage === '') return;
+    if (!canSend) return;
 
     const content = newMessage.trim();
     const tempMessageId: string = crypto.randomUUID();
@@ -69,8 +74,6 @@ export default function MessageInput({
     }
   };
 
-  const isReadOnly = otherParticipantFriendshipStatus !== 'accepted';
-
   const notice = isReadOnly
     ? {
         icon: Lock,
@@ -99,7 +102,7 @@ export default function MessageInput({
             onChange={(e) => setNewMessage(e.target.value)}
             onKeyDown={handleKeyDown}
             className="max-h-40 min-h-4! px-4! py-3! text-sm"
-            disabled={sendRateLimited}
+            disabled={isReadOnly || sendRateLimited}
             placeholder={
               isReadOnly
                 ? 'This conversation is read-only'
@@ -113,7 +116,7 @@ export default function MessageInput({
           size="icon"
           className="size-11 shrink-0 cursor-pointer rounded-2xl bg-amber-500 text-white shadow-none hover:bg-amber-600 disabled:bg-stone-200 disabled:text-stone-400 disabled:opacity-100 dark:bg-amber-500 dark:hover:bg-amber-400 dark:disabled:bg-stone-800 dark:disabled:text-stone-500"
           onClick={sendNewMessage}
-          disabled={newMessage === '' || sendRateLimited}
+          disabled={!canSend}
           aria-label="Send message"
         >
           <SendHorizontal className="size-4" />
