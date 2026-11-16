@@ -38,20 +38,20 @@ export default function UnfriendDialog({
   const { loadUsersData } = useFriendsStore();
 
   const loading = useFriendsActionsStore((state) => state.loading);
-  const error = useFriendsActionsStore((state) => state.error);
-  const isRateLimitedFromActions = useFriendsActionsStore(
-    (state) => state.isRateLimitedFromActions
-  );
 
   const unfriendUser = async () => {
     await doFriendsAction(otherUserId, 'unfriendAction');
 
-    if (error != null) {
-      toast.error(`Something went wrong when unfriending a user.`);
+    // Read the store's current values; the ones captured at render time are stale after the await.
+    const { error: latestError, isRateLimitedFromActions: latestRateLimits } =
+      useFriendsActionsStore.getState();
+
+    if (latestRateLimits.unfriendAction) {
+      toast.error('You have unfriended too many users. Try again in 1 minute.');
       onClose();
       return;
-    } else if (isRateLimitedFromActions.unfriendAction) {
-      toast.error('You have unfriended too many users. Try again in 1 minute.');
+    } else if (latestError != null) {
+      toast.error(`Something went wrong when unfriending a user.`);
       onClose();
       return;
     }

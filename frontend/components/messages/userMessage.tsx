@@ -3,6 +3,7 @@
 import { AlertCircle, RotateCw } from 'lucide-react';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 import { useAuthStore } from '@/store/useAuthStore';
 import { useChatStore } from '@/store/useChatStore';
@@ -48,8 +49,6 @@ export default function UserMessage({
   const { send, addSendingMessage, removeSendingMessage, addFailedMessage, removeFailedMessage } =
     useChatStore();
 
-  const sendError = useChatStore((state) => state.sendError);
-
   const otherParticipantLastReadMessageId = useChatStore(
     (state) => state.otherParticipantLastReadMessageId
   );
@@ -74,7 +73,15 @@ export default function UserMessage({
 
     await send(content.trim(), tempMessageId);
 
-    if (sendError !== null) {
+    // Read the store's current values; the ones captured at render time are stale after the await.
+    const { sendError, sendRateLimited } = useChatStore.getState();
+
+    // A 429 sets both flags, so check rate limiting first.
+    if (sendRateLimited) {
+      toast.error('You have tried to send too many messages. Try again in 1 minute.');
+      removeSendingMessage(tempMessageId);
+    } else if (sendError !== null) {
+      toast.error(`Something went wrong when sending a message.`);
       addFailedMessage({
         tempMessageId,
         content: content.trim(),

@@ -20,7 +20,6 @@ export default function MessageInput({
 }: MessageInputProps) {
   const [newMessage, setNewMessage] = useState('');
 
-  const sendError = useChatStore((state) => state.sendError);
   const sendRateLimited = useChatStore((state) => state.sendRateLimited);
 
   const { send, addSendingMessage, removeSendingMessage, addFailedMessage } = useChatStore();
@@ -35,31 +34,37 @@ export default function MessageInput({
   const sendNewMessage = async () => {
     if (newMessage === '') return;
 
+    const content = newMessage.trim();
     const tempMessageId: string = crypto.randomUUID();
 
     addSendingMessage({
       tempMessageId,
-      content: newMessage.trim(),
+      content,
       createdAt: new Date().toISOString(),
       status: 'sending',
     });
 
     setNewMessage('');
 
-    await send(newMessage.trim(), tempMessageId);
+    await send(content, tempMessageId);
 
-    if (sendError !== null) {
+    // Read the store's current values; the ones captured at render time are stale after the await.
+    const { sendError: latestSendError, sendRateLimited: latestSendRateLimited } =
+      useChatStore.getState();
+
+    // A 429 sets both flags, so check rate limiting first.
+    if (latestSendRateLimited) {
+      toast.error('You have tried to send too many messages. Try again in 1 minute.');
+      removeSendingMessage(tempMessageId);
+    } else if (latestSendError !== null) {
       toast.error(`Something went wrong when sending a message.`);
       addFailedMessage({
         tempMessageId,
-        content: newMessage.trim(),
+        content,
         createdAt: new Date().toISOString(),
         status: 'failed',
       });
 
-      removeSendingMessage(tempMessageId);
-    } else if (sendRateLimited) {
-      toast.error('You have tried to send too many messages. Try again in 1 minute.');
       removeSendingMessage(tempMessageId);
     }
   };
