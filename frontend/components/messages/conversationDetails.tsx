@@ -14,11 +14,14 @@ import {
 import ChangeThemeDialog from '@/components/shared/changeThemeDialog';
 import UnfriendDialog from '@/components/shared/unfriendDialog';
 
+import { cn } from '@/lib/utils';
+
 interface ConversationDetailsProps {
   onToggle: (newVal?: boolean) => void; // This is a function prop
+  className?: string;
 }
 
-export default function ConversationDetails({ onToggle }: ConversationDetailsProps) {
+export default function ConversationDetails({ onToggle, className }: ConversationDetailsProps) {
   const otherParticipantDetails = useChatStore((state) => state.otherParticipantDetails);
 
   const { setOtherParticipantFriendshipStatus } = useChatStore();
@@ -30,7 +33,12 @@ export default function ConversationDetails({ onToggle }: ConversationDetailsPro
   const unfriendDisabled = isRateLimitedFromActions['unfriendAction'];
 
   return (
-    <aside className="flex h-full min-w-0 max-w-80 flex-1 flex-col gap-6 overflow-y-auto rounded-2xl border border-stone-200 bg-white p-5 shadow-sm dark:border-stone-800 dark:bg-stone-900">
+    <aside
+      className={cn(
+        'flex h-full min-w-0 max-w-80 flex-1 flex-col gap-6 overflow-y-auto rounded-2xl border border-stone-200 bg-white p-5 shadow-sm dark:border-stone-800 dark:bg-stone-900',
+        className
+      )}
+    >
       <div className="flex flex-col items-center gap-3 rounded-2xl bg-stone-50 px-4 py-6 text-center dark:bg-stone-950/60">
         <div className="relative size-20 shrink-0 overflow-hidden rounded-full bg-stone-100 ring-4 ring-white dark:bg-stone-800 dark:ring-stone-900">
           <Image

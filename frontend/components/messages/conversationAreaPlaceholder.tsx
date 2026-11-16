@@ -10,7 +10,7 @@ export default function ConversationAreaPlaceholder() {
   const Icon = hasChats ? MessageCircle : MessageSquarePlus;
 
   return (
-    <section className="flex flex-3 flex-col items-center justify-center rounded-2xl border border-stone-200 bg-white px-6 text-center shadow-sm dark:border-stone-800 dark:bg-stone-900">
+    <section className="hidden flex-3 flex-col md:flex items-center justify-center rounded-2xl border border-stone-200 bg-white px-6 text-center shadow-sm dark:border-stone-800 dark:bg-stone-900">
       <div className="mb-4 flex size-14 items-center justify-center rounded-2xl bg-amber-50 text-amber-700 dark:bg-amber-400/10 dark:text-amber-300">
         <Icon className="size-6" aria-hidden="true" />
       </div>

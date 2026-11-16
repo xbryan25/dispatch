@@ -7,12 +7,19 @@ import { useSidebarStore } from '@/store/useSidebarStore';
 import ChatList from '@/components/messages/chatList';
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group';
 
-export default function ChatSidebar() {
+import { cn } from '@/lib/utils';
+
+export default function ChatSidebar({ className }: { className?: string }) {
   const conversationCount = useSidebarStore((state) => state.conversationSnippets.length);
   const isLoading = useSidebarStore((state) => state.isLoading);
 
   return (
-    <aside className="flex h-full min-w-0 max-w-125 flex-1 flex-col gap-5 rounded-2xl border border-stone-200 bg-white p-5 shadow-sm dark:border-stone-800 dark:bg-stone-900">
+    <aside
+      className={cn(
+        'flex h-full min-w-0 flex-1 flex-col gap-5 rounded-2xl border border-stone-200 bg-white p-4 shadow-sm dark:border-stone-800 dark:bg-stone-900 sm:p-5 md:max-w-xs lg:max-w-sm xl:max-w-125',
+        className
+      )}
+    >
       <div className="flex items-start gap-4">
         <div className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-amber-50 text-amber-700 dark:bg-amber-400/10 dark:text-amber-300">
           <MessageSquare className="size-5" />
