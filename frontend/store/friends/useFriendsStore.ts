@@ -86,6 +86,10 @@ interface FriendsState {
   loadUsersData: (newPage?: number) => Promise<void>;
 }
 
+// Incremented on every fetch so responses from superseded requests (e.g. an older
+// search finishing after a newer one) are ignored instead of overwriting the list.
+let latestRequestId = 0;
+
 export const useFriendsStore = create<FriendsState>()((set, get) => ({
   users: [],
   loading: false,
@@ -167,10 +171,14 @@ export const useFriendsStore = create<FriendsState>()((set, get) => ({
     page: number,
     isRetry: boolean = false
   ) => {
+    const requestId = ++latestRequestId;
+
     set({ loading: true, error: null });
 
     try {
       const data = await getCurrentFriends(sortState, searchQuery, page);
+
+      if (requestId !== latestRequestId) return;
 
       set({
         users: data.users,
@@ -180,6 +188,8 @@ export const useFriendsStore = create<FriendsState>()((set, get) => ({
         loading: false,
       });
     } catch (err: unknown) {
+      if (requestId !== latestRequestId) return;
+
       if (err instanceof Error && (err as Error & { status: number }).status === 429) {
         set((prev) => ({
           isRateLimited: {
@@ -208,9 +218,7 @@ export const useFriendsStore = create<FriendsState>()((set, get) => ({
         });
       }
     } finally {
-      set({
-        loading: false,
-      });
+      if (requestId === latestRequestId) set({ loading: false });
     }
   },
 
@@ -220,10 +228,14 @@ export const useFriendsStore = create<FriendsState>()((set, get) => ({
     page: number,
     isRetry: boolean = false
   ) => {
+    const requestId = ++latestRequestId;
+
     set({ loading: true, error: null });
 
     try {
       const data = await getSentRequestsProfile(sortState, searchQuery, page);
+
+      if (requestId !== latestRequestId) return;
 
       set({
         users: data.users,
@@ -233,6 +245,8 @@ export const useFriendsStore = create<FriendsState>()((set, get) => ({
         loading: false,
       });
     } catch (err: unknown) {
+      if (requestId !== latestRequestId) return;
+
       if (err instanceof Error && (err as Error & { status: number }).status === 429) {
         set((prev) => ({
           isRateLimited: {
@@ -260,9 +274,7 @@ export const useFriendsStore = create<FriendsState>()((set, get) => ({
         });
       }
     } finally {
-      set({
-        loading: false,
-      });
+      if (requestId === latestRequestId) set({ loading: false });
     }
   },
 
@@ -272,10 +284,14 @@ export const useFriendsStore = create<FriendsState>()((set, get) => ({
     page: number,
     isRetry: boolean = false
   ) => {
+    const requestId = ++latestRequestId;
+
     set({ loading: true, error: null });
 
     try {
       const data = await getReceivedRequestsProfile(sortState, searchQuery, page);
+
+      if (requestId !== latestRequestId) return;
 
       set({
         users: data.users,
@@ -285,6 +301,8 @@ export const useFriendsStore = create<FriendsState>()((set, get) => ({
         loading: false,
       });
     } catch (err: unknown) {
+      if (requestId !== latestRequestId) return;
+
       if (err instanceof Error && (err as Error & { status: number }).status === 429) {
         set((prev) => ({
           isRateLimited: {
@@ -312,9 +330,7 @@ export const useFriendsStore = create<FriendsState>()((set, get) => ({
         });
       }
     } finally {
-      set({
-        loading: false,
-      });
+      if (requestId === latestRequestId) set({ loading: false });
     }
   },
 
@@ -324,10 +340,14 @@ export const useFriendsStore = create<FriendsState>()((set, get) => ({
     page: number,
     isRetry: boolean = false
   ) => {
+    const requestId = ++latestRequestId;
+
     set({ loading: true, error: null });
 
     try {
       const data = await getFormerFriends(sortState, searchQuery, page);
+
+      if (requestId !== latestRequestId) return;
 
       set({
         users: data.users,
@@ -337,6 +357,8 @@ export const useFriendsStore = create<FriendsState>()((set, get) => ({
         loading: false,
       });
     } catch (err: unknown) {
+      if (requestId !== latestRequestId) return;
+
       if (err instanceof Error && (err as Error & { status: number }).status === 429) {
         set((prev) => ({
           isRateLimited: {
@@ -363,9 +385,7 @@ export const useFriendsStore = create<FriendsState>()((set, get) => ({
         });
       }
     } finally {
-      set({
-        loading: false,
-      });
+      if (requestId === latestRequestId) set({ loading: false });
     }
   },
 
@@ -375,10 +395,14 @@ export const useFriendsStore = create<FriendsState>()((set, get) => ({
     page: number,
     isRetry: boolean = false
   ) => {
+    const requestId = ++latestRequestId;
+
     set({ loading: true, error: null });
 
     try {
       const data = await getFriendSuggestions(sortState, searchQuery, page);
+
+      if (requestId !== latestRequestId) return;
 
       set({
         users: data.users,
@@ -388,6 +412,8 @@ export const useFriendsStore = create<FriendsState>()((set, get) => ({
         loading: false,
       });
     } catch (err: unknown) {
+      if (requestId !== latestRequestId) return;
+
       if (err instanceof Error && (err as Error & { status: number }).status === 429) {
         set((prev) => ({
           isRateLimited: {
@@ -415,9 +441,7 @@ export const useFriendsStore = create<FriendsState>()((set, get) => ({
         });
       }
     } finally {
-      set({
-        loading: false,
-      });
+      if (requestId === latestRequestId) set({ loading: false });
     }
   },
 
@@ -449,9 +473,7 @@ export const useFriendsStore = create<FriendsState>()((set, get) => ({
 
       await apiMap[userType]();
     } catch {
-      set({ error: 'Failed to load data' });
-    } finally {
-      set({ loading: false });
+      set({ error: 'Failed to load data', loading: false });
     }
   },
 }));
