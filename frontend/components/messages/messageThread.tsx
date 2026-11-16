@@ -1,12 +1,13 @@
 'use client';
 
+import { Hand } from 'lucide-react';
 import { useEffect, useRef, useMemo } from 'react';
 
 import { useAuthStore } from '@/store/useAuthStore';
 import { useChatStore } from '@/store/useChatStore';
 
 import UserMessage from '@/components/messages/userMessage';
-import LoadingSpinner from '@/components/shared/loadingSpinner';
+import { Spinner } from '@/components/ui/spinner';
 
 import { DateFormatters } from '@/types/chat';
 
@@ -158,23 +159,35 @@ export default function MessageThread() {
 
   if (messages.length == 0) {
     return (
-      <div className="flex-1 flex items-center justify-center">
-        <h1 className="font-semibold text-2xl">No messages yet. Say hello! 👋</h1>
+      <div className="flex flex-1 items-center justify-center p-4">
+        <div className="flex flex-col items-center rounded-2xl border border-dashed border-stone-300 px-8 py-10 text-center dark:border-stone-700">
+          <div className="mb-4 flex size-14 items-center justify-center rounded-2xl bg-amber-50 text-amber-700 dark:bg-amber-400/10 dark:text-amber-300">
+            <Hand className="size-6" aria-hidden="true" />
+          </div>
+          <h2 className="text-xl font-semibold tracking-tight text-stone-900 dark:text-stone-100">
+            No messages yet
+          </h2>
+          <p className="mt-2 text-sm text-stone-500 dark:text-stone-400">Say hello! 👋</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div ref={containerRef} className="flex-1 flex flex-col py-2 px-2 gap-3 overflow-y-auto">
+    <div ref={containerRef} className="flex flex-1 flex-col gap-1 overflow-y-auto px-4 py-4">
       {!hasMorePastMessages && messages.length > 0 && (
-        <div className="flex justify-center py-2">
-          <p className="font-medium">
+        <div className="flex justify-center pb-4">
+          <p className="rounded-full bg-stone-100 px-3 py-1 text-center text-xs font-medium text-stone-500 dark:bg-stone-800 dark:text-stone-400">
             Your conversation with Bryan Agan started here ({formatDate(messages[0].createdAt)}).
           </p>
         </div>
       )}
 
-      {getPastMessagesLoading && <LoadingSpinner />}
+      {getPastMessagesLoading && (
+        <div className="flex justify-center py-2 text-stone-400">
+          <Spinner />
+        </div>
+      )}
 
       {/* Top sentinel */}
       {hasMorePastMessages && activeConversationId && (

@@ -1,5 +1,6 @@
 'use client';
 
+import { AlertCircle, RotateCw } from 'lucide-react';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
 
@@ -140,23 +141,26 @@ export default function UserMessage({
     return () => clearInterval(interval);
   }, [messageState]);
 
+  const isSender = messageType === 'sender';
+
   return (
     <div
       className={cn(
-        'flex w-full items-center gap-2',
-        breakMessage ? '' : 'pl-11',
-        messageType === 'sender' ? 'justify-end' : ''
+        'flex w-full items-end gap-2',
+        isSender ? 'justify-end' : '',
+        !isSender && !breakMessage ? 'pl-10' : '',
+        breakMessage ? 'mb-2' : ''
       )}
     >
-      {messageType === 'others' && breakMessage && (
+      {!isSender && breakMessage && (
         <Tooltip>
           <TooltipTrigger asChild>
-            <div className="relative w-9 h-9 shrink-0 overflow-hidden rounded-full ">
+            <div className="relative size-8 shrink-0 overflow-hidden rounded-full bg-stone-100 dark:bg-stone-800">
               <Image
                 src="/blank_picture.png"
                 alt="User avatar"
                 fill
-                sizes="96px"
+                sizes="32px"
                 className="object-cover"
               />
             </div>
@@ -167,75 +171,73 @@ export default function UserMessage({
         </Tooltip>
       )}
 
-      <div className="flex flex-col items-end">
-        <div className="flex flex-col">
+      <div
+        className={cn('flex max-w-[75%] min-w-0 flex-col', isSender ? 'items-end' : 'items-start')}
+      >
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div
+              className={cn(
+                'rounded-2xl px-3.5 py-2 text-sm leading-relaxed whitespace-pre-wrap wrap-break-word',
+                isSender
+                  ? `${activeConversationTheme.sender} ${breakMessage ? '' : 'rounded-br-md'}`
+                  : `${activeConversationTheme.receiver} ${breakMessage ? '' : 'rounded-bl-md'}`,
+                messageState === 'sending' && 'opacity-70',
+                messageState === 'failed' &&
+                  'opacity-60 ring-1 ring-red-400 ring-offset-1 ring-offset-white dark:ring-offset-stone-900'
+              )}
+            >
+              <p>{content}</p>
+            </div>
+          </TooltipTrigger>
+          <TooltipContent side={isSender ? 'left' : 'right'}>
+            <p className="font-medium font-sans">{createdAt != null ? formattedTime : '-'}</p>
+          </TooltipContent>
+        </Tooltip>
+
+        {messageId === otherParticipantLastReadMessageId && currentUserId === senderId && (
           <Tooltip>
             <TooltipTrigger asChild>
-              <div className="flex flex-col gap-1">
-                <div
-                  className={cn(
-                    'flex rounded-2xl items-center py-2 px-3 whitespace-pre-wrap wrap-break-word',
-                    messageType === 'sender'
-                      ? `${activeConversationTheme.sender}`
-                      : `${activeConversationTheme.receiver}`
-                  )}
-                >
-                  <p>{content}</p>
-                </div>
+              <div className="relative mt-1 size-4 shrink-0 overflow-hidden rounded-full ring-1 ring-white dark:ring-stone-900">
+                <Image
+                  src={
+                    otherParticipantDetails?.profileImageUrl
+                      ? otherParticipantDetails.profileImageUrl
+                      : '/blank_picture.png'
+                  }
+                  alt="Seen"
+                  fill
+                  sizes="16px" // Helps Next.js optimize the download size
+                  className="object-cover"
+                />
               </div>
             </TooltipTrigger>
             <TooltipContent side={'left'}>
-              <p className="font-medium font-sans">{createdAt != null ? formattedTime : '-'}</p>
+              <p className="font-medium font-sans">
+                {createdAt != null ? `Seen by ${username} at ${formattedSeenTime}` : '-'}
+              </p>
             </TooltipContent>
           </Tooltip>
+        )}
 
-          {messageId === otherParticipantLastReadMessageId && currentUserId === senderId && (
-            <div className="flex justify-end pt-1">
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <div className="relative w-4 h-4 shrink-0 overflow-hidden rounded-full">
-                    <Image
-                      src={
-                        otherParticipantDetails?.profileImageUrl
-                          ? otherParticipantDetails.profileImageUrl
-                          : '/blank_picture.png'
-                      }
-                      alt="User avatar"
-                      fill
-                      sizes="96px" // Helps Next.js optimize the download size
-                      className="object-cover"
-                    />
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent side={'left'}>
-                  <p className="font-medium font-sans">
-                    {createdAt != null ? `Seen by ${username} at ${formattedSeenTime}` : '-'}
-                  </p>
-                </TooltipContent>
-              </Tooltip>
-            </div>
-          )}
-        </div>
+        {messageState === 'sending' && (
+          <p className="mt-1 text-[11px] text-stone-400 dark:text-stone-500">Sending{dots}</p>
+        )}
 
-        <div>
-          {messageState === 'sending' && (
-            <div className="flex justify-end pt-1">
-              <p className="text-xs">Sending{dots}</p>
-            </div>
-          )}
-
-          {messageState === 'failed' && (
-            <div className="flex justify-end pt-1 gap-1">
-              <p className="text-xs text-red-500">Failed to send message.</p>
-              <p
-                className="text-xs text-red-500 font-bold cursor-pointer"
-                onClick={resendFailedMessage}
-              >
-                Retry?
-              </p>
-            </div>
-          )}
-        </div>
+        {messageState === 'failed' && (
+          <div className="mt-1 flex items-center gap-1.5 text-[11px] text-red-600 dark:text-red-400">
+            <AlertCircle className="size-3.5" aria-hidden="true" />
+            <span>Failed to send.</span>
+            <button
+              type="button"
+              className="inline-flex cursor-pointer items-center gap-1 rounded-md px-1.5 py-0.5 font-semibold hover:bg-red-50 dark:hover:bg-red-400/10"
+              onClick={resendFailedMessage}
+            >
+              <RotateCw className="size-3" aria-hidden="true" />
+              Retry
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
