@@ -59,6 +59,7 @@ export default function SpecificConversationPage() {
       {isReady && otherParticipantDetails ? (
         <>
           <ConversationArea
+            isDetailsOpen={showConversationDetails}
             onToggle={(newVal?: boolean) => {
               setShowConversationDetails(newVal ?? !showConversationDetails);
             }}

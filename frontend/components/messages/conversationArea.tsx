@@ -1,20 +1,28 @@
 'use client';
 
-import { Icon } from '@iconify/react';
+import { PanelRight } from 'lucide-react';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
 
 import { useChatStore } from '@/store/useChatStore';
 
+import {
+  userCardIconButtonClass,
+  userCardPrimaryIconButtonClass,
+} from '@/components/friends/userCardStyles';
 import MessageInput from '@/components/messages/messageInput';
 import MessageThread from '@/components/messages/messageThread';
 import { Button } from '@/components/ui/button';
 
 interface ConversationAreaProps {
   onToggle: (newVal?: boolean) => void; // This is a function prop
+  isDetailsOpen?: boolean;
 }
 
-export default function ConversationArea({ onToggle }: ConversationAreaProps) {
+export default function ConversationArea({
+  onToggle,
+  isDetailsOpen = false,
+}: ConversationAreaProps) {
   const [formattedLastOnline, setFormattedLastOnline] = useState<string>('');
 
   const otherParticipantDetails = useChatStore((state) => state.otherParticipantDetails);
@@ -74,44 +82,60 @@ export default function ConversationArea({ onToggle }: ConversationAreaProps) {
   }, [otherParticipantLastOnline]);
 
   return (
-    <div className="flex-3 flex flex-col justify-start gap-2 bg-white dark:bg-stone-900 rounded-xl">
-      <div className="flex justify-between p-2 gap-3">
-        <div className="flex gap-3">
-          <div className="relative w-12 h-12 shrink-0 overflow-hidden rounded-full ">
-            <Image
-              src={
-                otherParticipantDetails?.profileImageUrl
-                  ? otherParticipantDetails.profileImageUrl
-                  : '/blank_picture.png'
-              }
-              alt="User avatar"
-              fill
-              sizes="96px" // Helps Next.js optimize the download size
-              className="object-cover"
-            />
+    <section className="flex h-full min-w-0 flex-3 flex-col overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-sm dark:border-stone-800 dark:bg-stone-900">
+      <header className="flex shrink-0 items-center justify-between gap-3 border-b border-stone-100 px-4 py-3 dark:border-stone-800">
+        <div className="flex min-w-0 items-center gap-3">
+          <div className="relative size-12 shrink-0">
+            <div className="relative size-full overflow-hidden rounded-full bg-stone-100 dark:bg-stone-800">
+              <Image
+                src={
+                  otherParticipantDetails?.profileImageUrl
+                    ? otherParticipantDetails.profileImageUrl
+                    : '/blank_picture.png'
+                }
+                alt={`${otherParticipantDetails?.username ?? 'User'}'s avatar`}
+                fill
+                sizes="48px" // Helps Next.js optimize the download size
+                className="object-cover"
+              />
+            </div>
+            {otherParticipantIsOnline && (
+              <span
+                className="absolute bottom-0 right-0 size-3.5 rounded-full bg-emerald-500 ring-2 ring-white dark:ring-stone-900"
+                aria-hidden="true"
+              />
+            )}
           </div>
 
-          <div className="flex flex-col">
-            <h3 className="font-semibold">{otherParticipantDetails?.username}</h3>
+          <div className="flex min-w-0 flex-col">
+            <h2 className="truncate font-semibold text-stone-900 dark:text-stone-100">
+              {otherParticipantDetails?.username}
+            </h2>
             {otherParticipantIsOnline ? (
-              <div className="flex gap-1 items-center">
-                <div className="bg-green-400 size-2 rounded-full"></div>
-                <p className="">Active now</p>
-              </div>
+              <p className="text-xs font-medium text-emerald-600 dark:text-emerald-400">
+                Active now
+              </p>
             ) : (
-              <div className="flex gap-1 items-center">
-                <p className="">Last active {formattedLastOnline} ago</p>
-              </div>
+              <p className="text-xs text-stone-500 dark:text-stone-400">
+                Last active {formattedLastOnline} ago
+              </p>
             )}
           </div>
         </div>
 
         {otherParticipantFriendshipStatus === 'accepted' && (
-          <Button className="cursor-pointer" onClick={() => onToggle()}>
-            <Icon icon="bi:three-dots" />
+          <Button
+            variant="outline"
+            size="icon"
+            className={isDetailsOpen ? userCardPrimaryIconButtonClass : userCardIconButtonClass}
+            onClick={() => onToggle()}
+            aria-label={isDetailsOpen ? 'Hide conversation details' : 'Show conversation details'}
+            aria-pressed={isDetailsOpen}
+          >
+            <PanelRight className="size-4" />
           </Button>
         )}
-      </div>
+      </header>
 
       <MessageThread />
 
@@ -119,6 +143,6 @@ export default function ConversationArea({ onToggle }: ConversationAreaProps) {
         otherParticipantFriendshipStatus={otherParticipantFriendshipStatus}
         otherParticipantDetails={otherParticipantDetails}
       />
-    </div>
+    </section>
   );
 }
