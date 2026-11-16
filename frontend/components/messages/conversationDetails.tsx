@@ -1,16 +1,18 @@
 'use client';
 
-import { Icon } from '@iconify/react';
+import { BellOff, PenLine, UserMinus } from 'lucide-react';
 import Image from 'next/image';
 import { useState } from 'react';
 
 import { useFriendsStore } from '@/store/friends/useFriendsStore';
 import { useChatStore } from '@/store/useChatStore';
 
+import {
+  settingsRowClass,
+  settingsRowIconTileClass,
+} from '@/components/messages/settingsRowStyles';
 import ChangeThemeDialog from '@/components/shared/changeThemeDialog';
 import UnfriendDialog from '@/components/shared/unfriendDialog';
-
-import { cn } from '@/lib/utils';
 
 interface ConversationDetailsProps {
   onToggle: (newVal?: boolean) => void; // This is a function prop
@@ -25,55 +27,64 @@ export default function ConversationDetails({ onToggle }: ConversationDetailsPro
 
   const isRateLimitedFromActions = useFriendsStore((state) => state.isRateLimitedFromActions);
 
+  const unfriendDisabled = isRateLimitedFromActions['unfriendAction'];
+
   return (
-    <div className="flex-1 flex flex-col items-teo justify-start gap-10 bg-white dark:bg-stone-900  rounded-xl p-5">
-      <div className="flex flex-col items-center justify-center gap-2">
-        <div className="relative w-20 h-20 shrink-0 overflow-hidden border-2 ring-3 ring-green-300 ring-offset-2 ring-offset-white dark:ring-offset-stone-900 rounded-full ">
+    <aside className="flex h-full min-w-0 max-w-80 flex-1 flex-col gap-6 overflow-y-auto rounded-2xl border border-stone-200 bg-white p-5 shadow-sm dark:border-stone-800 dark:bg-stone-900">
+      <div className="flex flex-col items-center gap-3 rounded-2xl bg-stone-50 px-4 py-6 text-center dark:bg-stone-950/60">
+        <div className="relative size-20 shrink-0 overflow-hidden rounded-full bg-stone-100 ring-4 ring-white dark:bg-stone-800 dark:ring-stone-900">
           <Image
             src={
               otherParticipantDetails?.profileImageUrl
                 ? otherParticipantDetails.profileImageUrl
                 : '/blank_picture.png'
             }
-            alt="User avatar"
+            alt={`${otherParticipantDetails?.username ?? 'User'}'s avatar`}
             fill
-            sizes="96px" // Helps Next.js optimize the download size
+            sizes="80px" // Helps Next.js optimize the download size
             className="object-cover"
           />
         </div>
-        <div className="flex flex-col items-center">
-          <h2 className="font-bold">{otherParticipantDetails?.username}</h2>
-          <p>Active now</p>
+        <div className="flex min-w-0 max-w-full flex-col items-center">
+          <h2 className="max-w-full truncate text-lg font-bold tracking-tight text-stone-900 dark:text-stone-100">
+            {otherParticipantDetails?.username}
+          </h2>
+          <p className="text-xs font-medium text-emerald-600 dark:text-emerald-400">Active now</p>
         </div>
       </div>
 
-      <div className="flex flex-col gap-2">
-        <h2 className="font-bold text-xl">Conversation Settings</h2>
+      <div className="flex flex-col gap-1.5">
+        <span className="px-2 text-[10px] font-semibold uppercase tracking-wider text-stone-400">
+          Conversation settings
+        </span>
 
         <ChangeThemeDialog />
 
-        <button className="flex items-center gap-1 bg-white dark:bg-stone-900 hover:bg-stone-200 dark:hover:bg-stone-700 cursor-pointer rounded-md p-2 font-medium">
-          <Icon icon="ic:baseline-notifications-off" className="size-7" />
+        <button className={settingsRowClass()}>
+          <span className={settingsRowIconTileClass()}>
+            <BellOff className="size-4" />
+          </span>
           Mute notifications
         </button>
 
-        <button className="flex items-center gap-1 bg-white dark:bg-stone-900 hover:bg-stone-200 dark:hover:bg-stone-700 cursor-pointer rounded-md p-2 font-medium">
-          <Icon icon="mdi:rename" className="size-7" />
+        <button className={settingsRowClass()}>
+          <span className={settingsRowIconTileClass()}>
+            <PenLine className="size-4" />
+          </span>
           Set nicknames
         </button>
+      </div>
 
+      <div className="flex flex-col gap-1.5 border-t border-stone-100 pt-4 dark:border-stone-800">
         <button
-          className={cn(
-            'flex items-center gap-1 bg-white dark:bg-stone-900 hover:bg-stone-200 dark:hover:bg-stone-700 cursor-pointer rounded-md p-2 font-medium',
-            isRateLimitedFromActions['unfriendAction']
-              ? 'cursor-not-allowed text-stone-400'
-              : ' hover:bg-stone-200 dark:hover:bg-stone-700 cursor-pointer'
-          )}
-          disabled={isRateLimitedFromActions['unfriendAction']}
+          className={settingsRowClass('danger', unfriendDisabled)}
+          disabled={unfriendDisabled}
           onClick={() => setOpenUnfriendDialog(true)}
         >
-          <Icon icon="material-symbols:person-remove" className="size-7" />
-          Unfriend {otherParticipantDetails?.username}
+          <span className={settingsRowIconTileClass('danger')}>
+            <UserMinus className="size-4" />
+          </span>
+          <span className="truncate">Unfriend {otherParticipantDetails?.username}</span>
         </button>
 
         <UnfriendDialog
@@ -87,9 +98,9 @@ export default function ConversationDetails({ onToggle }: ConversationDetailsPro
             onToggle(false);
             setOtherParticipantFriendshipStatus('unfriended');
           }}
-          isRateLimitedFromAction={isRateLimitedFromActions['unfriendAction']}
+          isRateLimitedFromAction={unfriendDisabled}
         />
       </div>
-    </div>
+    </aside>
   );
 }
