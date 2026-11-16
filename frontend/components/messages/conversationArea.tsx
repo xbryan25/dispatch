@@ -1,7 +1,8 @@
 'use client';
 
-import { PanelRight } from 'lucide-react';
+import { ArrowLeft, PanelRight } from 'lucide-react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { useState, useEffect } from 'react';
 
 import { useChatStore } from '@/store/useChatStore';
@@ -85,6 +86,17 @@ export default function ConversationArea({
     <section className="flex h-full min-w-0 flex-3 flex-col overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-sm dark:border-stone-800 dark:bg-stone-900">
       <header className="flex shrink-0 items-center justify-between gap-3 border-b border-stone-100 px-4 py-3 dark:border-stone-800">
         <div className="flex min-w-0 items-center gap-3">
+          <Button
+            variant="outline"
+            size="icon"
+            className={`${userCardIconButtonClass} md:hidden`}
+            asChild
+          >
+            <Link href="/messages" aria-label="Back to conversations">
+              <ArrowLeft className="size-4" />
+            </Link>
+          </Button>
+
           <div className="relative size-12 shrink-0">
             <div className="relative size-full overflow-hidden rounded-full bg-stone-100 dark:bg-stone-800">
               <Image
