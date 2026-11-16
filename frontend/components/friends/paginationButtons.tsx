@@ -53,11 +53,13 @@ export default function PaginationButtons() {
 
   return (
     <Pagination>
-      <PaginationContent>
+      <PaginationContent className="flex-wrap justify-center gap-1">
         <PaginationItem>
           <PaginationPrevious
             className={
-              currentPage === 1 || loading ? 'pointer-events-none opacity-50' : 'cursor-pointer'
+              currentPage === 1 || loading
+                ? 'rounded-xl pointer-events-none opacity-50'
+                : 'rounded-xl cursor-pointer'
             }
             onClick={() => updateCurrentPage(currentPage - 1)}
           />
@@ -69,7 +71,11 @@ export default function PaginationButtons() {
               <PaginationItem key={page}>
                 <PaginationLink
                   isActive={currentPage === page}
-                  className={loading ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                  className={
+                    loading
+                      ? 'rounded-xl pointer-events-none opacity-50'
+                      : 'rounded-xl cursor-pointer'
+                  }
                   onClick={() => {
                     if (typeof page === 'number') {
                       updateCurrentPage(page);
@@ -92,8 +98,8 @@ export default function PaginationButtons() {
           <PaginationNext
             className={
               currentPage === totalPages || loading
-                ? 'pointer-events-none opacity-50'
-                : 'cursor-pointer'
+                ? 'rounded-xl pointer-events-none opacity-50'
+                : 'rounded-xl cursor-pointer'
             }
             onClick={() => updateCurrentPage(currentPage + 1)}
           />

@@ -3,16 +3,12 @@ import FriendsPaginationWrapper from '@/components/friends/friendsPaginationWrap
 
 export default function FriendsPage() {
   return (
-    <div className="flex min-h-screen gap-6 bg-zinc-200 dark:bg-stone-800 font-sans p-4">
-      <div className="flex-1 flex flex-col items-center gap-4 bg-white dark:bg-stone-900 rounded-xl p-5 min-h-screen min-w-0">
-        <div className="flex justify-between w-full">
-          <h2 className="font-bold text-2xl">My Friends</h2>
-        </div>
-
+    <main className="min-h-screen bg-stone-50 px-4 py-6 font-sans dark:bg-stone-950 sm:px-6 lg:px-8">
+      <div className="mx-auto flex min-h-[calc(100vh-3rem)] w-full max-w-7xl flex-col gap-6">
         <FriendsPageTabGroup />
 
         <FriendsPaginationWrapper />
       </div>
-    </div>
+    </main>
   );
 }
