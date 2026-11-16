@@ -137,7 +137,7 @@ export default function UserMessage({
     const interval = setInterval(update, 60000);
 
     return () => clearInterval(interval);
-  }, [createdAt]);
+  }, [createdAt, otherParticipantLastReadMessageAt, dateFormatters]);
 
   // For "animating" ellipsis when sending messages
   useEffect(() => {
@@ -164,8 +164,12 @@ export default function UserMessage({
           <TooltipTrigger asChild>
             <div className="relative size-8 shrink-0 overflow-hidden rounded-full bg-stone-100 dark:bg-stone-800">
               <Image
-                src="/blank_picture.png"
-                alt="User avatar"
+                src={
+                  otherParticipantDetails?.profileImageUrl
+                    ? otherParticipantDetails.profileImageUrl
+                    : '/blank_picture.png'
+                }
+                alt={`${username}'s avatar`}
                 fill
                 sizes="32px"
                 className="object-cover"

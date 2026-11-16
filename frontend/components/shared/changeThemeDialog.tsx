@@ -95,6 +95,8 @@ export default function ChangeThemeDialog() {
     <Dialog
       open={isOpen}
       onOpenChange={(value) => {
+        // Start on the conversation's current theme instead of always "Default".
+        if (value) setSelectedThemeId(activeConversationTheme?.id ?? 'default');
         setIsOpen(value);
       }}
     >
