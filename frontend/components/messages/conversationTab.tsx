@@ -1,6 +1,6 @@
 'use client';
 
-import { Icon } from '@iconify/react';
+import { CheckCheck } from 'lucide-react';
 import Image from 'next/image';
 import { useParams } from 'next/navigation';
 import { useRouter } from 'next/navigation';
@@ -9,6 +9,8 @@ import { useEffect, useState } from 'react';
 import { useAuthStore } from '@/store/useAuthStore';
 
 import { ConversationSnippet } from '@/types/chat';
+
+import { cn } from '@/lib/utils';
 
 interface ConversationTabProps {
   conversationSnippet: ConversationSnippet;
@@ -62,36 +64,48 @@ export default function ConversationTab({ conversationSnippet }: ConversationTab
     return () => clearInterval(interval);
   }, [timestamp]);
 
+  const avatarSrc = conversationSnippet.otherUserAvatar
+    ? conversationSnippet.otherUserAvatar
+    : '/blank_picture.png';
+
   return (
     <div
-      className={`flex items-center justify-center gap-2 rounded-md p-2 w-full cursor-pointer min-w-0 ${isActive ? 'bg-stone-200 dark:bg-stone-700 pointer-events-none' : 'bg-white dark:bg-stone-900'}`}
+      className={cn(
+        'relative flex w-full min-w-0 cursor-pointer items-center gap-3 rounded-xl p-2.5 transition-colors',
+        isActive
+          ? 'pointer-events-none bg-amber-50 before:absolute before:inset-y-3 before:left-0 before:w-1 before:rounded-full before:bg-amber-500 dark:bg-amber-400/10 dark:before:bg-amber-400'
+          : 'hover:bg-stone-100 dark:hover:bg-stone-800/70'
+      )}
       onClick={() => {
         router.push(`/messages/${conversationSnippet.conversationId}`);
       }}
     >
-      <div className="relative w-12 h-12 shrink-0 overflow-hidden rounded-full">
+      <div className="relative size-12 shrink-0 overflow-hidden rounded-full bg-stone-100 dark:bg-stone-800">
         <Image
-          src={
-            conversationSnippet.otherUserAvatar
-              ? conversationSnippet.otherUserAvatar
-              : '/blank_picture.png'
-          }
-          alt="User avatar"
+          src={avatarSrc}
+          alt={`${conversationSnippet.otherUserName}'s avatar`}
           fill
-          sizes="96px" // Helps Next.js optimize the download size
+          sizes="48px" // Helps Next.js optimize the download size
           className="object-cover"
         />
       </div>
 
-      <div className="flex-1 flex flex-col min-w-0">
-        <div className="flex justify-between">
-          <h3 className="font-semibold">{conversationSnippet.otherUserName}</h3>
-          <p className="shrink-0">
+      <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+        <div className="flex items-baseline justify-between gap-3">
+          <h3 className="truncate text-sm font-semibold text-stone-900 dark:text-stone-100">
+            {conversationSnippet.otherUserName}
+          </h3>
+          <span
+            className={cn(
+              'shrink-0 text-xs',
+              isActive ? 'text-amber-700 dark:text-amber-300' : 'text-stone-400 dark:text-stone-500'
+            )}
+          >
             {conversationSnippet.latestMessageTime != null ? formattedTime : '-'}
-          </p>
+          </span>
         </div>
-        <div className="flex justify-between items-center gap-4">
-          <p className="truncate ">
+        <div className="flex items-center justify-between gap-3">
+          <p className="truncate text-sm text-stone-500 dark:text-stone-400">
             {conversationSnippet.latestMessage != null
               ? conversationSnippet.latestMessage
               : conversationSnippet.otherUserName != null
@@ -101,21 +115,23 @@ export default function ConversationTab({ conversationSnippet }: ConversationTab
 
           {conversationSnippet.hasSeenLatestMessage &&
           currentUserId === conversationSnippet.latestMessageSenderId ? (
-            <div className="relative w-4 h-4 shrink-0 overflow-hidden rounded-full">
+            <div
+              className="relative size-4 shrink-0 overflow-hidden rounded-full ring-1 ring-white dark:ring-stone-900"
+              title="Seen"
+            >
               <Image
-                src={
-                  conversationSnippet.otherUserAvatar
-                    ? conversationSnippet.otherUserAvatar
-                    : '/blank_picture.png'
-                }
-                alt="User avatar"
+                src={avatarSrc}
+                alt="Seen"
                 fill
-                sizes="96px" // Helps Next.js optimize the download size
+                sizes="16px" // Helps Next.js optimize the download size
                 className="object-cover"
               />
             </div>
           ) : (
-            <Icon icon="ri:check-double-fill" className="size-5 shrink-0" />
+            <CheckCheck
+              className="size-4 shrink-0 text-stone-400 dark:text-stone-500"
+              aria-label="Delivered"
+            />
           )}
         </div>
       </div>
