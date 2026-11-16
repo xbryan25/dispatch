@@ -1,13 +1,16 @@
 'use client';
 
-import { Icon } from '@iconify/react';
 import { DialogTrigger } from '@radix-ui/react-dialog';
+import { Palette } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 
 import { useChatStore } from '@/store/useChatStore';
 
-import LoadingSpinner from '@/components/shared/loadingSpinner';
+import {
+  settingsRowClass,
+  settingsRowIconTileClass,
+} from '@/components/messages/settingsRowStyles';
 import ThemeOption from '@/components/shared/themeOption';
 import { Button } from '@/components/ui/button';
 import {
@@ -18,9 +21,9 @@ import {
   DialogClose,
   DialogDescription,
 } from '@/components/ui/dialog';
+import { Spinner } from '@/components/ui/spinner';
 
 import { themes } from '@/lib/themes';
-import { cn } from '@/lib/utils';
 
 export default function ChangeThemeDialog() {
   const [isOpen, setIsOpen] = useState<boolean>(false);
@@ -91,86 +94,112 @@ export default function ChangeThemeDialog() {
     >
       <DialogTrigger asChild>
         <button
-          className={cn(
-            'flex items-center gap-1 bg-white dark:bg-stone-900 hover:bg-stone-200 dark:hover:bg-stone-700 cursor-pointer rounded-md p-2 font-medium',
-            changeConversationThemeRateLimited
-              ? 'cursor-not-allowed text-stone-400'
-              : ' hover:bg-stone-200 dark:hover:bg-stone-700 cursor-pointer'
-          )}
+          className={settingsRowClass('neutral', changeConversationThemeRateLimited)}
           disabled={changeConversationThemeRateLimited}
           onClick={() => setIsOpen(true)}
         >
-          <Icon icon="material-symbols:palette" className="size-7" />
+          <span className={settingsRowIconTileClass()}>
+            <Palette className="size-4" />
+          </span>
           Change theme
         </button>
       </DialogTrigger>
-      <DialogContent className="flex flex-col h-125 min-w-175 overflow-hidden">
-        <DialogHeader>
-          <DialogTitle className="flex w-full justify-center">Change theme</DialogTitle>
-          {changedBy != null && changedAt != null && !localLoading && (
-            <DialogDescription className="font-semibold text-sm">
+      <DialogContent className="flex h-[34rem] max-h-[90vh] w-[calc(100%-2rem)] max-w-2xl flex-col gap-0 overflow-hidden rounded-2xl border-stone-200 p-0 sm:max-w-2xl dark:border-stone-800">
+        <DialogHeader className="shrink-0 px-6 pb-4 pt-6 text-left">
+          <div className="mb-3 flex size-11 items-center justify-center rounded-xl bg-amber-50 text-amber-700 dark:bg-amber-400/10 dark:text-amber-300">
+            <Palette className="size-5" aria-hidden="true" />
+          </div>
+          <DialogTitle className="text-lg font-semibold tracking-tight">Change theme</DialogTitle>
+          {changedBy != null && changedAt != null && !localLoading ? (
+            <DialogDescription className="pt-1 leading-6">
               {changedBy} previously changed the theme to{' '}
-              {
-                <span className={`${activeConversationTheme?.sender} px-1 rounded-sm text-white`}>
-                  {' '}
-                  {activeConversationTheme?.label}
-                </span>
-              }{' '}
+              <span
+                className={`${activeConversationTheme?.sender} rounded-md px-1.5 py-0.5 text-xs font-semibold text-white`}
+              >
+                {activeConversationTheme?.label}
+              </span>{' '}
               on {formatDate(changedAt)}.
+            </DialogDescription>
+          ) : (
+            <DialogDescription className="pt-1 leading-6">
+              Pick the bubble colors for this conversation.
             </DialogDescription>
           )}
         </DialogHeader>
 
         {localLoading ? (
-          <div className="flex-1 flex w-full min-h-0 items-center justify-center">
-            <LoadingSpinner />
+          <div className="flex min-h-0 w-full flex-1 items-center justify-center text-stone-400">
+            <Spinner />
           </div>
         ) : (
-          <div className="flex-1 flex w-full gap-2 min-h-0">
-            <div className="flex-1 flex flex-col gap-1 overflow-y-auto min-h-0">
+          <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 px-6 sm:grid-cols-[13rem_1fr]">
+            <div className="flex min-h-0 flex-col gap-1 overflow-y-auto pr-1">
               {themes.map((theme) => (
                 <ThemeOption
                   key={theme.id}
                   id={theme.id}
                   label={theme.label}
                   color={theme.sender}
+                  isSelected={theme.id === selectedThemeId}
                   onSelect={setSelectedThemeId}
                 />
               ))}
             </div>
 
-            <div className="flex-1 flex flex-col bg-stone-100 dark:bg-stone-900 rounded-lg border border-stone-200 dark:border-stone-700 pt-2">
-              <div className="flex w-full items-center gap-2 justify-end">
-                <div
-                  className={`flex rounded-2xl items-center py-2 px-3 whitespace-pre-wrap wrap-break-word ${selectedTheme?.sender} m-2`}
-                >
-                  <p>This is a sample sent message.</p>
+            <div className="hidden min-h-0 flex-col gap-2 rounded-xl border border-stone-200 bg-stone-50 p-4 sm:flex dark:border-stone-800 dark:bg-stone-950/60">
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-stone-400">
+                Preview · {selectedTheme?.label}
+              </span>
+              <div className="flex flex-1 flex-col justify-center gap-1">
+                <div className="flex justify-start">
+                  <div
+                    className={`max-w-[80%] rounded-2xl rounded-bl-md px-3.5 py-2 text-sm leading-relaxed ${selectedTheme?.receiver}`}
+                  >
+                    <p>Hey! How&apos;s it going?</p>
+                  </div>
+                </div>
+                <div className="mb-2 flex justify-start">
+                  <div
+                    className={`max-w-[80%] rounded-2xl px-3.5 py-2 text-sm leading-relaxed ${selectedTheme?.receiver}`}
+                  >
+                    <p>This is a sample received message.</p>
+                  </div>
+                </div>
+                <div className="flex justify-end">
+                  <div
+                    className={`max-w-[80%] rounded-2xl rounded-br-md px-3.5 py-2 text-sm leading-relaxed ${selectedTheme?.sender}`}
+                  >
+                    <p>Pretty good, thanks!</p>
+                  </div>
+                </div>
+                <div className="flex justify-end">
+                  <div
+                    className={`max-w-[80%] rounded-2xl px-3.5 py-2 text-sm leading-relaxed ${selectedTheme?.sender}`}
+                  >
+                    <p>This is a sample sent message.</p>
+                  </div>
                 </div>
               </div>
-              <div className="flex w-full items-center gap-2 justify-start">
-                <div
-                  className={`flex rounded-2xl items-center py-2 px-3 whitespace-pre-wrap wrap-break-word ${selectedTheme?.receiver}  m-2`}
-                >
-                  <p>This is a sample received message.</p>
-                </div>
-              </div>
-
-              <div className="flex flex-1 w-full justify-center items-center ">
-                <h2 className="text-lg font-semibold">Click Select to select this theme.</h2>
-              </div>
+              <p className="text-center text-xs text-stone-500 dark:text-stone-400">
+                Click Select to apply this theme.
+              </p>
             </div>
           </div>
         )}
 
-        <div className="flex w-full gap-2 ">
+        <div className="mt-4 flex w-full shrink-0 gap-2 border-t border-stone-100 px-6 py-4 dark:border-stone-800">
           <DialogClose asChild>
-            <Button className="flex-1 cursor-pointer text-md" disabled={localLoading}>
+            <Button
+              variant="outline"
+              className="h-10 flex-1 cursor-pointer rounded-xl text-sm"
+              disabled={localLoading}
+            >
               Cancel
             </Button>
           </DialogClose>
 
           <Button
-            className="flex-1 cursor-pointer text-md"
+            className="h-10 flex-1 cursor-pointer rounded-xl text-sm"
             onClick={() => {
               updateConversationTheme();
             }}
