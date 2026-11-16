@@ -7,7 +7,7 @@ import { useChatStore } from '@/store/useChatStore';
 
 import ConversationArea from '@/components/messages/conversationArea';
 import ConversationDetails from '@/components/messages/conversationDetails';
-import LoadingSpinner from '@/components/shared/loadingSpinner';
+import ConversationLoadingSkeleton from '@/components/messages/conversationLoadingSkeleton';
 
 export default function SpecificConversationPage() {
   const params = useParams();
@@ -72,9 +72,7 @@ export default function SpecificConversationPage() {
           )}
         </>
       ) : (
-        <div className="flex-3 flex justify-center items-center bg-white dark:bg-stone-900 rounded-xl h-full">
-          <LoadingSpinner />
-        </div>
+        <ConversationLoadingSkeleton />
       )}
     </>
   );
