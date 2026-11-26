@@ -1,224 +1,413 @@
+import { ArrowRight, ArrowUpRight, SendHorizontal } from 'lucide-react';
 import Link from 'next/link';
 
-import { ConversationIcon } from '@/components/icons/conversationIcon';
-import { MessagesIcon } from '@/components/icons/messagesIcon';
-import { OrganizeIcon } from '@/components/icons/organizeIcon';
-import GuestHeader from '@/components/shared/guestHeader';
 import { Button } from '@/components/ui/button';
 
-const features = [
+import { themes } from '@/lib/themes';
+import { cn } from '@/lib/utils';
+
+const defaultTheme = themes[0];
+const roseTheme = themes.find((theme) => theme.id === 'rose') ?? defaultTheme;
+
+// One-shot hero scene. Elements rest in their final state; animations only run from a hidden start,
+// so reduced motion (and any animation failure) shows the finished conversation.
+const sceneStyles = `
+@keyframes dl-rise { from { opacity: 0; transform: translateY(8px); } }
+@keyframes dl-show { from { opacity: 0; } }
+@keyframes dl-hide { from { opacity: 1; } to { opacity: 0; } }
+.dl-rise { animation: dl-rise 0.55s cubic-bezier(0.16, 1, 0.3, 1) backwards; }
+.dl-show { animation: dl-show 0.7s cubic-bezier(0.16, 1, 0.3, 1) backwards; }
+.dl-hide { opacity: 0; animation: dl-hide 0.3s ease-out backwards; }
+.dl-scene[data-hold] :is(.dl-rise, .dl-show, .dl-hide) { animation-play-state: paused; }
+@media (prefers-reduced-motion: reduce) {
+  .dl-rise, .dl-show, .dl-hide { animation: none; }
+}
+`;
+
+// Runs while the HTML parses, before first paint: if the scene starts below 60% of the viewport,
+// pause it on its first frame and release it once its top scrolls above that line. Without JS the
+// scene plays on load as before.
+// shortcut: React doesn't run inline scripts on client-side navigation, so arriving at / that way
+// plays the scene on load; move this into a client component if that path matters.
+const holdSceneScript = `(() => {
+  const scene = document.querySelector('.dl-scene');
+  if (!scene || !('IntersectionObserver' in window)) return;
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (scene.getBoundingClientRect().top <= innerHeight * 0.6) return;
+  scene.setAttribute('data-hold', '');
+  const observer = new IntersectionObserver(([entry]) => {
+    if (!entry.isIntersecting) return;
+    scene.removeAttribute('data-hold');
+    observer.disconnect();
+  }, { rootMargin: '0px 0px -40% 0px' });
+  observer.observe(scene);
+})();`;
+
+const at = (seconds: number) => ({ animationDelay: `${seconds}s` });
+
+function Initial({
+  letter,
+  className,
+  style,
+}: {
+  letter: string;
+  className?: string;
+  style?: React.CSSProperties;
+}) {
+  return (
+    <span
+      aria-hidden="true"
+      style={style}
+      className={cn(
+        'flex shrink-0 items-center justify-center rounded-full font-semibold',
+        className
+      )}
+    >
+      {letter}
+    </span>
+  );
+}
+
+// Mirrors userMessage.tsx: only a non-final bubble in a run gets the tucked corner.
+function ThemedBubble({
+  side,
+  delay,
+  tucked = false,
+  children,
+}: {
+  side: 'sender' | 'receiver';
+  delay: number;
+  tucked?: boolean;
+  children: React.ReactNode;
+}) {
+  const isSender = side === 'sender';
+
+  return (
+    <div
+      className={cn(
+        'relative overflow-hidden rounded-2xl px-3.5 py-2 text-sm leading-relaxed',
+        isSender
+          ? `text-foreground ${defaultTheme.sender} ${tucked ? 'rounded-br-md' : ''}`
+          : `${defaultTheme.receiver} text-foreground ${tucked ? 'rounded-bl-md' : ''}`
+      )}
+    >
+      <span
+        aria-hidden="true"
+        className={cn('dl-show absolute inset-0', isSender ? roseTheme.sender : roseTheme.receiver)}
+        style={at(delay)}
+      />
+      <span className="relative">{children}</span>
+    </div>
+  );
+}
+
+const THEME_AT = 4.8;
+
+function ConversationScene() {
+  return (
+    <figure className="mx-auto w-full max-w-md lg:mr-0">
+      <div className="overflow-hidden rounded-3xl border border-border bg-card text-card-foreground shadow-[0_24px_60px_-30px_rgba(15,23,42,0.35)] dark:shadow-[0_24px_60px_-30px_rgba(0,0,0,0.8)]">
+        <div className="flex items-center gap-3 border-b border-border px-5 py-4">
+          <div className="relative">
+            <Initial
+              letter="M"
+              className="size-11 bg-rose-100 text-rose-700 dark:bg-rose-900/60 dark:text-rose-200"
+            />
+            <span
+              aria-hidden="true"
+              className="dl-show absolute bottom-0 right-0 size-3.5 rounded-full bg-emerald-500 ring-2 ring-card"
+              style={at(0.9)}
+            />
+          </div>
+          <div className="min-w-0">
+            <p className="font-semibold">Maya</p>
+            <p className="grid text-xs">
+              <span
+                aria-hidden="true"
+                className="dl-hide col-start-1 row-start-1 text-muted-foreground"
+                style={at(0.9)}
+              >
+                Last active 12m ago
+              </span>
+              <span
+                className="dl-show col-start-1 row-start-1 font-medium text-emerald-700 dark:text-emerald-400"
+                style={at(0.9)}
+              >
+                Active now
+              </span>
+            </p>
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-3 px-5 py-6">
+          <p className="text-center text-xs text-muted-foreground">Today, 6:42 PM</p>
+
+          <div className="dl-rise flex pl-10" style={at(1.7)}>
+            <div className="max-w-[78%]">
+              <ThemedBubble side="receiver" delay={THEME_AT} tucked>
+                Still on for the 7pm showing?
+              </ThemedBubble>
+            </div>
+          </div>
+
+          <div className="dl-rise -mt-1.5 mb-2 flex items-end gap-2" style={at(2.3)}>
+            <Initial
+              letter="M"
+              className="size-8 bg-rose-100 text-xs text-rose-700 dark:bg-rose-900/60 dark:text-rose-200"
+            />
+            <div className="max-w-[78%]">
+              <ThemedBubble side="receiver" delay={THEME_AT}>
+                I can grab seats if you’re running late.
+              </ThemedBubble>
+            </div>
+          </div>
+
+          <div className="dl-rise ml-auto flex max-w-[78%] flex-col items-end" style={at(3.2)}>
+            <ThemedBubble side="sender" delay={THEME_AT}>
+              Yes! Middle row if you can.
+            </ThemedBubble>
+            <Initial
+              letter="M"
+              className="dl-show mt-1 size-4 bg-rose-100 text-[8px] text-rose-700 ring-1 ring-card dark:bg-rose-900/60 dark:text-rose-200"
+              style={at(4)}
+            />
+            <span className="sr-only">Seen by Maya</span>
+          </div>
+        </div>
+
+        {/* Matches messageInput.tsx with an empty composer: send is disabled. */}
+        <div aria-hidden="true" className="flex items-end gap-2 border-t border-border px-4 py-3">
+          <span className="flex min-h-11 flex-1 items-center rounded-2xl border border-stone-200 bg-stone-50/70 px-4 text-sm text-muted-foreground dark:border-stone-700 dark:bg-stone-950">
+            Type your message...
+          </span>
+          <span className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-stone-200 text-stone-400 dark:bg-stone-800 dark:text-stone-500">
+            <SendHorizontal className="size-4" />
+          </span>
+        </div>
+      </div>
+      <figcaption className="mt-3 text-balance text-center text-xs text-muted-foreground lg:text-right">
+        Sample conversation. Maya switched the theme to Rose for both of you.
+      </figcaption>
+    </figure>
+  );
+}
+
+const facts = [
   {
-    icon: ConversationIcon,
-    eyebrow: 'YOUR PEOPLE',
-    title: 'A closer circle',
-    description: 'Keep the people you care about close, and your conversations easy to find.',
+    title: 'Only people you’ve added',
+    body: 'Send a friend request first. Once it’s accepted, you can start a conversation. Nobody else can message you.',
+    detail: (
+      <div className="flex items-center gap-3 rounded-2xl border border-border bg-card px-4 py-3">
+        <Initial
+          letter="J"
+          className="size-9 bg-sky-100 text-sm text-sky-700 dark:bg-sky-900/60 dark:text-sky-200"
+        />
+        <p className="min-w-0 flex-1 text-sm">
+          <span className="font-semibold">jordan</span>{' '}
+          <span className="text-muted-foreground">sent you a friend request</span>
+        </p>
+        <span className="rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white">
+          Accept
+        </span>
+      </div>
+    ),
   },
   {
-    icon: MessagesIcon,
-    eyebrow: 'IN THE MOMENT',
-    title: 'Messages that flow',
-    description: 'Pick up right where you left off with fast, real-time conversations.',
+    title: 'See who’s around',
+    body: 'A friend’s status updates the moment they come online or leave, without a refresh.',
+    detail: (
+      <ul className="space-y-3 text-sm">
+        <li className="flex items-center gap-3">
+          <span className="relative">
+            <Initial
+              letter="M"
+              className="size-9 bg-rose-100 text-sm text-rose-700 dark:bg-rose-900/60 dark:text-rose-200"
+            />
+            <span className="absolute bottom-0 right-0 size-3 rounded-full bg-emerald-500 ring-2 ring-background" />
+          </span>
+          <span className="font-semibold">Maya</span>
+          <span className="font-medium text-emerald-700 dark:text-emerald-400">Active now</span>
+        </li>
+        <li className="flex items-center gap-3">
+          <Initial
+            letter="J"
+            className="size-9 bg-sky-100 text-sm text-sky-700 dark:bg-sky-900/60 dark:text-sky-200"
+          />
+          <span className="font-semibold">jordan</span>
+          <span className="text-muted-foreground">Last active 2h ago</span>
+        </li>
+      </ul>
+    ),
   },
   {
-    icon: OrganizeIcon,
-    eyebrow: 'LESS CLUTTER',
-    title: 'Room to focus',
-    description: 'A calm, organized space for the conversations that matter to you.',
+    title: 'Know when it’s been read',
+    body: 'When your friend reads your latest message, their picture appears under it.',
+    detail: (
+      <div className="flex flex-col items-end">
+        <div
+          className={cn(
+            'rounded-2xl rounded-br-md px-3.5 py-2 text-sm text-foreground',
+            defaultTheme.sender
+          )}
+        >
+          See you at 7!
+        </div>
+        {/* The app shows this as the avatar's hover tooltip; drawn here in its open state. */}
+        <div className="mt-1.5 flex items-center gap-2.5">
+          <span className="relative rounded-md bg-foreground px-3 py-1.5 text-xs font-medium text-background">
+            Seen by Maya at 6:48 PM
+            <span className="absolute -right-1 top-1/2 size-2.5 -translate-y-1/2 rotate-45 rounded-[2px] bg-foreground" />
+          </span>
+          <Initial
+            letter="M"
+            className="size-4 bg-rose-100 text-[8px] text-rose-700 dark:bg-rose-900/60 dark:text-rose-200"
+          />
+        </div>
+      </div>
+    ),
+  },
+  {
+    title: 'A colour you both see',
+    body: `Pick one of ${themes.length} conversation themes. When either of you changes it, it updates for both of you right away.`,
+    detail: (
+      <ul className="flex flex-wrap gap-2" aria-label="Conversation themes">
+        {themes.map((theme) => (
+          <li key={theme.id} title={theme.label}>
+            <span
+              className={cn(
+                'block size-6 rounded-full',
+                theme.sender,
+                theme.id === roseTheme.id && 'ring-2 ring-foreground ring-offset-2 ring-offset-background'
+              )}
+            />
+            <span className="sr-only">{theme.label}</span>
+          </li>
+        ))}
+      </ul>
+    ),
   },
 ];
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen overflow-hidden bg-[#f7f8fc] text-slate-950">
-      <div className="relative isolate">
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-180 bg-[radial-gradient(ellipse_at_75%_20%,rgba(99,102,241,0.15),transparent_42%),radial-gradient(ellipse_at_15%_30%,rgba(56,189,248,0.12),transparent_38%)] px-5 sm:px-8"
-        />
-        <div className="mx-auto max-w-7xl">
-          <GuestHeader />
+    <div className="min-h-screen bg-background px-5 text-foreground selection:bg-indigo-200 selection:text-indigo-950 sm:px-8 dark:selection:bg-indigo-500/40 dark:selection:text-white">
+      <style>{sceneStyles}</style>
 
-          <main>
-            <section className="grid items-center gap-14 pb-20 pt-14 sm:pb-28 sm:pt-20 lg:grid-cols-[1.05fr_0.95fr] lg:gap-10 lg:pt-24">
-              <div className="max-w-2xl">
-                <div className="mb-7 inline-flex items-center gap-2 rounded-full border border-indigo-100 bg-white/80 px-3.5 py-2 text-sm font-medium text-indigo-700 shadow-sm shadow-indigo-100/60">
-                  <span className="relative flex size-2">
-                    <span className="absolute inline-flex size-full animate-ping rounded-full bg-indigo-400 opacity-50" />
-                    <span className="relative inline-flex size-2 rounded-full bg-indigo-500" />
-                  </span>
-                  A little more connection, a lot less noise
-                </div>
-
-                <h1 className="max-w-2xl text-5xl font-semibold leading-[1.06] tracking-[-0.055em] sm:text-6xl lg:text-7xl">
-                  Conversations at the{' '}
-                  <span className="bg-gradient-to-r from-indigo-600 via-blue-600 to-cyan-500 bg-clip-text text-transparent">
-                    speed of thought.
-                  </span>
-                </h1>
-                <p className="mt-6 max-w-xl text-lg leading-8 text-slate-600 sm:text-xl">
-                  A calmer place to catch up with your people. Find your conversations, share what’s
-                  on your mind, and stay in the moment.
-                </p>
-
-                <div className="mt-9 flex flex-col gap-4 sm:flex-row sm:items-center">
-                  <Link href="/register">
-                    <Button className="h-12 w-full rounded-xl bg-indigo-600 px-6 text-base font-semibold text-white shadow-lg shadow-indigo-600/20 transition hover:bg-indigo-700 sm:w-auto">
-                      Get started{' '}
-                      <span aria-hidden="true" className="ml-2">
-                        →
-                      </span>
-                    </Button>
-                  </Link>
-                  <p className="text-sm text-slate-500">Your circle is just a conversation away.</p>
-                </div>
-
-                <div className="mt-11 flex items-center gap-3 text-sm text-slate-500">
-                  <div className="flex -space-x-2" aria-hidden="true">
-                    <span className="flex size-8 items-center justify-center rounded-full border-2 border-[#f7f8fc] bg-rose-100 text-xs font-semibold text-rose-700">
-                      J
-                    </span>
-                    <span className="flex size-8 items-center justify-center rounded-full border-2 border-[#f7f8fc] bg-amber-100 text-xs font-semibold text-amber-700">
-                      M
-                    </span>
-                    <span className="flex size-8 items-center justify-center rounded-full border-2 border-[#f7f8fc] bg-sky-100 text-xs font-semibold text-sky-700">
-                      A
-                    </span>
-                    <span className="flex size-8 items-center justify-center rounded-full border-2 border-[#f7f8fc] bg-indigo-100 text-xs font-semibold text-indigo-700">
-                      +
-                    </span>
-                  </div>
-                  <span>Make space for the conversations that matter.</span>
-                </div>
-              </div>
-
-              <div className="relative mx-auto w-full max-w-xl lg:pl-5">
-                <div
-                  aria-hidden="true"
-                  className="absolute -inset-8 -z-10 rounded-[3rem] bg-gradient-to-br from-indigo-200/60 via-sky-100/50 to-violet-200/50 blur-2xl"
-                />
-                <div className="relative rounded-[2rem] border border-white/80 bg-white/75 p-3 shadow-[0_30px_100px_-35px_rgba(57,65,120,0.35)] backdrop-blur-xl sm:p-5">
-                  <div className="overflow-hidden rounded-[1.45rem] border border-slate-100 bg-white">
-                    <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4 sm:px-6">
-                      <div className="flex items-center gap-3">
-                        <div className="flex size-10 items-center justify-center rounded-2xl bg-indigo-100 text-sm font-semibold text-indigo-700">
-                          SC
-                        </div>
-                        <div>
-                          <p className="font-semibold text-slate-900">Saturday crew</p>
-                          <p className="text-xs text-slate-500">4 friends · active now</p>
-                        </div>
-                      </div>
-                      <span
-                        className="flex size-9 items-center justify-center rounded-full bg-slate-50 text-slate-500"
-                        aria-hidden="true"
-                      >
-                        •••
-                      </span>
-                    </div>
-                    <div className="space-y-5 bg-gradient-to-b from-white to-slate-50/80 px-5 py-6 sm:px-6 sm:py-8">
-                      <p className="text-center text-xs font-medium uppercase tracking-[0.16em] text-slate-400">
-                        Today · 10:42 AM
-                      </p>
-                      <div className="flex items-end gap-2.5">
-                        <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-amber-100 text-xs font-semibold text-amber-700">
-                          M
-                        </span>
-                        <div className="max-w-[80%] rounded-2xl rounded-bl-md bg-slate-100 px-4 py-3 text-sm leading-6 text-slate-700">
-                          Coffee and a catch-up this weekend? ☕
-                        </div>
-                      </div>
-                      <div className="ml-auto max-w-[82%] rounded-2xl rounded-br-md bg-indigo-600 px-4 py-3 text-sm leading-6 text-white shadow-md shadow-indigo-600/15">
-                        I’m in! Saturday afternoon works perfectly.
-                      </div>
-                      <div className="flex items-end gap-2.5">
-                        <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-sky-100 text-xs font-semibold text-sky-700">
-                          A
-                        </span>
-                        <div className="max-w-[80%] rounded-2xl rounded-bl-md bg-slate-100 px-4 py-3 text-sm leading-6 text-slate-700">
-                          Found a new place by the park. I’ll send it over!
-                        </div>
-                      </div>
-                      <div className="ml-auto flex items-center gap-2 rounded-2xl border border-slate-100 bg-white px-4 py-3 text-sm text-slate-400 shadow-sm">
-                        <span>Write a message</span>
-                        <span
-                          className="ml-8 flex size-7 items-center justify-center rounded-lg bg-indigo-600 text-base text-white"
-                          aria-hidden="true"
-                        >
-                          ↑
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div className="absolute -left-3 top-16 hidden items-center gap-3 rounded-2xl border border-white bg-white/90 px-4 py-3 shadow-xl shadow-indigo-950/10 sm:flex lg:-left-8">
-                  <span
-                    className="flex size-9 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700"
-                    aria-hidden="true"
-                  >
-                    ✓
-                  </span>
-                  <span className="text-sm font-medium text-slate-700">
-                    Right where you left off
-                  </span>
-                </div>
-                <div className="absolute -bottom-5 right-5 hidden rounded-2xl border border-white bg-white/90 px-4 py-3 text-sm font-medium text-slate-700 shadow-xl shadow-indigo-950/10 sm:block">
-                  <span className="mr-2 text-amber-500" aria-hidden="true">
-                    ✦
-                  </span>
-                  Only the good stuff
-                </div>
-              </div>
-            </section>
-
-            <section
-              className="border-t border-slate-200/70 py-16 sm:py-20"
-              aria-labelledby="features-heading"
+      <div className="mx-auto max-w-6xl">
+        {/* Inlined instead of GuestHeader: the auth pages it serves are still light-only. */}
+        <header className="flex h-20 items-center justify-between border-b border-border">
+          <Link
+            href="/"
+            aria-label="Dispatch home"
+            className="rounded-lg text-2xl font-bold leading-none tracking-[-0.04em] transition-colors hover:text-indigo-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-4 focus-visible:ring-offset-background sm:text-[1.7rem] dark:hover:text-indigo-400"
+          >
+            dispatch<span className="text-indigo-600 dark:text-indigo-400">.</span>
+          </Link>
+          <nav aria-label="Guest navigation">
+            <Button
+              asChild
+              variant="ghost"
+              className="h-10 rounded-xl px-4 font-semibold text-muted-foreground hover:text-foreground focus-visible:ring-indigo-500"
             >
-              <div className="mb-9 flex flex-col gap-3 sm:mb-12 sm:flex-row sm:items-end sm:justify-between">
-                <div>
-                  <p className="text-sm font-semibold uppercase tracking-[0.18em] text-indigo-600">
-                    Made for connection
-                  </p>
-                  <h2
-                    id="features-heading"
-                    className="mt-3 text-3xl font-semibold tracking-[-0.04em] text-slate-950 sm:text-4xl"
+              <Link href="/login">Log in</Link>
+            </Button>
+          </nav>
+        </header>
+
+        <main>
+          <section className="grid items-center gap-12 py-14 sm:py-20 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16 lg:py-24">
+            <div>
+              <h1 className="max-w-xl text-balance text-5xl font-semibold leading-[1.04] tracking-[-0.04em] sm:text-6xl lg:text-[4.25rem]">
+                Messages for the people you’ve actually added.
+              </h1>
+              <p className="mt-6 max-w-lg text-pretty text-lg leading-8 text-muted-foreground">
+                Dispatch is a friends-only messenger. Once someone accepts your request, you can
+                chat in real time, see when they’re online, and know when they’ve read what you
+                sent.
+              </p>
+              <div className="mt-9 flex flex-wrap items-center gap-x-5 gap-y-3">
+                <Button
+                  asChild
+                  className="h-12 rounded-xl bg-indigo-600 px-6 text-base font-semibold text-white shadow-[0_8px_20px_-8px_rgba(79,70,229,0.6)] hover:bg-indigo-700 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                >
+                  <Link href="/register">
+                    Get started
+                    <ArrowRight aria-hidden="true" className="size-4" />
+                  </Link>
+                </Button>
+                <p className="text-sm text-muted-foreground">
+                  Have an account?{' '}
+                  <Link
+                    href="/login"
+                    className="rounded-sm font-medium text-foreground underline decoration-border underline-offset-4 hover:decoration-indigo-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                   >
-                    Your conversations, in good company.
-                  </h2>
-                </div>
-                <p className="max-w-md text-base leading-7 text-slate-500">
-                  Everything you need to stay close, with a little more room to breathe.
+                    Log in
+                  </Link>
                 </p>
               </div>
-              <div className="grid gap-4 md:grid-cols-3">
-                {features.map(({ icon: Icon, eyebrow, title, description }) => (
-                  <article
-                    key={title}
-                    className="group rounded-2xl border border-slate-200/80 bg-white/75 p-6 transition duration-200 hover:-translate-y-1 hover:border-indigo-200 hover:bg-white hover:shadow-xl hover:shadow-indigo-950/5 sm:p-7"
-                  >
-                    <div className="mb-7 flex size-12 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600 transition group-hover:bg-indigo-600 group-hover:text-white">
-                      <Icon className="size-7" />
-                    </div>
-                    <p className="text-xs font-semibold tracking-[0.16em] text-slate-400">
-                      {eyebrow}
-                    </p>
-                    <h3 className="mt-2 text-xl font-semibold tracking-tight text-slate-900">
-                      {title}
-                    </h3>
-                    <p className="mt-2 text-sm leading-6 text-slate-600">{description}</p>
-                  </article>
-                ))}
-              </div>
-            </section>
-          </main>
+            </div>
 
-          <footer className="flex flex-col gap-2 border-t border-slate-200/70 py-6 text-sm text-slate-500 sm:flex-row sm:items-center sm:justify-between">
-            <span className="font-semibold tracking-tight text-slate-700">
-              dispatch<span className="text-indigo-600">.</span>
-            </span>
-            <span>A thoughtful space for everyday conversations.</span>
-          </footer>
-        </div>
+            {/* data-hold is set by the script below before hydration. */}
+            <div className="dl-scene" suppressHydrationWarning>
+              <ConversationScene />
+            </div>
+            {/* Must come after .dl-scene so the scene is already parsed when this runs. */}
+            <script dangerouslySetInnerHTML={{ __html: holdSceneScript }} />
+          </section>
+
+          <section aria-labelledby="facts-heading" className="border-t border-border py-16 sm:py-24">
+            <h2
+              id="facts-heading"
+              className="max-w-2xl text-balance text-3xl font-semibold tracking-[-0.03em] sm:text-4xl"
+            >
+              The small signals that make a conversation feel live.
+            </h2>
+
+            <ul className="mt-12 divide-y divide-border border-y border-border">
+              {facts.map((fact) => (
+                <li
+                  key={fact.title}
+                  className="grid gap-6 py-8 md:grid-cols-[1fr_minmax(0,22rem)] md:items-center md:gap-12 md:py-10"
+                >
+                  <div className="max-w-md">
+                    <h3 className="text-xl font-semibold tracking-tight">{fact.title}</h3>
+                    <p className="mt-2 leading-7 text-muted-foreground">{fact.body}</p>
+                  </div>
+                  <div>{fact.detail}</div>
+                </li>
+              ))}
+            </ul>
+
+            <div className="mt-14 flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <p className="text-xl font-semibold tracking-tight">Add a friend and say hi.</p>
+              <Button
+                asChild
+                className="h-12 rounded-xl bg-indigo-600 px-6 text-base font-semibold text-white hover:bg-indigo-700 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+              >
+                <Link href="/register">
+                  Create your account
+                  <ArrowRight aria-hidden="true" className="size-4" />
+                </Link>
+              </Button>
+            </div>
+          </section>
+        </main>
+
+        <footer className="flex flex-col items-start gap-3 border-t border-border py-6 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+          <span className="font-semibold tracking-tight text-foreground">
+            dispatch<span className="text-indigo-600 dark:text-indigo-400">.</span>
+          </span>
+          <span>Real-time messaging between friends.</span>
+          <a
+            href="https://github.com/xbryan25/dispatch"
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-1 rounded underline-offset-4 hover:text-foreground hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+          >
+            Source on GitHub<span className="sr-only"> (opens in a new tab)</span>
+            <ArrowUpRight aria-hidden="true" className="size-3.5" />
+          </a>
+        </footer>
       </div>
     </div>
   );
