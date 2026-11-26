@@ -24,6 +24,7 @@ import {
 import { Spinner } from '@/components/ui/spinner';
 
 import { themes } from '@/lib/themes';
+import { cn } from '@/lib/utils';
 
 export default function ChangeThemeDialog() {
   const [isOpen, setIsOpen] = useState<boolean>(false);
@@ -122,7 +123,10 @@ export default function ChangeThemeDialog() {
             <DialogDescription className="pt-1 leading-6">
               {changedBy} previously changed the theme to{' '}
               <span
-                className={`${activeConversationTheme?.sender} rounded-md px-1.5 py-0.5 text-xs font-semibold text-white`}
+                className={cn(
+                  'rounded-md px-1.5 py-0.5 text-xs font-semibold text-foreground',
+                  activeConversationTheme?.sender
+                )}
               >
                 {activeConversationTheme?.label}
               </span>{' '}

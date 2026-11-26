@@ -84,7 +84,7 @@ export default function ConversationArea({
             <p
               className={
                 otherParticipantIsOnline
-                  ? 'text-xs font-medium text-emerald-600 dark:text-emerald-400'
+                  ? 'text-xs font-medium text-emerald-700 dark:text-emerald-400'
                   : 'text-xs text-stone-500 dark:text-stone-400'
               }
             >
