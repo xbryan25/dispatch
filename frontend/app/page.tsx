@@ -3,31 +3,14 @@ import Link from 'next/link';
 
 import { ConversationScene } from '@/components/landing/conversationScene';
 import { FactsList } from '@/components/landing/facts';
+import GuestHeader from '@/components/shared/guestHeader';
 import { Button } from '@/components/ui/button';
 
 export default function HomePage() {
   return (
     <div className="min-h-screen bg-background px-5 text-foreground selection:bg-indigo-200 selection:text-indigo-950 sm:px-8 dark:selection:bg-indigo-500/40 dark:selection:text-white">
       <div className="mx-auto max-w-6xl">
-        {/* Inlined instead of GuestHeader: the auth pages it serves are still light-only. */}
-        <header className="flex h-20 items-center justify-between border-b border-border">
-          <Link
-            href="/"
-            aria-label="Dispatch home"
-            className="rounded-lg text-2xl font-bold leading-none tracking-[-0.04em] transition-colors hover:text-indigo-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-4 focus-visible:ring-offset-background sm:text-[1.7rem] dark:hover:text-indigo-400"
-          >
-            dispatch<span className="text-indigo-600 dark:text-indigo-400">.</span>
-          </Link>
-          <nav aria-label="Guest navigation">
-            <Button
-              asChild
-              variant="ghost"
-              className="h-10 rounded-xl px-4 font-semibold text-muted-foreground hover:text-foreground focus-visible:ring-indigo-500"
-            >
-              <Link href="/login">Log in</Link>
-            </Button>
-          </nav>
-        </header>
+        <GuestHeader />
 
         <main>
           <section className="grid items-center gap-12 py-14 sm:py-20 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16 lg:py-24">
