@@ -1,107 +1,123 @@
 'use client';
 
-import { Icon } from '@iconify/react';
 import Link from 'next/link';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
+import {
+  authInputClass,
+  authLabelClass,
+  authMainClass,
+  authPageClass,
+  authSubmitClass,
+  authTextLinkClass,
+} from '@/components/auth/authClasses';
+import FormError, { FormSuccess } from '@/components/auth/formError';
 import GuestHeader from '@/components/shared/guestHeader';
 import { Button } from '@/components/ui/button';
 import { Field, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { Spinner } from '@/components/ui/spinner';
 
-import { createClient } from '@/lib/supabase/client';
+import { resendConfirmationEmail } from '@/lib/auth';
+import { validateEmail } from '@/lib/validation';
 
 export default function ResendConfirmationEmailPage() {
-  const supabase = createClient();
-
   const [email, setEmail] = useState('');
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [emailTouched, setEmailTouched] = useState(false);
+  // The address the last link went to; kept on screen so people can see where to look.
+  const [sentTo, setSentTo] = useState<string | null>(null);
+
+  const isEmailValid = validateEmail(email);
+  const showEmailError = emailTouched && !isEmailValid && email !== '';
 
   const resendEmail = async () => {
     setIsLoading(true);
 
-    const { error } = await supabase.auth.resend({
-      type: 'signup',
-      email: email,
-      options: {
-        emailRedirectTo: `${window.location.origin}/email-confirmed`,
-      },
-    });
-
-    if (error) {
+    try {
+      await resendConfirmationEmail(email);
+      setSentTo(email);
+    } catch {
       toast.error('Failed to resend confirmation email.');
-    } else {
-      toast.success('If an account exists for this email, a new link has been sent.');
     }
 
     setIsLoading(false);
-
-    setEmail('');
   };
 
   return (
-    <div className="min-h-screen bg-[#f7f8fc] px-5 font-sans sm:px-8">
-      <div className="mx-auto flex min-h-screen w-full max-w-7xl flex-col">
+    <div className={authPageClass}>
+      <div className="mx-auto flex min-h-screen w-full max-w-6xl flex-col">
         <GuestHeader />
-        <main className="relative flex w-full flex-1 items-center justify-center py-12 sm:py-16">
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_50%_35%,rgba(99,102,241,0.12),transparent_55%),radial-gradient(ellipse_at_15%_80%,rgba(56,189,248,0.09),transparent_40%)]"
-          />
-          <section className="w-full max-w-md rounded-[1.75rem] border border-white/80 bg-white/85 p-6 shadow-[0_24px_80px_-35px_rgba(57,65,120,0.35)] backdrop-blur-xl sm:p-9">
-            <div className="mb-2 text-center">
-              <div className="mx-auto mb-5 flex size-12 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600">
-                <Icon icon="lucide:mail-warning" className="size-6" aria-hidden="true" />
-              </div>
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-indigo-600">
-                Email confirmation
-              </p>
-              <h1 className="mt-2 text-3xl font-semibold tracking-[-0.04em] text-slate-950">
-                Link expired
-              </h1>
-              <p className="mt-2 text-sm leading-6 text-slate-500">
-                Your confirmation link has expired. Enter your email and we’ll send a fresh link if
-                an account is waiting to be confirmed.
-              </p>
-            </div>
+        <main className={authMainClass}>
+          <section aria-labelledby="resend-heading" className="w-full max-w-sm">
+            <h1
+              id="resend-heading"
+              className="text-balance text-3xl font-semibold tracking-[-0.03em] sm:text-4xl"
+            >
+              Get a new link
+            </h1>
+            <p className="mt-3 text-pretty leading-7 text-muted-foreground">
+              Confirmation links expire after a while. Enter the email you signed up with and we’ll
+              send a new link if the account still needs confirming.
+            </p>
 
-            <div className="flex flex-col gap-5">
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                void resendEmail();
+              }}
+              className="mt-9 flex flex-col gap-7"
+            >
               <Field>
-                <FieldLabel htmlFor="email" className="font-medium text-slate-700">
+                <FieldLabel htmlFor="email" className={authLabelClass}>
                   Email
                 </FieldLabel>
                 <Input
                   id="email"
                   type="email"
-                  placeholder="Enter your email"
+                  autoComplete="email"
+                  placeholder="name@example.com"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    setSentTo(null);
+                  }}
+                  onBlur={() => setEmailTouched(true)}
                   disabled={isLoading}
-                  className="h-11 rounded-xl border-slate-200 bg-white px-3.5 shadow-none placeholder:text-slate-400 focus-visible:border-indigo-400 focus-visible:ring-indigo-500/20"
+                  aria-invalid={showEmailError}
+                  aria-describedby={showEmailError ? 'email-error' : undefined}
+                  className={authInputClass}
                 />
+                {showEmailError && (
+                  <FormError id="email-error">
+                    Enter a valid email address, such as name@example.com.
+                  </FormError>
+                )}
+                {sentTo && (
+                  <FormSuccess>
+                    If <span className="font-semibold wrap-anywhere">{sentTo}</span> is waiting to
+                    be confirmed, a new link is on its way.
+                  </FormSuccess>
+                )}
               </Field>
               <Button
-                onClick={resendEmail}
-                className="h-12 w-full cursor-pointer rounded-xl bg-indigo-600 text-base font-semibold text-white shadow-lg shadow-indigo-600/20 transition hover:bg-indigo-700 disabled:shadow-none"
-                disabled={isLoading}
+                type="submit"
+                className={authSubmitClass}
+                disabled={isLoading || !isEmailValid}
               >
                 {isLoading && <Spinner />}
-                {isLoading ? 'Sending link…' : 'Resend confirmation email'}
+                {isLoading ? 'Sending link…' : 'Send a new link'}
               </Button>
-            </div>
+            </form>
 
-            <div className="mt-7 flex justify-center gap-1.5 border-t border-slate-100 pt-6 text-sm text-slate-500">
-              <span>Already confirmed?</span>
-              <Link
-                href="/login"
-                className="cursor-pointer font-semibold text-indigo-600 transition hover:text-indigo-700"
-              >
-                Go to login
+            <p className="mt-8 text-sm text-muted-foreground">
+              Already confirmed?{' '}
+              <Link href="/login" className={authTextLinkClass}>
+                Log in
               </Link>
-            </div>
+            </p>
           </section>
         </main>
       </div>
