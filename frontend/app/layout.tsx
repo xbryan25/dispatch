@@ -19,7 +19,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Dispatch',
+  title: { default: 'Dispatch', template: '%s · Dispatch' },
 };
 
 export default function RootLayout({
