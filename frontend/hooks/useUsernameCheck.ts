@@ -1,38 +1,61 @@
-import { useState, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { checkIfUsernameIsTaken } from '@/lib/api/auth';
 
+export type UsernameStatus =
+  | 'idle' // too short, or waiting out the debounce
+  | 'checking'
+  | 'available'
+  | 'taken'
+  | 'rate-limited'
+  | 'error'; // network or server failure: availability is unknown
+
+const DEBOUNCE_MS = 500;
+const RATE_LIMIT_RETRY_MS = 60_000;
+
 export function useUsernameCheck(username: string) {
-  const [isUsernameTaken, setIsUsernameTaken] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isRateLimited, setIsRateLimited] = useState(false);
+  // Results are tagged with the name they belong to, so a reply for an older name never shows.
+  const [result, setResult] = useState<{ name: string; status: UsernameStatus }>({
+    name: '',
+    status: 'idle',
+  });
+  const [attempt, setAttempt] = useState(0);
+
+  const retry = useCallback(() => setAttempt((count) => count + 1), []);
 
   useEffect(() => {
-    if (username.length < 3) {
-      setIsUsernameTaken(false);
-      return;
-    }
+    if (username.length < 3) return;
+
+    let cancelled = false;
+    let retryTimer: ReturnType<typeof setTimeout> | undefined;
 
     const timer = setTimeout(async () => {
-      setIsLoading(true);
+      setResult({ name: username, status: 'checking' });
       try {
         const data = await checkIfUsernameIsTaken(username);
-        setIsUsernameTaken(data.does_username_exist);
+        if (cancelled) return;
+        setResult({ name: username, status: data.does_username_exist ? 'taken' : 'available' });
       } catch (error: unknown) {
-        if (error instanceof Error && (error as Error & { status: number }).status === 429) {
-          setIsRateLimited(true);
-          setTimeout(() => setIsRateLimited(false), 60000);
+        if (cancelled) return;
+        const status = (error as { status?: number }).status;
+        if (status === 429) {
+          setResult({ name: username, status: 'rate-limited' });
+          retryTimer = setTimeout(() => setAttempt((count) => count + 1), RATE_LIMIT_RETRY_MS);
+        } else {
+          setResult({ name: username, status: 'error' });
         }
-        console.error(error);
-      } finally {
-        setIsLoading(false);
       }
-    }, 500); // 500ms delay
+    }, DEBOUNCE_MS);
 
-    return () => clearTimeout(timer);
-  }, [username]);
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+      clearTimeout(retryTimer);
+    };
+  }, [username, attempt]);
 
-  // [username] means that effect will be run everytime the string changes (like watch() in Vue/Nuxt)
+  const status: UsernameStatus =
+    username.length >= 3 && result.name === username ? result.status : 'idle';
 
-  return { isUsernameTaken, isLoading, isRateLimited };
+  return { status, retry };
 }
