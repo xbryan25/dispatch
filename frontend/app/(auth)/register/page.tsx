@@ -1,10 +1,15 @@
+import type { Metadata } from 'next';
+
+import { authPageClass } from '@/components/auth/authClasses';
 import RegisterForm from '@/components/auth/registerForm';
 import GuestHeader from '@/components/shared/guestHeader';
 
+export const metadata: Metadata = { title: 'Create your account' };
+
 export default function RegisterPage() {
   return (
-    <div className="min-h-screen bg-[#f7f8fc] px-5 font-sans sm:px-8">
-      <div className="mx-auto flex min-h-screen w-full max-w-7xl flex-col">
+    <div className={authPageClass}>
+      <div className="mx-auto flex min-h-screen w-full max-w-6xl flex-col">
         <GuestHeader />
         <RegisterForm />
       </div>

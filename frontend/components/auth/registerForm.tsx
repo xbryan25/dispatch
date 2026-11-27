@@ -1,8 +1,8 @@
 'use client';
 
 import { Icon } from '@iconify/react';
+import { Check, Circle } from 'lucide-react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { FormEvent, useState } from 'react';
 import { toast } from 'sonner';
 
@@ -10,34 +10,42 @@ import { useAuthStore } from '@/store/useAuthStore';
 
 import { useUsernameCheck } from '@/hooks/useUsernameCheck';
 
+import {
+  authInputClass,
+  authLabelClass,
+  authMainClass,
+  authSubmitClass,
+  authTextLinkClass,
+} from '@/components/auth/authClasses';
+import CheckInbox from '@/components/auth/checkInbox';
 import FormError from '@/components/auth/formError';
+import PasswordInput from '@/components/auth/passwordInput';
 import { Button } from '@/components/ui/button';
 import { Field, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { Spinner } from '@/components/ui/spinner';
 
-import { validatePassword, validateEmail } from '@/lib/validation';
+import { cn } from '@/lib/utils';
+import { isPasswordValid, passwordRules, validateEmail } from '@/lib/validation';
 
 export default function RegisterForm() {
-  const router = useRouter();
-
+  const [sentTo, setSentTo] = useState<string | null>(null);
   const [username, setUsername] = useState<string>('');
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [confirmPassword, setConfirmPassword] = useState<string>('');
+  // Field errors wait until the person leaves the field, so nothing flags a half-typed value.
+  const [emailTouched, setEmailTouched] = useState(false);
+  const [confirmTouched, setConfirmTouched] = useState(false);
 
   const registerLoading = useAuthStore((state) => state.registerLoading);
   const registerError = useAuthStore((state) => state.registerError);
 
   const { registerUser } = useAuthStore();
 
-  const {
-    isUsernameTaken,
-    isLoading: isCheckingUsername,
-    isRateLimited: isUsernameCheckRateLimited,
-  } = useUsernameCheck(username);
+  const { status: usernameStatus, retry: retryUsernameCheck } = useUsernameCheck(username);
 
-  const passwordErrors = validatePassword(password);
+  const isPasswordOk = isPasswordValid(password);
   const isEmailValid = validateEmail(email);
   const passwordsMatch = password === confirmPassword && password !== '';
   const isFormEmpty = !username || !email || !password || !confirmPassword;
@@ -51,53 +59,53 @@ export default function RegisterForm() {
     const latestRegisterError = useAuthStore.getState().registerError;
 
     if (latestRegisterError) {
-      toast.error(`Registration failed. ${improveRegisterError()}`);
+      toast.error(`Registration failed. ${improveRegisterError(latestRegisterError)}`);
       return;
     }
 
-    toast.success(
-      'A confirmation link has been sent to your email. Please verify your account to log in.'
-    );
-
-    router.push('/login');
+    setSentTo(email);
   };
 
-  const improveRegisterError = () => {
-    if (registerError == 'email rate limit exceeded') {
+  // Takes the error explicitly: after an await, the render's registerError is still the old value.
+  const improveRegisterError = (error: string | null) => {
+    if (error == 'email rate limit exceeded') {
       return 'Email rate limit exceeded. Wait for a few minutes.';
-    } else if (registerError) {
-      return registerError.charAt(0).toUpperCase() + registerError.slice(1);
+    } else if (error) {
+      return error.charAt(0).toUpperCase() + error.slice(1);
     } else {
       return 'Something went wrong.';
     }
   };
 
-  return (
-    <main className="relative flex w-full flex-1 items-center justify-center py-10 sm:py-14">
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_50%_35%,rgba(99,102,241,0.12),transparent_55%),radial-gradient(ellipse_at_15%_80%,rgba(56,189,248,0.09),transparent_40%)]"
-      />
-      <section className="w-full max-w-md rounded-[1.75rem] border border-white/80 bg-white/85 p-6 shadow-[0_24px_80px_-35px_rgba(57,65,120,0.35)] backdrop-blur-xl sm:p-9">
-        <div className="mb-7 text-center">
-          <div className="mx-auto mb-4 flex size-12 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600">
-            <Icon icon="lucide:messages-square" className="size-6" aria-hidden="true" />
-          </div>
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-indigo-600">
-            Join your circle
-          </p>
-          <h1 className="mt-2 text-3xl font-semibold tracking-[-0.04em] text-slate-950">
-            Create your account
-          </h1>
-          <p className="mt-2 text-sm leading-6 text-slate-500">
-            A thoughtful space for the conversations that matter.
-          </p>
-        </div>
+  const showEmailError = emailTouched && !isEmailValid && email !== '';
+  const showMismatch = confirmTouched && confirmPassword !== '' && password !== confirmPassword;
 
-        <form onSubmit={(e) => userSignup(e)} className="flex flex-col gap-4">
-          <FieldGroup className="flex flex-col gap-3">
+  if (sentTo) {
+    return (
+      <main className={authMainClass}>
+        <CheckInbox email={sentTo} onChangeEmail={() => setSentTo(null)} />
+      </main>
+    );
+  }
+
+  return (
+    <main className={authMainClass}>
+      <section aria-labelledby="register-heading" className="w-full max-w-sm">
+        <h1
+          id="register-heading"
+          className="text-balance text-3xl font-semibold tracking-[-0.03em] sm:text-4xl"
+        >
+          Create your account
+        </h1>
+        <p className="mt-3 text-pretty leading-7 text-muted-foreground">
+          Pick a username your friends can find you by. We’ll email you a link to confirm your
+          address.
+        </p>
+
+        <form onSubmit={(e) => userSignup(e)} className="mt-9">
+          <FieldGroup className="flex flex-col gap-5">
             <Field>
-              <FieldLabel htmlFor="username" className="font-medium text-slate-700">
+              <FieldLabel htmlFor="username" className={authLabelClass}>
                 Username
               </FieldLabel>
 
@@ -105,159 +113,175 @@ export default function RegisterForm() {
                 <Input
                   id="username"
                   type="text"
+                  autoComplete="username"
                   placeholder="Enter your username"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  className="h-11 rounded-xl border-slate-200 bg-white px-3.5 shadow-none placeholder:text-slate-400 focus-visible:border-indigo-400 focus-visible:ring-indigo-500/20"
+                  aria-invalid={
+                    usernameStatus === 'taken' || (!isUsernameProperLength && username !== '')
+                  }
+                  aria-describedby="username-status"
+                  className={authInputClass}
                 />
 
-                {isCheckingUsername && !isUsernameCheckRateLimited && (
-                  <div
-                    aria-live="polite"
-                    className="mt-1 flex items-center gap-2 rounded-lg border border-indigo-200 bg-indigo-50/80 px-3 py-2 text-xs font-medium text-indigo-700"
-                  >
-                    <Spinner
-                      aria-label="Checking username availability"
-                      className="size-4 shrink-0 animate-spin text-indigo-600"
-                    />
-                    <span>Checking username availability…</span>
-                  </div>
-                )}
+                <div id="username-status" aria-live="polite">
+                  {!isUsernameProperLength && username !== '' && (
+                    <FormError>Username should have 3 or more characters.</FormError>
+                  )}
 
-                {!isCheckingUsername && isUsernameTaken && (
-                  <FormError>Username is taken.</FormError>
-                )}
+                  {usernameStatus === 'checking' && (
+                    <p className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
+                      <Spinner className="size-3.5 shrink-0" />
+                      Checking if {username} is available…
+                    </p>
+                  )}
 
-                {!isUsernameProperLength && username !== '' && (
-                  <FormError>Username should have 3 or more characters.</FormError>
-                )}
+                  {usernameStatus === 'available' && (
+                    <p className="mt-1 flex items-center gap-2 text-xs font-medium text-emerald-700 dark:text-emerald-400">
+                      <Icon
+                        icon="lucide:circle-check"
+                        className="size-3.5 shrink-0"
+                        aria-hidden="true"
+                      />
+                      <span className="wrap-anywhere">{username} is available</span>
+                    </p>
+                  )}
 
-                {isUsernameCheckRateLimited && (
-                  <FormError>Too many attempts. Please wait a minute.</FormError>
-                )}
+                  {usernameStatus === 'taken' && <FormError>Username is taken.</FormError>}
+
+                  {usernameStatus === 'rate-limited' && (
+                    <FormError>Too many checks. We’ll try again in a minute.</FormError>
+                  )}
+
+                  {usernameStatus === 'error' && (
+                    <FormError>
+                      Couldn’t check if this username is available.{' '}
+                      <button
+                        type="button"
+                        onClick={retryUsernameCheck}
+                        className="cursor-pointer rounded-sm font-semibold underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500"
+                      >
+                        Try again
+                      </button>
+                    </FormError>
+                  )}
+                </div>
               </div>
             </Field>
 
             <Field>
-              <FieldLabel htmlFor="email" className="font-medium text-slate-700">
+              <FieldLabel htmlFor="email" className={authLabelClass}>
                 Email
               </FieldLabel>
               <Input
                 id="email"
                 type="email"
-                placeholder="Enter your email"
+                autoComplete="email"
+                placeholder="name@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                aria-invalid={!isEmailValid && email !== ''}
-                aria-describedby={!isEmailValid && email !== '' ? 'email-error' : undefined}
-                className="h-11 rounded-xl border-slate-200 bg-white px-3.5 shadow-none placeholder:text-slate-400 focus-visible:border-indigo-400 focus-visible:ring-indigo-500/20"
+                onBlur={() => setEmailTouched(true)}
+                aria-invalid={showEmailError}
+                aria-describedby={showEmailError ? 'email-error' : undefined}
+                className={authInputClass}
               />
 
-              {!validateEmail(email) && email !== '' && (
-                <div
-                  id="email-error"
-                  role="status"
-                  className="mt-1 flex items-center gap-2 rounded-lg border border-rose-200 bg-rose-50/80 px-3 py-2 text-xs text-rose-700"
-                >
-                  <Icon
-                    icon="lucide:circle-alert"
-                    className="size-4 shrink-0 text-rose-600"
-                    aria-hidden="true"
-                  />
-                  <span>Enter a valid email address, such as name@example.com.</span>
-                </div>
+              {showEmailError && (
+                <FormError id="email-error">
+                  Enter a valid email address, such as name@example.com.
+                </FormError>
               )}
             </Field>
 
             <Field>
-              <FieldLabel htmlFor="password" className="font-medium text-slate-700">
+              <FieldLabel htmlFor="password" className={authLabelClass}>
                 Password
               </FieldLabel>
 
               <div className="flex flex-col gap-2">
-                <Input
+                <PasswordInput
                   id="password"
-                  type="password"
-                  placeholder="Enter your password"
+                  autoComplete="new-password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="h-11 rounded-xl border-slate-200 bg-white px-3.5 shadow-none placeholder:text-slate-400 focus-visible:border-indigo-400 focus-visible:ring-indigo-500/20"
+                  aria-describedby="password-rules"
                 />
 
-                {passwordErrors.length > 0 && (
-                  <div
-                    aria-live="polite"
-                    className="mt-1 rounded-lg border border-rose-200 bg-rose-50/80 px-3 text-xs text-rose-700"
-                  >
-                    <ul>
-                      {passwordErrors.map((error, index) => (
-                        <li
-                          key={error}
-                          className={`flex items-center gap-2 py-2 ${
-                            index > 0 ? 'border-t border-rose-200/80' : ''
-                          }`}
-                        >
-                          <Icon
-                            icon="lucide:circle-alert"
-                            className="size-4 shrink-0 text-rose-600"
-                            aria-hidden="true"
-                          />
-                          <span>{error}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
+                {/* Requirements up front, ticking off as they're met, instead of errors after the fact. */}
+                <ul id="password-rules" className="mt-1 grid gap-1.5 text-xs">
+                  {passwordRules.map((rule) => {
+                    const met = rule.test(password);
+                    return (
+                      <li
+                        key={rule.label}
+                        className={cn(
+                          'flex items-center gap-2 transition-colors',
+                          met ? 'text-emerald-700 dark:text-emerald-400' : 'text-muted-foreground'
+                        )}
+                      >
+                        {met ? (
+                          <Check aria-hidden="true" className="size-3.5 shrink-0" />
+                        ) : (
+                          <Circle aria-hidden="true" className="size-3.5 shrink-0" />
+                        )}
+                        <span>
+                          {rule.label}
+                          <span className="sr-only">{met ? ' (done)' : ' (needed)'}</span>
+                        </span>
+                      </li>
+                    );
+                  })}
+                </ul>
               </div>
             </Field>
 
             <Field>
-              <FieldLabel htmlFor="confirmPassword">Confirm Password</FieldLabel>
-              <Input
+              <FieldLabel htmlFor="confirmPassword" className={authLabelClass}>
+                Confirm password
+              </FieldLabel>
+              <PasswordInput
                 id="confirmPassword"
-                type="password"
-                placeholder="Confirm your password"
+                autoComplete="new-password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                className="h-11 rounded-xl border-slate-200 bg-white px-3.5 shadow-none placeholder:text-slate-400 focus-visible:border-indigo-400 focus-visible:ring-indigo-500/20"
+                onBlur={() => setConfirmTouched(true)}
+                aria-invalid={showMismatch}
+                aria-describedby={showMismatch ? 'confirm-error' : undefined}
               />
-              {!(password === confirmPassword) && confirmPassword !== '' && (
-                <FormError>Both passwords are not identical.</FormError>
+              {showMismatch && (
+                <FormError id="confirm-error">
+                  Passwords don’t match. Check both fields for typos.
+                </FormError>
               )}
             </Field>
-          </FieldGroup>
 
-          <Field className="flex flex-col" orientation="horizontal">
-            <Button
-              type="submit"
-              disabled={
-                registerLoading ||
-                isCheckingUsername ||
-                isUsernameTaken ||
-                passwordErrors.length > 0 ||
-                !passwordsMatch ||
-                !isEmailValid ||
-                isFormEmpty ||
-                !isUsernameProperLength ||
-                isUsernameCheckRateLimited
-              }
-              className="h-12 w-full cursor-pointer rounded-xl bg-indigo-600 text-base font-semibold text-white shadow-lg shadow-indigo-600/20 transition hover:bg-indigo-700 disabled:shadow-none"
-            >
-              {registerLoading && <Spinner />}
-              Register
-            </Button>
-            {registerError && <FormError>{improveRegisterError()}</FormError>}
-          </Field>
+            <div className="mt-2 flex flex-col gap-2">
+              <Button
+                type="submit"
+                disabled={
+                  registerLoading ||
+                  usernameStatus !== 'available' ||
+                  !isPasswordOk ||
+                  !passwordsMatch ||
+                  !isEmailValid ||
+                  isFormEmpty
+                }
+                className={authSubmitClass}
+              >
+                {registerLoading && <Spinner />}
+                Create account
+              </Button>
+              {registerError && <FormError>{improveRegisterError(registerError)}</FormError>}
+            </div>
+          </FieldGroup>
         </form>
-        <div className="mt-6 flex justify-center gap-1.5 border-t border-slate-100 pt-5 text-sm text-slate-500">
-          <p>Already have an account?</p>
-          <Link
-            href="/login"
-            className="cursor-pointer font-semibold text-indigo-600 transition hover:text-indigo-700"
-          >
-            Login
+
+        <p className="mt-8 text-sm text-muted-foreground">
+          Already have an account?{' '}
+          <Link href="/login" className={authTextLinkClass}>
+            Log in
           </Link>
-        </div>
+        </p>
       </section>
     </main>
   );

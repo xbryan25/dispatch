@@ -1,25 +1,16 @@
-export function validatePassword(password: string): string[] {
-  const errors: string[] = [];
+// Shown as a live checklist under the password field. The symbol set matches Supabase's.
+export const passwordRules = [
+  { label: 'At least 8 characters', test: (value: string) => value.length >= 8 },
+  { label: 'An uppercase letter', test: (value: string) => /[A-Z]/.test(value) },
+  { label: 'A number', test: (value: string) => /[0-9]/.test(value) },
+  {
+    label: 'A symbol, such as ! ? # or -',
+    test: (value: string) => /[!@#$%^&*()_+\-=[\]{};':"\\|<>?,./`~]/.test(value),
+  },
+];
 
-  if (!password) {
-    return errors;
-  }
-
-  if (password.length < 8) {
-    errors.push('Password must be at least 8 characters long.');
-  }
-  if (!/[A-Z]/.test(password)) {
-    errors.push('Password must contain at least one uppercase letter.');
-  }
-  if (!/[0-9]/.test(password)) {
-    errors.push('Password must contain at least one number.');
-  }
-
-  if (!/[!@#$%^&*(),.?":{}|<>\-_]/.test(password)) {
-    errors.push('Password must contain at least one special character.');
-  }
-
-  return errors;
+export function isPasswordValid(password: string): boolean {
+  return passwordRules.every((rule) => rule.test(password));
 }
 
 export function validateEmail(email: string): boolean {

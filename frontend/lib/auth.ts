@@ -17,6 +17,18 @@ export async function register(email: string, password: string, displayName: str
   return data;
 }
 
+export async function resendConfirmationEmail(email: string) {
+  const { error } = await supabase.auth.resend({
+    type: 'signup',
+    email,
+    options: {
+      emailRedirectTo: `${window.location.origin}/email-confirmed`,
+    },
+  });
+
+  if (error) throw error;
+}
+
 export async function login(email: string, password: string) {
   const { data, error } = await supabase.auth.signInWithPassword({
     email,
